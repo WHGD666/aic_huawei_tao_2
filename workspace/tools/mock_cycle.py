@@ -180,6 +180,12 @@ def main(argv=None):
     mod = _load_agent(a.baseline)
     folder = TEMPLATES / a.baseline
     original = (folder / "program.py").read_text(encoding="utf-8")
+    # 演练在临时副本里做，绝不改动交付物
+    import shutil, tempfile
+    sandbox = Path(tempfile.mkdtemp(prefix="mock_agent_"))
+    shutil.copytree(folder, sandbox / a.baseline)
+    shutil.copytree(TEMPLATES / "common", sandbox / "common", dirs_exist_ok=True)
+    folder = sandbox / a.baseline
 
     # Build a fake reply stream: unchanged parent first, then a marked variant that
     # still passes the organizer's static validator.
@@ -202,6 +208,8 @@ def main(argv=None):
                       original, FakeGateway(replies), limit=a.rounds)
     ctx.set_matrix(_make_matrix(a.baseline))
 
+    # 让 agent 使用沙箱目录
+    mod.__file__ = str(sandbox / a.baseline / "agent.py")
     agent = mod.Agent()
     best = agent.run(ctx)
     print(json.dumps({"best": best, "status": ctx.status()}, ensure_ascii=False, indent=1)[:2000])
