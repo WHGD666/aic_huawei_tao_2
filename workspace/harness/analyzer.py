@@ -66,7 +66,8 @@ def proxy_correlation(samples: List[Tuple[Dict[str, float], float]]) -> Dict[str
     """samples: [(proxy_vector, true_score)] → {metric: (spearman, n)}。方向：指标值越小越好的用负号，
     这里直接报告 ρ，正 ρ = 指标越大分越高。"""
     out = {}
-    keys = sorted({k for v, _ in samples for k in v})
+    # 冒烟指标（smoke_*）与真实得分无关，不参与相关性面板
+    keys = sorted({k for v, _ in samples for k in v if not k.startswith("smoke_")})
     for k in keys:
         pairs = [(v[k], s) for v, s in samples if k in v and math.isfinite(s)]
         if len(pairs) >= 3:
