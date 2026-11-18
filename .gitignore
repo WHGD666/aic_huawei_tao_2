@@ -9,6 +9,9 @@ third_party/
 # ---- run artifacts (large / regenerable). Final submission copies are curated manually ----
 workspace/logs/*
 !workspace/logs/.gitkeep
+# 彩排样例入库（提交材料 logs/ 结构的真实样本，~数 MB）；work/ 工作副本不要
+!workspace/logs/rehearsal/
+workspace/logs/rehearsal/**/work/
 workspace/results/**
 !workspace/results/.gitkeep
 workspace/candidates/**

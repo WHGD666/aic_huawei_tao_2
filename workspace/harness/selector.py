@@ -123,7 +123,8 @@ class Selector:
                 px = ", ".join(f"{k}={v:.3g}" for k, v in list(m.proxy.items())[:4])
                 note = f" (not submitted this round; local partition stats: {px})"
             elif m.status == "duplicate":
-                note = f" (partition identical to {m.duplicate_of}; score inherited, no evaluation spent)"
+                note = (f" (DUPLICATE: the partition is byte-identical to {m.duplicate_of}; score inherited, no evaluation spent — "
+                        f"this coefficient granularity does not change the partition, do not repeat it)")
             else:
                 note = f" FAIL:{'; '.join(m.fail_reasons)[:80]}" if m.fail_reasons else ""
             pc = ""

@@ -112,6 +112,7 @@ class Harness:
         self.budget = Budget(b["max_evaluations"], b["max_cost_cny"], pricing, state_file=self.run_dir / "budget.json", reserve_evaluations=0)
         self.per_round_cap = b.get("per_round_cost_cap_cny", 0.5)
         self.max_consecutive_gate_failures = int(b.get("max_consecutive_gate_failures", 6))
+        self.max_consecutive_duplicates = int(b.get("max_consecutive_duplicates", 4))
 
         # ---- LLM ----
         l = cfg["llm"]
@@ -177,6 +178,12 @@ class Harness:
 
         self.baseline_eval: Optional[EvalResult] = None
         self.profile = ""
+        # 续跑：上次运行被中断时停在 proposed 的候选（无评估记录）标为 discarded，避免血统/历史里出现悬空状态
+        for m in self.store.all():
+            if m.status == "proposed":
+                m.status = "discarded"
+                m.fail_reasons = ["run interrupted before gate/evaluation"]
+                self.store.update(m, "interrupted")
         self._patch_hashes: Dict[str, str] = {}
         self._part_hashes: Dict[str, str] = {}         # 切分指纹 -> 候选 id（去重）
         self._proxy_samples: List[Tuple[Dict[str, float], float]] = []
@@ -530,15 +537,20 @@ class Harness:
         try:
             self.init_baseline()
             idx = 0
-            consecutive_errors = consecutive_gate = 0
+            consecutive_errors = consecutive_gate = consecutive_dup = 0
             while self.budget.can_evaluate() and idx < max_rounds:
                 idx += 1
                 try:
                     metas = self.round(idx)
                     consecutive_errors = 0
                     consecutive_gate = consecutive_gate + 1 if all(m.status == "gate_failed" for m in metas) else 0
+                    consecutive_dup = consecutive_dup + 1 if any(m.status == "duplicate" for m in metas) and not any(m.status == "evaluated" for m in metas) else 0
                     if consecutive_gate >= self.max_consecutive_gate_failures:
                         self.log(f"  {consecutive_gate} consecutive all-gate-failed rounds; stopping to protect cost budget"); break
+                    if consecutive_dup >= self.max_consecutive_duplicates:
+                        self.log(f"  {consecutive_dup} consecutive rounds whose partitions were identical to already-evaluated candidates "
+                                 f"(the objective is insensitive at this granularity); stopping to protect cost budget")
+                        break
                 except LLMError as e:
                     consecutive_errors += 1
                     self.log(f"  LLM error ({consecutive_errors}): {e}")

@@ -127,7 +127,19 @@ class Tensor:
         return self
 
     def to(self, *a, **k):
-        return self
+        dt = k.get("dtype")
+        for x in a:
+            if x is None or isinstance(x, str) and x in ("cpu", "cuda"):
+                continue
+            dt = x
+        if dt is None:
+            return self
+        nd = _np_dtype(dt)
+        if nd == self.data.dtype:
+            return self
+        if np.issubdtype(nd, np.floating):
+            return _unary(self, self.data.astype(nd), lambda g: g, "to")
+        return Tensor(self.data.astype(nd))
 
     def float(self):
         return _unary(self, self.data.astype(np.float32), lambda g: g, "float")
@@ -372,7 +384,7 @@ def _binary(a, b, f, bw, op) -> Tensor:
 def tensor(data, dtype=None, requires_grad=False, device=None):
     arr = np.asarray(data.data if isinstance(data, Tensor) else data)
     if dtype is not None:
-        arr = arr.astype(dtype)
+        arr = arr.astype(_np_dtype(dtype))
     return Tensor(arr, requires_grad=requires_grad)
 
 
@@ -384,36 +396,50 @@ def from_numpy(a):
     return Tensor(np.asarray(a))
 
 
-def zeros(*shape, dtype=np.float32, requires_grad=False, device=None):
+def _np_dtype(dtype):
+    """torch.float32 / np.float32 / None / 字符串 → numpy dtype。"""
+    if dtype is None:
+        return np.float32
+    if isinstance(dtype, str):
+        return {"float": np.float32, "float32": np.float32, "float64": np.float32, "double": np.float32,
+                "long": np.int64, "int64": np.int64, "int": np.int64, "bool": np.bool_}.get(dtype, np.float32)
+    try:
+        d = np.dtype(dtype)
+        return np.float32 if d == np.float64 else d
+    except TypeError:
+        return np.float32
+
+
+def _shape(shape):
     if len(shape) == 1 and isinstance(shape[0], (tuple, list)):
-        shape = tuple(shape[0])
-    return Tensor(np.zeros(shape, dtype=dtype), requires_grad=requires_grad)
+        return tuple(int(x) for x in shape[0])
+    return tuple(int(x) for x in shape)
 
 
-def ones(*shape, dtype=np.float32, requires_grad=False, device=None):
-    if len(shape) == 1 and isinstance(shape[0], (tuple, list)):
-        shape = tuple(shape[0])
-    return Tensor(np.ones(shape, dtype=dtype), requires_grad=requires_grad)
+def zeros(*shape, dtype=None, requires_grad=False, device=None, **kw):
+    return Tensor(np.zeros(_shape(shape), dtype=_np_dtype(dtype)), requires_grad=requires_grad)
 
 
-def full(shape, v, dtype=np.float32, device=None):
-    return Tensor(np.full(shape, v, dtype=dtype))
+def ones(*shape, dtype=None, requires_grad=False, device=None, **kw):
+    return Tensor(np.ones(_shape(shape), dtype=_np_dtype(dtype)), requires_grad=requires_grad)
 
 
-def zeros_like(x, dtype=None): return Tensor(np.zeros_like(_as_array(x), dtype=dtype or np.float32))
-def ones_like(x, dtype=None): return Tensor(np.ones_like(_as_array(x), dtype=dtype or np.float32))
-def full_like(x, v): return Tensor(np.full_like(_as_array(x), v, dtype=np.float32))
-def arange(*a, device=None, dtype=None): return Tensor(np.arange(*a, dtype=dtype))
+def full(shape, v, dtype=None, device=None, **kw):
+    return Tensor(np.full(_shape((shape,)) if isinstance(shape, (tuple, list)) else (int(shape),), v, dtype=_np_dtype(dtype)))
+
+
+def full_like(x, v, dtype=None, device=None): return Tensor(np.full_like(_as_array(x), v, dtype=_np_dtype(dtype)))
+def arange(*a, device=None, dtype=None, requires_grad=False): return Tensor(np.arange(*a, dtype=None if dtype is None else _np_dtype(dtype)))
 
 
 def randn(*shape, generator: Optional[Generator] = None, requires_grad=False, device=None, dtype=None):
     g = (generator or _default_gen)._rng
-    return Tensor(g.standard_normal(shape).astype(np.float32), requires_grad=requires_grad)
+    return Tensor(g.standard_normal(_shape(shape)).astype(np.float32), requires_grad=requires_grad)
 
 
-def rand(*shape, generator: Optional[Generator] = None, device=None, dtype=None):
+def rand(*shape, generator: Optional[Generator] = None, device=None, dtype=None, requires_grad=False):
     g = (generator or _default_gen)._rng
-    return Tensor(g.random(shape).astype(np.float32))
+    return Tensor(g.random(_shape(shape)).astype(np.float32), requires_grad=requires_grad)
 
 
 def randperm(n, generator: Optional[Generator] = None, device=None):
@@ -751,9 +777,9 @@ def gelu(x): x = _t(x); return 0.5 * x * (1.0 + tanh(0.7978845608 * (x + 0.04471
 def heaviside(x, v): return Tensor((_as_array(x) > 0).astype(np.float32))
 def flip(x, dims): return Tensor(np.flip(_as_array(x), dims).copy())
 def roll(x, s, dims=0): return Tensor(np.roll(_as_array(x), s, axis=dims))
-def ones_like(x, dtype=None, device=None): return Tensor(np.ones_like(_as_array(x), dtype=dtype or np.float32))
-def zeros_like(x, dtype=None, device=None): return Tensor(np.zeros_like(_as_array(x), dtype=dtype or np.float32))
-def empty(*shape, dtype=np.float32, device=None): return zeros(*shape, dtype=dtype)
+def ones_like(x, dtype=None, device=None, **kw): return Tensor(np.ones_like(_as_array(x), dtype=_np_dtype(dtype) if dtype is not None else (_as_array(x).dtype if np.issubdtype(_as_array(x).dtype, np.floating) else np.float32)))
+def zeros_like(x, dtype=None, device=None, **kw): return Tensor(np.zeros_like(_as_array(x), dtype=_np_dtype(dtype) if dtype is not None else (_as_array(x).dtype if np.issubdtype(_as_array(x).dtype, np.floating) else np.float32)))
+def empty(*shape, dtype=None, device=None, **kw): return zeros(*shape, dtype=dtype)
 def empty_like(x): return zeros_like(x)
 def rand_like(x): return rand(*_as_array(x).shape)
 def randn_like(x): return randn(*_as_array(x).shape)
