@@ -257,14 +257,14 @@ class Harness:
         return work
 
     def _apply_patch(self, patch: Path, work: Path, parent_id: str) -> None:
-        ok = False
-        if shutil.which("git"):
-            r = subprocess.run(["git", "apply", "--unsafe-paths", "--directory", str(work), str(patch)],
-                               capture_output=True, text=True, encoding="utf-8", errors="replace", cwd=str(work))
-            ok = r.returncode == 0
-            if not ok:
-                self.log(f"  git apply of parent patch failed ({r.stderr.strip()[:120]}); falling back to parent work copy")
-        if not ok:
+        """把父代 patch 打到 work。先用纯 Python 的 unified-diff 应用（不依赖 git、不受"work 在某个 git 仓库里"影响），
+        失败再退回复制父代工作副本。"""
+        from .codebase import apply_unified_diff
+        before = {t.file: (work / t.file).read_bytes() for t in self.targets if (work / t.file).exists()}
+        ok, err = apply_unified_diff(patch.read_text(encoding="utf-8"), work)
+        after = {t.file: (work / t.file).read_bytes() for t in self.targets if (work / t.file).exists()}
+        if not ok or before == after:
+            self.log(f"  applying parent patch failed ({err or 'no file changed'}); falling back to parent work copy")
             pw = self.run_dir / "work" / parent_id
             if not pw.exists():
                 raise RuntimeError(f"cannot rebuild parent {parent_id}: patch does not apply and work dir missing")

@@ -276,6 +276,42 @@ class Tensor:
     def index_add(self, dim, index, source): return index_add(self, dim, index, source)
     def scatter_add(self, dim, index, src): return index_add(self, dim, index, src)
     def norm(self, p=2, dim=None, keepdim=False): return sqrt(sum(self ** 2, dim, keepdim) + 1e-12)
+    def std(self, dim=None, unbiased=True, keepdim=False): return std(self, dim, unbiased, keepdim)
+    def var(self, dim=None, unbiased=True, keepdim=False): return var(self, dim, unbiased, keepdim)
+    def log1p(self): return log1p(self)
+    def exp_(self): return exp(self)
+    def softplus(self): return softplus(self)
+    def cumsum(self, dim=0): return cumsum(self, dim)
+    def sort(self, dim=-1, descending=False): return sort(self, dim, descending)
+    def argsort(self, dim=-1, descending=False): return argsort(self, dim, descending)
+    def topk(self, k, dim=-1, largest=True): return topk(self, k, dim, largest)
+    def new_zeros(self, *shape): return zeros(*shape)
+    def new_ones(self, *shape): return ones(*shape)
+    def type_as(self, o): return self
+    def contiguous(self): return self
+    def is_floating_point(self): return np.issubdtype(self.data.dtype, np.floating)
+    def mul(self, o): return self * o
+    def add(self, o): return self + o
+    def sub(self, o): return self - o
+    def div(self, o): return self / o
+    def neg(self): return -self
+    def rsqrt(self): return 1.0 / sqrt(self)
+    def sign(self): return Tensor(np.sign(self.data))
+    def floor(self): return Tensor(np.floor(self.data))
+    def ceil(self): return Tensor(np.ceil(self.data))
+    def round(self): return Tensor(np.round(self.data))
+    def logical_not(self): return Tensor(~self.data.astype(np.bool_))
+    def logical_and(self, o): return Tensor(self.data.astype(np.bool_) & _as_array(o).astype(np.bool_))
+    def logical_or(self, o): return Tensor(self.data.astype(np.bool_) | _as_array(o).astype(np.bool_))
+    def logsumexp(self, dim=None, keepdim=False): return logsumexp(self, dim, keepdim)
+    def index_select(self, dim, index): return self[_as_array(index)] if dim == 0 else Tensor(np.take(self.data, _as_array(index), axis=dim))
+    def masked_select(self, mask): return self[_as_array(mask).astype(np.bool_)]
+    def prod(self, dim=None, keepdim=False): return prod(self, dim, keepdim)
+    def amax(self, dim=None, keepdim=False): return amax(self, dim, keepdim)
+    def amin(self, dim=None, keepdim=False): return amin(self, dim, keepdim)
+    def nan_to_num(self, nan=0.0, posinf=None, neginf=None): return nan_to_num(self, nan, posinf, neginf)
+    def __mod__(self, o): return Tensor(self.data % _as_array(o))
+    def __floordiv__(self, o): return Tensor(self.data // _as_array(o))
     def softmax(self, dim=-1): return softmax(self, dim)
     def log_softmax(self, dim=-1): return log_softmax(self, dim)
     def any(self): return builtins.bool(self.data.any())
@@ -668,12 +704,122 @@ def cumsum(x, dim=0):
     return _unary(x, np.cumsum(x.data, axis=dim), lambda g: np.flip(np.cumsum(np.flip(g, dim), axis=dim), dim), "cumsum")
 def quantile(x, q, dim=None): return Tensor(np.quantile(_as_array(x), q, axis=dim).astype(np.float32))
 def median(x): return Tensor(np.median(_as_array(x)).astype(np.float32))
-def std(x, dim=None, unbiased=True): return sqrt(var(x, dim, unbiased) + 1e-12)
-def var(x, dim=None, unbiased=True):
+def std(x, dim=None, unbiased=True, keepdim=False): return sqrt(var(x, dim, unbiased, keepdim) + 1e-12)
+def var(x, dim=None, unbiased=True, keepdim=False):
     x = _t(x)
     m = mean(x, dim, keepdim=True) if dim is not None else mean(x)
     n = x.data.size if dim is None else x.data.shape[dim]
-    return sum((x - m) ** 2, dim) / float(n - 1 if unbiased and n > 1 else n)
+    return sum((x - m) ** 2, dim, keepdim) / float(n - 1 if unbiased and n > 1 else n)
+def prod(x, dim=None, keepdim=False):
+    x = _t(x)
+    return exp(sum(log(clamp(x, 1e-30, None)), dim, keepdim))
+def nan_to_num(x, nan=0.0, posinf=None, neginf=None):
+    x = _t(x)
+    out = np.nan_to_num(x.data, nan=nan, posinf=posinf, neginf=neginf)
+    return _unary(x, out, lambda g: g * np.isfinite(x.data), "nan_to_num")
+def sigmoid_(x): return sigmoid(x)
+def erf(x):
+    import math as _m
+    x = _t(x)
+    v = np.vectorize(_m.erf)(x.data).astype(np.float32)
+    return _unary(x, v, lambda g: g * (2 / np.sqrt(np.pi)) * np.exp(-x.data ** 2), "erf")
+def pow(x, e): return _t(x) ** e  # noqa: A001
+def mul(a, b): return _t(a) * b
+def add(a, b): return _t(a) + b
+def sub(a, b): return _t(a) - b
+def div(a, b): return _t(a) / b
+def square(x): return _t(x) ** 2
+def rsqrt(x): return 1.0 / sqrt(x)
+def sign(x): return Tensor(np.sign(_as_array(x)))
+def floor(x): return Tensor(np.floor(_as_array(x)))
+def ceil(x): return Tensor(np.ceil(_as_array(x)))
+def round(x): return Tensor(np.round(_as_array(x)))  # noqa: A001
+def logical_not(x): return Tensor(~_as_array(x).astype(np.bool_))
+def logical_and(a, b): return Tensor(_as_array(a).astype(np.bool_) & _as_array(b).astype(np.bool_))
+def logical_or(a, b): return Tensor(_as_array(a).astype(np.bool_) | _as_array(b).astype(np.bool_))
+def any(x): return builtins.bool(_as_array(x).any())  # noqa: A001
+def all(x): return builtins.bool(_as_array(x).all())  # noqa: A001
+def index_select(x, dim, index): return _t(x).index_select(dim, index)
+def masked_select(x, mask): return _t(x).masked_select(mask)
+def masked_fill(x, mask, v): return _t(x).masked_fill(mask, v)
+def abs_(x): return abs(x)
+def log2(x): x = _t(x); return log(x) / float(np.log(2.0))
+def log10(x): x = _t(x); return log(x) / float(np.log(10.0))
+def relu6(x): return clamp(x, 0.0, 6.0)
+def silu(x): x = _t(x); return x * sigmoid(x)
+def gelu(x): x = _t(x); return 0.5 * x * (1.0 + tanh(0.7978845608 * (x + 0.044715 * x ** 3)))
+def heaviside(x, v): return Tensor((_as_array(x) > 0).astype(np.float32))
+def flip(x, dims): return Tensor(np.flip(_as_array(x), dims).copy())
+def roll(x, s, dims=0): return Tensor(np.roll(_as_array(x), s, axis=dims))
+def ones_like(x, dtype=None, device=None): return Tensor(np.ones_like(_as_array(x), dtype=dtype or np.float32))
+def zeros_like(x, dtype=None, device=None): return Tensor(np.zeros_like(_as_array(x), dtype=dtype or np.float32))
+def empty(*shape, dtype=np.float32, device=None): return zeros(*shape, dtype=dtype)
+def empty_like(x): return zeros_like(x)
+def rand_like(x): return rand(*_as_array(x).shape)
+def randn_like(x): return randn(*_as_array(x).shape)
+def scatter(x, dim, index, src): return index_add(zeros_like(x), dim, index, src)
+def repeat_interleave(x, repeats, dim=None):
+    r = _as_array(repeats)
+    return Tensor(np.repeat(_as_array(x), r, axis=dim))
+def count_nonzero(x, dim=None): return Tensor(np.count_nonzero(_as_array(x), axis=dim))
+def searchsorted(a, v, right=False): return Tensor(np.searchsorted(_as_array(a), _as_array(v), side="right" if right else "left"))
+def bucketize(v, b, right=False): return searchsorted(b, v, right)
+def histc(x, bins=100, min=0, max=0): return Tensor(np.histogram(_as_array(x), bins=bins, range=(min, max) if max > min else None)[0].astype(np.float32))  # noqa: A002
+def cross_entropy_placeholder(*a, **k): raise RuntimeError("not supported in tiny backend")
+def kthvalue(x, k, dim=-1):
+    s = sort(x, dim)
+    return _MaxMin(Tensor(np.take(s.values.data, k - 1, axis=dim)), Tensor(np.take(s.indices.data, k - 1, axis=dim)))
+def nanmean(x, dim=None): return Tensor(np.nanmean(_as_array(x), axis=dim).astype(np.float32))
+def nansum(x, dim=None): return Tensor(np.nansum(_as_array(x), axis=dim).astype(np.float32))
+def tril(x, k=0): return Tensor(np.tril(_as_array(x), k))
+def triu(x, k=0): return Tensor(np.triu(_as_array(x), k))
+def trace(x): return Tensor(np.trace(_as_array(x)))
+def det(x): return Tensor(np.linalg.det(_as_array(x)))
+def inverse(x): return Tensor(np.linalg.inv(_as_array(x)))
+def einsum(eq, *ops): return Tensor(np.einsum(eq, *[_as_array(o) for o in ops]))
+def meshgrid(*xs, indexing="ij"): return tuple(Tensor(a) for a in np.meshgrid(*[_as_array(x) for x in xs], indexing=indexing))
+def broadcast_to(x, shape): return _t(x).expand(*shape)
+def split(x, size, dim=0):
+    a = _as_array(x)
+    n = a.shape[dim]
+    if isinstance(size, int):
+        idx = list(range(size, n, size))
+    else:
+        idx = list(np.cumsum(size)[:-1])
+    return tuple(Tensor(c) for c in np.split(a, idx, axis=dim))
+def chunk(x, n, dim=0): return tuple(Tensor(c) for c in np.array_split(_as_array(x), n, axis=dim))
+def narrow(x, dim, start, length): return Tensor(np.take(_as_array(x), range(start, start + length), axis=dim))
+def squeeze_(x, dim=None): return squeeze(x, dim)
+def unsqueeze_(x, d): return unsqueeze(x, d)
+def t(x): return transpose(x, 0, 1)
+def numel_(x): return numel(x)
+def clone(x): return _t(x).clone()
+def detach(x): return _t(x).detach()
+def get_default_dtype(): return np.float32
+def set_default_dtype(d): pass
+def device(name="cpu"): return "cpu"
+class dtype: pass
+def set_grad_enabled(flag):
+    global _grad_enabled
+    _grad_enabled = builtins.bool(flag)
+def manual_seed_all(s): manual_seed(s)
+class cuda:
+    @staticmethod
+    def is_available(): return False
+    @staticmethod
+    def manual_seed_all(s): manual_seed(s)
+class backends:
+    class cudnn:
+        deterministic = True
+        benchmark = False
+def use_deterministic_algorithms(flag): pass
+def is_nonzero(x): return builtins.bool(_as_array(x).any())
+def equal(a, b): return builtins.bool(np.array_equal(_as_array(a), _as_array(b)))
+def isclose(a, b, rtol=1e-5, atol=1e-8): return Tensor(np.isclose(_as_array(a), _as_array(b), rtol, atol))
+def sum_(x, dim=None, keepdim=False): return sum(x, dim, keepdim)
+def mean_(x, dim=None, keepdim=False): return mean(x, dim, keepdim)
+def stack_(ts, dim=0): return stack(ts, dim)
+def cat_(ts, dim=0): return cat(ts, dim)
 def dot(a, b): return sum(_t(a) * _t(b))
 def outer(a, b): return unsqueeze(_t(a), 1) * unsqueeze(_t(b), 0)
 def cdist(a, b):

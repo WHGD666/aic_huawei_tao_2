@@ -352,3 +352,71 @@ def git_diff(base_root: Path, work_root: Path, files: List[str]) -> str:
                 lines.append(ln)
         parts.append("\n".join(lines) + "\n")
     return "".join(parts)
+
+
+def apply_unified_diff(patch_text: str, root: Path) -> Tuple[bool, str]:
+    """纯 Python 应用 unified diff（git diff --no-index 或 difflib 风格；路径 a/<rel> b/<rel>）。
+    逐 hunk 校验上下文与删除行必须逐字匹配；任一不匹配则不写任何文件。"""
+    files: Dict[str, List[str]] = {}
+    cur: Optional[str] = None
+    hunks: Dict[str, List[Tuple[int, List[str]]]] = {}
+    lines = patch_text.splitlines()
+    i = 0
+    while i < len(lines):
+        ln = lines[i]
+        if ln.startswith("+++ "):
+            cur = ln[4:].strip()
+            cur = cur[2:] if cur.startswith("b/") else cur
+            hunks.setdefault(cur, [])
+            i += 1
+            continue
+        if ln.startswith("@@") and cur is not None:
+            m = re.search(r"-(\d+)(?:,(\d+))?\s+\+(\d+)(?:,(\d+))?", ln)
+            if not m:
+                return False, f"bad hunk header: {ln}"
+            old_start = int(m.group(1))
+            body: List[str] = []
+            i += 1
+            while i < len(lines) and not lines[i].startswith(("@@", "diff --git", "--- ", "+++ ")):
+                if lines[i].startswith("\\"):
+                    i += 1
+                    continue
+                body.append(lines[i])
+                i += 1
+            hunks[cur].append((old_start, body))
+            continue
+        i += 1
+    new_contents: Dict[str, str] = {}
+    for rel, hs in hunks.items():
+        path = root / rel
+        if not path.exists():
+            return False, f"{rel}: file missing in work dir"
+        src = path.read_text(encoding="utf-8", errors="replace").splitlines()
+        out: List[str] = []
+        pos = 0  # 0-based index into src
+        for old_start, body in hs:
+            start = old_start - 1
+            if start < pos:
+                return False, f"{rel}: overlapping hunks"
+            out.extend(src[pos:start])
+            pos = start
+            for b in body:
+                tag, text = (b[0], b[1:]) if b else (" ", "")
+                if tag == " ":
+                    if pos >= len(src) or src[pos] != text:
+                        return False, f"{rel}: context mismatch at line {pos + 1}"
+                    out.append(text); pos += 1
+                elif tag == "-":
+                    if pos >= len(src) or src[pos] != text:
+                        return False, f"{rel}: removed line mismatch at line {pos + 1}"
+                    pos += 1
+                elif tag == "+":
+                    out.append(text)
+                else:
+                    return False, f"{rel}: bad hunk line {b!r}"
+        out.extend(src[pos:])
+        trailing = "\n" if path.read_text(encoding="utf-8", errors="replace").endswith("\n") else ""
+        new_contents[rel] = "\n".join(out) + trailing
+    for rel, content in new_contents.items():
+        (root / rel).write_text(content, encoding="utf-8", newline="")
+    return True, ""
