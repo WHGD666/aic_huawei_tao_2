@@ -31,3 +31,9 @@ __pycache__/
 .DS_Store
 Thumbs.db
 workspace/algorithms/
+
+# ---- 官方大文件（7 GB 镜像 / 数据包）：只放 F 盘，不入库 ----
+2/
+*.tar.gz
+*.pyc
+*.pdf
