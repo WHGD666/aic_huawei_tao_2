@@ -37,7 +37,7 @@ import yaml
 
 from .analyzer import build_analyze_messages, proxy_correlation, render_proxy_correlation, rule_digest
 from .budget import Budget, Pricing
-from .codebase import Codebase, apply_edits, git_diff, patch_changed_lines, patch_fingerprint
+from .codebase import Codebase, apply_edits, apply_unified_diff, git_diff, patch_changed_lines, patch_fingerprint
 from .evaluator import CommandEvaluator, EvalResult, Evaluator, MockEvaluator, ProxyRunner
 from .gate import Gate, Target
 from .llm import LLMClient, LLMError
@@ -52,6 +52,17 @@ WS = Path(__file__).resolve().parent.parent
 
 class ConfigError(RuntimeError):
     pass
+
+
+def _candidate_segment(text: str, slot: int) -> str:
+    """从多候选响应里取出第 slot 段（0 起），并保留 CANDIDATE 标记。"""
+    import re as _re
+    marks = list(_re.finditer(r"^\**\s*CANDIDATE\s*(\d+)\s*\**\s*:?\s*$", text, _re.MULTILINE | _re.IGNORECASE))
+    if not marks or slot >= len(marks):
+        return text
+    start = marks[slot].start()
+    end = marks[slot + 1].start() if slot + 1 < len(marks) else len(text)
+    return text[start:end].strip()
 
 
 def _env_expand(v):
@@ -113,6 +124,7 @@ class Harness:
         self.per_round_cap = b.get("per_round_cost_cap_cny", 0.5)
         self.max_consecutive_gate_failures = int(b.get("max_consecutive_gate_failures", 6))
         self.max_consecutive_duplicates = int(b.get("max_consecutive_duplicates", 4))
+        self.max_consecutive_no_submit = int(b.get("max_consecutive_no_submit", 6))
 
         # ---- LLM ----
         l = cfg["llm"]
@@ -150,7 +162,7 @@ class Harness:
                                               timeout_s=float(e.get("timeout_s", 6 * 3600)), cwd=WS)
         else:
             raise ConfigError(f"unknown evaluator.mode {mode!r}")
-        self.baseline_costs_evaluation = bool(e.get("baseline_costs_evaluation", False))
+        self.baseline_costs_evaluation = bool(e.get("baseline_costs_evaluation", True))
 
         # ---- 本地代理（可选） ----
         p = cfg.get("proxy", {})
@@ -232,18 +244,22 @@ class Harness:
         if not had and self.baseline_costs_evaluation and isinstance(self.evaluator, CommandEvaluator):
             self.budget.charge_evaluation()
             self.log("baseline evaluation charged to the budget (configured)")
-        if isinstance(self.evaluator, CommandEvaluator) and not self.baseline_json.exists():
-            self.baseline_json.write_text(json.dumps(self.baseline_eval.to_dict()), encoding="utf-8")
         if not self.baseline_eval.all_valid:
             bad = [k for k, r in self.baseline_eval.runs.items() if not r.valid]
             raise ConfigError(f"baseline itself has invalid runs {bad}; cannot score candidates")
+        if isinstance(self.evaluator, CommandEvaluator) and not self.baseline_json.exists():
+            self.baseline_json.write_text(json.dumps(self.baseline_eval.to_dict()), encoding="utf-8")
         (self.store.root / "baseline").mkdir(exist_ok=True)
         self.store.save_eval("baseline", {**self.baseline_eval.to_dict(with_partitions=False), "partition_hash": self.baseline_eval.partition_hash()})
         self.aliases = case_aliases(self.evaluator.cases, self.baseline_eval)
         self.selector.aliases = self.aliases
         self.profile = render_baseline_profile(self.baseline_eval, self.aliases) if self.abl.get("problem_profile", True) else \
             "Baseline loaded (profile disabled)."
-        self._part_hashes.setdefault(self.baseline_eval.partition_hash(), "baseline")
+        bph = self.baseline_eval.partition_hash()
+        if bph is not None:
+            self._part_hashes.setdefault(bph, "baseline")
+        else:
+            self.log("baseline has no partition data: duplicate detection is disabled for this run")
         self.log("baseline loaded\n" + self.profile)
 
     # ---------- work dir ----------
@@ -287,6 +303,23 @@ class Harness:
                 out.append(t.file)
         return out
 
+    def _stray_files(self, work: Path) -> List[str]:
+        """work 目录里**不是目标文件**、且内容与基线不同的文件（候选越界写入）。
+        edit 的路径若不在白名单，apply_edits 会把它写进 work —— 必须在这里拦下，否则门禁只看 targets、
+        patch 也只含 targets，越界改动会被评估命令真实使用。"""
+        allowed = {t.file for t in self.targets}
+        stray = []
+        for p in work.rglob("*"):
+            if not p.is_file() or p.name == "candidate.patch" or p.name in ("eval_result.json", "proxy_result.json"):
+                continue
+            rel = str(p.relative_to(work)).replace("\\", "/")
+            if rel in allowed:
+                continue
+            base = self.base_root / rel
+            if not base.exists() or base.read_bytes() != p.read_bytes():
+                stray.append(rel)
+        return sorted(stray)
+
     def _target_files(self, work: Path) -> Dict[str, str]:
         return {t.file: (work / t.file).read_text(encoding="utf-8", errors="ignore") for t in self.targets if (work / t.file).exists()}
 
@@ -305,6 +338,11 @@ class Harness:
         full = {f: (work / f).read_text(encoding="utf-8", errors="ignore") for f in changed}
         base = {f: (self.base_root / f).read_text(encoding="utf-8", errors="ignore") for f in changed}
         rep = self.gate.check(full, base)
+        stray = self._stray_files(work)
+        if stray:
+            rep.errors.append(f"files outside the evolvable targets were modified or created: {stray[:6]}; "
+                              f"only the body of the target function(s) may change — helpers must be nested inside it")
+            rep.ok = False
         if rep.ok:
             parent_patch_text = (self.store.dir(parent_id) / "candidate.patch").read_text(encoding="utf-8") if parent_id else ""
             if not patch.strip() or patch == parent_patch_text:
@@ -357,8 +395,12 @@ class Harness:
                 if (errs or (rep and not rep.ok)) and self.abl.get("fix_round", True) and self.budget.can_call_llm(0.05):
                     fb = f"[CANDIDATE {m.slot + 1}]\n" + ("\n".join(errs) if errs else rep.text())
                     self.log(f"  {m.id} gate/apply failed -> fix attempt: {fb[:200]}")
+                    seg = text
+                    if len(props) > 1 and m.slot < len(props):
+                        # 只把该候选自己的段落当作 previous_response：模型修 slot n 时不应看到/重发其它候选
+                        seg = _candidate_segment(text, m.slot)
                     msgs2, shown2 = self.proposer.build_messages(phase, self.profile, hist, parent_patch, proxy_info, feedback_for_fix=fb,
-                                                                previous_response=text, code_chars=self.code_chars, boost_lines=boost, k=1)
+                                                                previous_response=seg, code_chars=self.code_chars, boost_lines=boost, k=1)
                     text2, c2 = self._chat(msgs2, self.lcfg["temperature_fix"], self.lcfg["max_tokens_fix"], "fix", m.id)
                     round_cost += c2
                     prop2 = parse_proposals(text2, 1)[0]
@@ -372,6 +414,10 @@ class Harness:
             per = round_cost / max(len(metas), 1)
             for m in metas:
                 m.llm_cost_cny += per
+                if m.status == "proposed":      # propose 阶段抛异常：不留悬空状态
+                    m.status = "discarded"
+                    m.fail_reasons = ["proposal stage crashed before gate"]
+                    self.store.update(m, "proposal_crash")
             self._adapt_code_chars(round_cost)
 
         # gate 结论
@@ -391,8 +437,7 @@ class Harness:
                 self.log(f"  {m.id} gate_failed: {m.gate_report[:140]}")
                 continue
             m.gate_report = rep.text() if rep else "OK"
-            if rep and rep.smoke:
-                m.proxy.update({f"smoke_{k2}": v for k2, v in rep.smoke.items()})
+            m._smoke_metrics = dict(rep.smoke) if (rep and rep.smoke) else {}   # 冒烟指标单独保存，代理统计在前
             passed.append(m)
         if not passed:
             return metas
@@ -411,9 +456,10 @@ class Harness:
                 self.store.update(m, "proxy_invalid")
                 self.log(f"  {m.id} invalid in proxy run (no evaluation consumed): {m.fail_reasons[:2]}")
                 continue
-            m.proxy.update(proxy_vector(res))
+            smoke = getattr(m, "_smoke_metrics", {}) or {}
+            m.proxy.update({**proxy_vector(res), **{f"smoke_{k2}": v for k2, v in smoke.items()}})
             ph = res.partition_hash()
-            if ph in self._part_hashes:
+            if ph is not None and ph in self._part_hashes:
                 dup = self._part_hashes[ph]
                 m.status = "duplicate"; m.duplicate_of = dup
                 if dup != "baseline":
@@ -439,7 +485,6 @@ class Harness:
             if m is not chosen:
                 m.status = "screened"
                 self.store.update(m, "screened", reason="another candidate of this round was submitted")
-        self._patch_hashes[patch_fingerprint((self.store.dir(chosen.id) / "candidate.patch").read_text(encoding="utf-8"))] = chosen.id
 
         # ④ 提交评估
         if not self.budget.can_evaluate():
@@ -471,6 +516,7 @@ class Harness:
 
     def _evaluate_and_analyze(self, meta: CandidateMeta, work: Path) -> None:
         try:
+            self.budget.begin_evaluation()          # 预扣：中途被杀也不会漏记
             try:
                 res = self.evaluator.evaluate(meta.id, work)
             except Exception as ex:  # noqa: BLE001
@@ -490,6 +536,10 @@ class Harness:
             if res.partitions:
                 (self.store.dir(meta.id) / "partitions.json").write_text(json.dumps(res.partitions), encoding="utf-8")
             meta.eval_wall_s = res.wall_s
+            # 只有真正被评估过的 patch 才登记（screened/discarded 的必须允许以后再提）
+            pth = self.store.dir(meta.id) / "candidate.patch"
+            if pth.exists():
+                self._patch_hashes[patch_fingerprint(pth.read_text(encoding="utf-8"))] = meta.id
             score = candidate_score(self.baseline_eval.runs, res.runs)
             digest = rule_digest(self.baseline_eval, res, score, self.aliases)
             meta.all_valid = bool(score.all_valid and res.all_valid)
@@ -502,8 +552,9 @@ class Harness:
                 meta.score_total = score.total
                 meta.seed_std = score.seed_std_mean
                 meta.score_robust = score.robust(self.selector.robustness, self.selector.kappa_seed)
-                if res.partitions:
-                    self._part_hashes.setdefault(res.partition_hash(), meta.id)
+                ph = res.partition_hash()
+                if ph is not None:
+                    self._part_hashes.setdefault(ph, meta.id)
                 pv = {k2: v for k2, v in meta.proxy.items() if not k2.startswith("smoke_")}
                 if pv:
                     self._proxy_samples.append((pv, score.total))
@@ -520,7 +571,7 @@ class Harness:
             if meta.status == "proposed":
                 meta.status = "invalid"
                 meta.fail_reasons = meta.fail_reasons or ["harness error during evaluation/analysis"]
-            self.store.update(meta, "evaluated")
+            self.store.update(meta, meta.status)
         self.selector.record_outcome(meta)
         self.log(f"  {meta.id} {meta.status} total={meta.score_total} robust={meta.score_robust}\n{digest}")
 
@@ -537,7 +588,7 @@ class Harness:
         try:
             self.init_baseline()
             idx = 0
-            consecutive_errors = consecutive_gate = consecutive_dup = 0
+            consecutive_errors = consecutive_gate = consecutive_dup = consecutive_nosub = 0
             while self.budget.can_evaluate() and idx < max_rounds:
                 idx += 1
                 try:
@@ -547,6 +598,11 @@ class Harness:
                     consecutive_dup = consecutive_dup + 1 if any(m.status == "duplicate" for m in metas) and not any(m.status == "evaluated" for m in metas) else 0
                     if consecutive_gate >= self.max_consecutive_gate_failures:
                         self.log(f"  {consecutive_gate} consecutive all-gate-failed rounds; stopping to protect cost budget"); break
+                    consecutive_nosub = consecutive_nosub + 1 if not any(m.status == "evaluated" for m in metas) else 0
+                    if consecutive_nosub >= self.max_consecutive_no_submit:
+                        self.log(f"  {consecutive_nosub} consecutive rounds produced no submitted evaluation "
+                                 f"(everything screened / invalid / gate_failed); stopping to protect cost budget")
+                        break
                     if consecutive_dup >= self.max_consecutive_duplicates:
                         self.log(f"  {consecutive_dup} consecutive rounds whose partitions were identical to already-evaluated candidates "
                                  f"(the objective is insensitive at this granularity); stopping to protect cost budget")
@@ -595,10 +651,24 @@ class Harness:
             out = WS / "algorithms" / self.baseline_kind
             out.mkdir(parents=True, exist_ok=True)
             shutil.copy2(self.store.dir(best.id) / "candidate.patch", out / "candidate.patch")
-            work = self.run_dir / "work" / best.id
-            for t in self.targets:                       # 导出完整的最终函数文件（提交要求：算法代码）
-                src = work / t.file if (work / t.file).exists() else self.base_root / t.file
-                shutil.copy2(src, out / Path(t.file).name)
+            # 导出完整的最终函数文件：从基线 + candidate.patch 重建（work/ 可能已被清理；绝不能静默回退基线代码）
+            import tempfile as _tf
+            with _tf.TemporaryDirectory() as td:
+                tw = Path(td)
+                for t in self.targets:
+                    (tw / t.file).parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(self.base_root / t.file, tw / t.file)
+                ok, err = apply_unified_diff((self.store.dir(best.id) / "candidate.patch").read_text(encoding="utf-8"), tw)
+                if not ok:
+                    self.log(f"  WARNING: could not rebuild final files from candidate.patch ({err}); falling back to the work copy")
+                    for t in self.targets:
+                        w = self.run_dir / "work" / best.id / t.file
+                        if not w.exists():
+                            raise RuntimeError(f"export: neither patch rebuild nor work copy available for {t.file}")
+                        shutil.copy2(w, out / Path(t.file).name)
+                else:
+                    for t in self.targets:
+                        shutil.copy2(tw / t.file, out / Path(t.file).name)
             (out / "SELECTED.json").write_text(json.dumps(vars(best), indent=1, ensure_ascii=False), encoding="utf-8")
             self.log(f"best = {best.id} total={best.score_total:+.3f} -> {out}")
         else:

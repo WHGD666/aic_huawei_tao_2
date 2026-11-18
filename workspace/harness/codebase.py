@@ -360,7 +360,8 @@ def apply_unified_diff(patch_text: str, root: Path) -> Tuple[bool, str]:
     files: Dict[str, List[str]] = {}
     cur: Optional[str] = None
     hunks: Dict[str, List[Tuple[int, List[str]]]] = {}
-    lines = patch_text.splitlines()
+    # 用 "\n" 切分而不是 splitlines()：行尾 \r 保留在行内容里，CRLF 文件不会被静默改写
+    lines = patch_text.replace("\r\n", "\n").split("\n")
     i = 0
     while i < len(lines):
         ln = lines[i]
@@ -391,7 +392,8 @@ def apply_unified_diff(patch_text: str, root: Path) -> Tuple[bool, str]:
         path = root / rel
         if not path.exists():
             return False, f"{rel}: file missing in work dir"
-        src = path.read_text(encoding="utf-8", errors="replace").splitlines()
+        raw = path.read_text(encoding="utf-8", errors="replace")
+        src = raw.split("\n")
         out: List[str] = []
         pos = 0  # 0-based index into src
         for old_start, body in hs:
@@ -415,8 +417,7 @@ def apply_unified_diff(patch_text: str, root: Path) -> Tuple[bool, str]:
                 else:
                     return False, f"{rel}: bad hunk line {b!r}"
         out.extend(src[pos:])
-        trailing = "\n" if path.read_text(encoding="utf-8", errors="replace").endswith("\n") else ""
-        new_contents[rel] = "\n".join(out) + trailing
+        new_contents[rel] = "\n".join(out)
     for rel, content in new_contents.items():
         (root / rel).write_text(content, encoding="utf-8", newline="")
     return True, ""

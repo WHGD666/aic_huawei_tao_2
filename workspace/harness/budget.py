@@ -59,6 +59,7 @@ class Pricing:
 @dataclass
 class BudgetState:
     evaluations: int = 0
+    pending_evaluations: int = 0          # 已提交但未确认（进程被杀时保守地算作已消耗）
     cost_cny: float = 0.0
     usage: Usage = field(default_factory=Usage)
     llm_calls: int = 0
@@ -100,6 +101,17 @@ class Budget:
         left = self.evaluations_left - (self.reserve_evaluations if keep_reserve else 0)
         return left > 0 and self.cost_left > 0
 
+    def begin_evaluation(self) -> None:
+        """提交前预扣：进程在评估中途被杀（Ctrl-C / OOM / timeout），续跑时这次评估仍被计为已消耗，
+        防止"反复被杀 + 续跑"绕过 30 次上限。"""
+        self.state.pending_evaluations += 1
+        self._save()
+
+    def abort_evaluation(self) -> None:
+        """评估确定没有发生（例如本地命令根本没启动）时退回预扣。"""
+        self.state.pending_evaluations = max(0, self.state.pending_evaluations - 1)
+        self._save()
+
     def can_call_llm(self, expected_cost: float = 0.05) -> bool:
         return self.cost_left - expected_cost > 0
 
@@ -114,6 +126,7 @@ class Budget:
 
     def charge_evaluation(self) -> None:
         self.state.evaluations += 1
+        self.state.pending_evaluations = max(0, self.state.pending_evaluations - 1)
         self._save()
 
     # ---------- 持久化 ----------
@@ -127,12 +140,19 @@ class Budget:
         with open(self.state_file, "r", encoding="utf-8") as f:
             d = json.load(f)
         u = d.pop("usage", {})
-        self.state = BudgetState(**d, usage=Usage(**u))
+        known = {f for f in BudgetState.__dataclass_fields__}   # 兼容旧状态文件缺字段
+        self.state = BudgetState(**{k: v for k, v in d.items() if k in known}, usage=Usage(**u))
+        # 上次运行遗留的 pending：保守地视为已消耗
+        if self.state.pending_evaluations:
+            self.state.evaluations += self.state.pending_evaluations
+            self.state.pending_evaluations = 0
+            self._save()
 
     def summary(self) -> str:
         s = self.state
+        pend = f" (+{s.pending_evaluations} pending)" if s.pending_evaluations else ""
         return (
-            f"eval {s.evaluations}/{self.max_evaluations} | "
+            f"eval {s.evaluations}/{self.max_evaluations}{pend} | "
             f"cost {s.cost_cny:.3f}/{self.max_cost_cny} CNY | "
             f"llm_calls {s.llm_calls} | "
             f"tok in {s.usage.prompt_tokens} (hit {s.usage.cache_hit_tokens}) out {s.usage.completion_tokens}"

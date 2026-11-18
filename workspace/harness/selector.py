@@ -35,10 +35,30 @@ class Selector:
                 self.record_outcome(m)
 
     def rescale_phase_plan(self, total: int) -> None:
+        """按比例缩放到 total 次评估；每阶段 ≥0（total 足够大时 ≥1），余数给最后一个非 final 阶段。"""
         keys = list(self.phase_plan)
         old = sum(self.phase_plan.values()) or 1
-        new = {k: max(1, int(round(self.phase_plan[k] * total / old))) for k in keys}
-        new[keys[-1]] += total - sum(new.values())
+        if total <= 0:
+            self.phase_plan = {k: 0 for k in keys}
+            return
+        new = {k: int(round(self.phase_plan[k] * total / old)) for k in keys}
+        # 保证 probe ≥ min(原值, 1)：探针必须至少跑一次
+        if total >= len(keys):
+            for k in keys:
+                new[k] = max(new[k], 1)
+        new = {k: max(0, v) for k, v in new.items()}
+        diff = total - sum(new.values())
+        order = [k for k in keys if k != "final"] or keys
+        i = 0
+        while diff != 0 and order:
+            k = order[i % len(order)]
+            if diff > 0:
+                new[k] += 1; diff -= 1
+            elif new[k] > (1 if total >= len(keys) else 0):
+                new[k] -= 1; diff += 1
+            i += 1
+            if i > 1000:
+                break
         self.phase_plan = new
 
     # ---------- 阶段 ----------
@@ -66,8 +86,9 @@ class Selector:
         return e[0] if e else None
 
     def final_pick(self) -> Optional[CandidateMeta]:
-        """最终候选：精英中三算例全部非负者优先（宁要 +3/+3/+3 不要 +15/+2/−5），再按稳健分。"""
-        e = self.elites()
+        """最终候选：精英中三算例全部非负者优先（宁要 +3/+3/+3 不要 +15/+2/−5），再按稳健分。
+        final 阶段与导出共用此函数；同样过滤血统失败计数。"""
+        e = [m for m in self.elites() if self._fail_streak.get(m.id, 0) < self.max_fail] or self.elites()
         if not e:
             return None
         allpos = [m for m in e if m.per_case and all(v >= 0 for v in m.per_case.values())]
@@ -80,7 +101,7 @@ class Selector:
         if not elites or phase == "probe":
             return None
         if phase == "final":
-            return (self.final_pick() or elites[0]).id
+            return (self.final_pick() or elites[0]).id  # final_pick 只在 elites() 内挑，与上面一致性由 elites 保证
         temp = {"structural": 1.0, "combine": 0.4}.get(phase, 1.0)
         vals = [self.robust_value(m) for m in elites]
         mx = max(vals)

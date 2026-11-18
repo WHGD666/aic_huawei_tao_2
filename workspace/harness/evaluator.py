@@ -36,8 +36,14 @@ class EvalResult:
     def all_valid(self) -> bool:
         return bool(self.runs) and all(r.valid for r in self.runs.values())
 
-    def partition_hash(self) -> str:
-        """所有 (case/seed) 切分的联合指纹（标签对称：0/1 互换视为相同）。"""
+    def partition_hash(self) -> Optional[str]:
+        """所有 (case/seed) 切分的联合指纹（标签对称：0/1 互换视为相同）。
+        没有任何切分数据时返回 None —— 此时禁止去重（否则所有候选指纹相同，第一个之后全被判重复）。"""
+        if not self.partitions:
+            return None
+        for k, p in self.partitions.items():
+            if p and not set(p) <= {0, 1}:
+                return None
         h = hashlib.sha256()
         for k in sorted(self.partitions):
             p = self.partitions[k]
@@ -68,7 +74,9 @@ def parse_result_json(cid: str, d: dict, cases: List[str], seeds: List[int]) -> 
                 finite = wns == wns and tns == tns and abs(wns) != float("inf") and abs(tns) != float("inf")
             except (TypeError, ValueError):
                 wns, tns, finite = 0.0, 0.0, False
-            valid = bool(r.get("valid", True)) and finite
+            v = r.get("valid", True)
+            valid_flag = (v is True) or (str(v).strip().lower() not in {"false", "0", "no", "none", ""}) if not isinstance(v, bool) else v
+            valid = bool(valid_flag) and finite
             reason = str(r.get("fail_reason", "")) or ("" if finite else "non-finite metric")
             runs[key] = RunMetrics(c, s, wns, tns, valid=valid, fail_reason=reason,
                                    stats={k: v for k, v in (r.get("stats") or {}).items() if isinstance(v, (int, float))})
@@ -162,16 +170,20 @@ class ProxyRunner:
         self.enabled = bool(cmd.strip())
 
     @staticmethod
-    def source_hash(files: Dict[str, str]) -> str:
+    def source_hash(files: Dict[str, str], extra: str = "") -> str:
         h = hashlib.sha256()
         for k in sorted(files):
             h.update(k.encode()); h.update(files[k].encode("utf-8"))
+        h.update(extra.encode("utf-8"))
         return h.hexdigest()[:16]
 
     def run(self, cid: str, workdir: Path, files: Dict[str, str]) -> Optional[EvalResult]:
         if not self.enabled:
             return None
-        key = self.source_hash(files)
+        ref = ""
+        if self.baseline_json.exists():
+            ref = hashlib.sha256(self.baseline_json.read_bytes()).hexdigest()[:8]
+        key = self.source_hash(files, "|" + ",".join(self.cases) + "|" + ",".join(map(str, self.seeds)) + "|" + self.cmd + "|" + ref)
         cached = self.cache_dir / f"{key}.json"
         if cached.exists():
             d = json.loads(cached.read_text(encoding="utf-8"))

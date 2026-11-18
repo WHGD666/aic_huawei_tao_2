@@ -118,6 +118,7 @@ class Proposer:
                        .replace("{KNOWLEDGE}", know)
                        .replace("{K}", str(self.propose_k))
                        .replace("{OUTLINE}", self.cb.outline()))
+        self._system_template = self.system
 
     def _phase_guide(self, phase: str) -> str:
         for name in (f"phase_{phase}_{self.baseline}.md", f"phase_{phase}.md"):
@@ -155,6 +156,7 @@ class Proposer:
     def build_messages(self, phase: str, profile: str, history: str, parent_patch: Optional[str], proxy_info: str,
                        feedback_for_fix: Optional[str] = None, previous_response: Optional[str] = None,
                        code_chars: int = 8000, boost_lines: Optional[Dict[str, List[int]]] = None, k: Optional[int] = None):
+        k = int(k or self.propose_k)
         chunks = self.cb.search(["compute_loss", "decode_partition", "def "], k=4, max_chars=code_chars, max_chunk_chars=code_chars, boost_lines=boost_lines)
         self.last_chunks = chunks
         code = self.cb.render(chunks) if chunks else "(no code shown)"
@@ -168,8 +170,12 @@ class Proposer:
                 .replace("{PROXY}", proxy_info)
                 .replace("{PARENT_PATCH}", parent_patch or "(starting from the official baseline)")
                 .replace("{CODE}", code)
-                .replace("{K}", str(k or self.propose_k)))
-        msgs = [{"role": "system", "content": self.system}, {"role": "user", "content": user}]
+                .replace("{K}", str(k)))
+        sys_text = self.system
+        if k != self.propose_k:
+            import re as _re
+            sys_text = _re.sub(r"produce exactly \d+ candidate", f"produce exactly {k} candidate", sys_text)
+        msgs = [{"role": "system", "content": sys_text}, {"role": "user", "content": user}]
         if feedback_for_fix and previous_response:
             msgs.append({"role": "assistant", "content": previous_response})
             msgs.append({"role": "user", "content": _load("fix.md").replace("{FEEDBACK}", feedback_for_fix)})

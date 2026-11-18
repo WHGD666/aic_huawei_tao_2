@@ -129,7 +129,8 @@ class CandidateStore:
     # ---------- internals ----------
     def _flush(self, meta: CandidateMeta) -> None:
         (self.root / meta.id).mkdir(parents=True, exist_ok=True)
-        (self.root / meta.id / "meta.json").write_text(json.dumps(asdict(meta), indent=1, ensure_ascii=False), encoding="utf-8")
+        d = {k: v for k, v in vars(meta).items() if not k.startswith("_")}   # 运行期临时字段（如 _smoke_metrics）不落盘
+        (self.root / meta.id / "meta.json").write_text(json.dumps(d, indent=1, ensure_ascii=False), encoding="utf-8")
 
     def _event(self, kind: str, cid: str, **kw) -> None:
         with open(self.lineage, "a", encoding="utf-8") as f:
