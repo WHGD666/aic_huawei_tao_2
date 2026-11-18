@@ -1,0 +1,77 @@
+# harness 主配置
+baseline: prob                      # prob（概率预测：只演化损失）| embed（表示学习：演化损失 + 解码）
+seed: 0
+
+budget:
+  max_evaluations: 30               # 官方上限
+  max_cost_cny: 12.0                # 官方上限 15；本地单价是估计值（pricing.yaml），留余量
+  per_round_cost_cap_cny: 0.5       # 单轮软上限，超过则下一轮缩短代码片段
+  max_consecutive_gate_failures: 6  # 连续 N 轮全部门禁失败即停（保护 API 费）
+
+llm:
+  model: ${DEEPSEEK_MODEL}
+  temperature_propose: 0.8
+  temperature_fix: 0.2
+  temperature_analyze: 0.1
+  max_tokens_propose: 4000
+  max_tokens_fix: 3000
+  max_tokens_analyze: 500
+  max_retries: 3
+  timeout_s: 180
+  code_chars: 9000
+
+search:
+  elite_size: 4
+  max_consecutive_failures_per_lineage: 2
+  robustness_metric: mean_minus_std   # mean | min | mean_minus_std
+  kappa_seed: 0.5                     # 稳健分再减 κ × 种子间标准差
+  propose_k: 2                        # 每轮让模型产出几个候选（本地筛选后只提交 1 个）
+  phase_plan:                         # 总和 = max_evaluations
+    probe: 5
+    structural: 13
+    combine: 8
+    final: 4
+
+# 两种基线的演化目标。root 相对 workspace/；file 相对 root。官方任务包到手后只改这里。
+baselines:
+  prob:
+    root: baseline_stub/prob
+    targets:
+      - {file: loss.py, func: compute_loss, kind: loss}
+    eval_cmd:  "python -m baseline_stub.evaluate --baseline prob --candidate {workdir} --out {out} --ref {ref} --cases {cases} --seeds {seeds}"
+    proxy_cmd: "python -m baseline_stub.evaluate --baseline prob --candidate {workdir} --out {out} --ref {ref} --cases {cases} --seeds {seeds} --no-physics"
+  embed:
+    root: baseline_stub/embed
+    targets:
+      - {file: loss.py, func: compute_loss, kind: loss}
+      - {file: decode.py, func: decode_partition, kind: decode}
+    eval_cmd:  "python -m baseline_stub.evaluate --baseline embed --candidate {workdir} --out {out} --ref {ref} --cases {cases} --seeds {seeds}"
+    proxy_cmd: "python -m baseline_stub.evaluate --baseline embed --candidate {workdir} --out {out} --ref {ref} --cases {cases} --seeds {seeds} --no-physics"
+
+evaluator:
+  mode: command                       # command | mock
+  cases: [case_small, case_mid, case_large]
+  seeds: [1001, 1002, 1003]
+  timeout_s: 21600
+  baseline_costs_evaluation: false    # 官方若不提供基线参考值、且跑基线计次，则置 true
+  # baseline_json: baseline/baseline_eval_prob.json   # 官方提供的基线结果（可选）
+
+proxy:
+  enabled: true                       # 本地只跑切分（不跑物理流程）做筛选 —— 需确认不计入官方评估次数
+  timeout_s: 1800
+  min_change_vs_baseline: 0.005       # 切分与基线差异 < 0.5% 的候选不提交
+  selection_rule: proxy_best          # proxy_best | first
+
+gate:
+  smoke: true
+  smoke_time_limit_s: 20
+
+ablation:                             # 消融开关（技术报告用）；全 true = 完整 harness
+  knowledge_block: true
+  problem_profile: true
+  precheck: true
+  fix_round: true
+  boost_parent_lines: true
+  analysis_in_history: true
+  proxy_feedback: true
+  llm_analysis: true

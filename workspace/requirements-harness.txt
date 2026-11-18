@@ -1,0 +1,7 @@
+# harness 依赖（故意保持最小：LLM 客户端只用 requests）
+requests>=2.31
+pyyaml>=6.0
+numpy>=1.24
+pytest>=8.0
+# 候选函数与基线替身：有 torch 用 torch，没有时自动退化到 numpy 自动微分替身
+# torch>=2.0

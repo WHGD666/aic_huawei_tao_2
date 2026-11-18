@@ -1,0 +1,18 @@
+# DeepSeek 价格表（元 / 百万 token）。
+# 2026-11-17 实测：账号可见模型 = deepseek-flash（= 题面 V4.1-Flash；deepseek-chat 为其别名）、deepseek-v4-pro。
+# 官方定价页 api-docs.deepseek.com 在我的沙箱里被拦，下面数字是估计值 —— 用 tools/calibrate_pricing.py 按
+# 余额差反推真实单价后更新；在此之前本地计费宁可高估。
+# 注意：deepseek-flash 默认开 thinking，reasoning tokens 计入 output；harness 默认 thinking=disabled。
+models:
+  deepseek-flash:
+    input_cache_hit: 0.1
+    input_cache_miss: 1.0
+    output: 2.0
+  deepseek-chat:            # alias of deepseek-flash
+    input_cache_hit: 0.1
+    input_cache_miss: 1.0
+    output: 2.0
+  deepseek-v4-pro:
+    input_cache_hit: 0.5
+    input_cache_miss: 4.0
+    output: 12.0
