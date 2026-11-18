@@ -1,6 +1,6 @@
 # 总体规划 —— 面向 3D 芯片网表切分的优化目标演化
 
-> 版本 v0.3 · 2026-11-18 · 状态：**harness v0.1 + 本地替身基线完成，24 测试全绿；等待官方任务包与容器**
+> 版本 v0.4 · 2026-11-18 · 状态：**harness v0.2（30 次彩排 + 对抗式审核修复完成），24 测试全绿；等待官方任务包与容器**
 > 本文件是本项目的"总控文档"。配套：`docs/hypothesis_library.md`（两种基线的演化假设库，含公式）、`docs/open_questions.md`（待组委会确认清单 + 基线决策清单）、`docs/harness_design.md`（harness 模块设计）、`docs/submission_checklist.md`、`workspace/README.md`（怎么跑）。
 > 仓库：`F:\huawei_aic_tao\task2`，远端 https://github.com/WHGD666/aic_huawei_tao_2 ，本机 `git_sync.bat` 推送。
 
@@ -227,7 +227,8 @@ final: 导出 algorithms/<baseline>/{candidate.patch, loss.py[, decode.py], SELE
 | M0 | 准备 | PLAN、假设库、待确认清单、提交清单、仓库骨架 | 独立 agent 对照原文复核通过 | ✅ 2026-11-17 |
 | M1 | harness v0.1 | 函数级 gate + 可微冒烟 + 代理筛选 + 去重 + 多候选 + 稳健选择 + 新提示词 | 24 测试全绿 | ✅ 2026-11-18 |
 | M2 | 本地替身基线 | 两种基线的最小可运行替身（合成网表 + 2D 特征、固定 GNN、修复程序、伪物理分数）+ 命令式评估接口 | 端到端 e2e 通过 | ✅ 2026-11-18 |
-| M3 | 真实 LLM 彩排 | deepseek-flash × 替身评估 × 30 次预算跑满；统计 gate 通过率 / 协议错误 / 费用；修提示词 | 彩排报告 | ☐ |
+| M3 | 真实 LLM 彩排 | deepseek-flash × 替身评估 × 30 次预算跑满；统计 gate 通过率 / 协议错误 / 费用；修提示词 | 彩排报告 | ✅ 2026-11-18 |
+| M3b | 对抗式审核 + 修复 | 独立 agent 审核 harness（预算/血统/合规/代理层），实测复现绕过路径；HIGH 8 / MED 16 / LOW 14 逐条修 | 审核清单全绿（L-30 为保留设计取舍） | ✅ 2026-11-18 |
 | M4 | 官方任务包 | 核对接口签名、确认本地跑切分是否计次、填 `open_questions`；代理层接真实图；基线决策 | 决策清单打勾 | ☐ |
 | M5 | 真跑小预算 | 3–5 次真实评估，修 gate 漏网 | ≥1 候选有效且不劣于基线 | ☐ |
 | M6 | 冲分 | 完整 30 次 ≥ 2 轮；提交稳健的一轮（提交的算法/结果可能用于**初步成绩筛选**，但正式分数来自组委会复跑 harness 本身） | 训练集三算例均 ≥ 0 | ☐ |
@@ -265,8 +266,14 @@ final: 导出 algorithms/<baseline>/{candidate.patch, loss.py[, decode.py], SELE
 - `workspace/harness/`：gate（AST 边界 / 禁用符号 / 单位陷阱 / 冒烟）、smoke、evaluator（Command / Proxy / Mock）、loop（每轮 k 候选 → gate → 代理 → 去重 → 提交 1 个）、selector（mean−σ−κ·seed_σ，final_pick 全正优先）、profile（算例匿名）、analyzer（Spearman 回灌）、prompts（system / knowledge / probe_prob / probe_embed / structural / combine / final / fix）
 - 24 测试全绿（无 torch、无 pytest 的沙箱：`python tests/_runner_nopytest.py tests.test_units tests.test_e2e`）
 
+### 2026-11-18 · M3 + M3b
+- **30 次评估彩排**（`docs/rehearsal_report_R30_prob.md`）：30/30 用满、0.314 元、83 次调用、缓存命中 42%。LLM 自行完成"机制发现 → 因果诊断 → 系数扫描 → 收窄到三算例全非负"的闭环（最终机制：边级关键对拉普拉斯 + 扇出阻尼割权重，与假设库 B5/B9 预测方向一致）。探针阶段淘汰了三个错误方向（割项整体换 star 形式、宏 hinge、平滑 hinge），单探针即负
+- 彩排暴露并修掉：父代 patch 应用（`git apply` 在仓库子目录静默失效 → 纯 Python unified-diff）、`tiny_torch` dtype/std、final 阶段连续重复切分（计数止损 + 提示词告知）、续跑悬空状态
+- **对抗式审核**（`docs/harness_review_todo.md`）：独立 agent 实测复现了 gate 绕过（规模/单位规则经变量可绕过、`getattr`/dunder/别名 import、非目标文件可写穿）、空切分指纹导致全判重复、导出静默回退基线、评估记账时序漏洞等。**HIGH 8 / MED 16 / LOW 14 全部修复**（仅 L-30 "SEARCH 可命中未展示但真实存在的代码" 为有意的设计取舍，安全由 AST 边界 + 越界写入拦截保证）
+- 硬化后回归：24 测试全绿；10 次短跑确认门禁没有误杀模型常用的合法机制
+
 ### 下一步
 1. 用户本机 `git_sync.bat` 推送；`workspace/.env` 放 DEEPSEEK_API_KEY
-2. M3：真实 deepseek-flash × 替身评估跑 30 次预算彩排；统计协议错误 / gate 通过率 / 费用；修提示词
-3. `tools/report.py`（运行目录 → 技术报告素材）；`workspace/README.md`；技术报告骨架
-4. 等任务包：核对 `docs/open_questions.md`
+2. 等官方任务包：逐条核对 `docs/open_questions.md`（函数签名 / 是否允许本地跑切分 / 固定流程细节 / 基线参考值），按 §2 决策清单定基线
+3. 把 `config/harness.yaml` 的 `baselines.<x>.root / targets / eval_cmd / proxy_cmd` 指向官方任务包，跑 M5（3–5 次真实评估）
+4. 正式 30 次运行 × ≥2 轮；`tools/report.py` 出报告素材 → 按 `docs/tech_report_outline.md` 写技术报告；对照 `docs/submission_checklist.md` 打包

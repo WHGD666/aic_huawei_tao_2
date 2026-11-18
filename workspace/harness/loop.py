@@ -426,7 +426,7 @@ class Harness:
 
         # gate 结论
         passed: List[CandidateMeta] = []
-        # 冒烟子进程连 import 都失败 = 环境/移植问题（不是候选的错）：直接停，别把每个候选都判 gate_failed
+        # 冒烟子进程连 import 都失败 = 环境/配置问题（不是候选的错）：直接停，别把每个候选都判 gate_failed
         for m in metas:
             errs, rep, patch = results.get(m.id, (["harness error before gate"], None, ""))
             msg = ("\n".join(errs) if errs else (rep.text() if rep and not rep.ok else ""))
