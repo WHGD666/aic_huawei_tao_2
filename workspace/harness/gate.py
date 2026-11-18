@@ -277,8 +277,14 @@ class Gate:
                     rep.errors.append(f"{f}:{n.lineno}: branching on problem size ({ast.unparse(n)}) looks like per-circuit special-casing")
             elif isinstance(n, ast.Global):
                 rep.errors.append(f"{f}:{n.lineno}: `global` inside {t.func} is not allowed")
-            elif isinstance(n, (ast.While,)) and t.kind == "loss":
-                rep.warnings.append(f"{f}:{n.lineno}: while-loop inside the loss; make sure it terminates and stays differentiable")
+            elif isinstance(n, ast.While):
+                has_break = any(isinstance(x, ast.Break) for x in ast.walk(n))
+                cond_true = (isinstance(n.test, ast.Constant) and n.test.value is True) or \
+                            (isinstance(n.test, ast.Name) and n.test.id == "True")
+                if cond_true and not has_break:
+                    rep.errors.append(f"{f}:{n.lineno}: `while True:` without break inside {t.func} is an infinite loop")
+                elif t.kind == "loss":
+                    rep.warnings.append(f"{f}:{n.lineno}: while-loop inside the loss; make sure it terminates and stays differentiable")
 
     @staticmethod
     def _derives_from_seed(expr: ast.AST, fn: ast.FunctionDef) -> bool:

@@ -21,7 +21,7 @@
 | # | 位置 | 问题 | 修法 | 状态 |
 |---|---|---|---|---|
 | 9 | evaluator | `valid: "false"` 字符串被 `bool()` 成 True | 显式解析字符串/数字/布尔 | ☑ |
-| 10 | smoke | `while True:` 会永久挂死 harness；"超时"是跑完再比 | 子进程 + 硬超时（`smoke_time_limit_s`） | ☐ 待做 |
+| 10 | smoke | `while True:` 会永久挂死 harness；"超时"是跑完再比 | 子进程 + 硬超时（`smoke_time_limit_s`，120 节点图 10s）+ `while True:` 无 break 静态判死 | ☑ |
 | 11 | loop | 只有"连续 gate_failed / duplicate"两个 breaker | 增加 `max_consecutive_no_submit`（连续无提交即停） | ☑ |
 | 12 | loop | fix 时 `previous_response` 是整段 k 候选响应，slot n 的修复可能拿到 slot 0 的 edit | `_candidate_segment(text, slot)` 只给该候选自己的段落 | ☑ |
 | 13 | loop | `_patch_hashes` 只登记 chosen → 之后可重复提案；discarded 的却被登记 → 封杀未评估改动 | 改为评估成功后登记 | ☑ |
@@ -29,12 +29,12 @@
 | 15 | proposer | system prompt 的 `{K}` 固定成 propose_k，final 阶段 k=1 但 system 说 2 | `build_messages` 里按实际 k 替换 | ☑ |
 | 16 | scoring | 基线违例为 0 时候选记 −1，量级与其它算例不可比 | 保留约定并在报告里标注口径（跨算例比较的影响留到真实数据再定） | ☑（文档） |
 | 17 | gate | `feature_names` 硬编码 | 构造参数保留（config 可覆盖），与任务包核对 | ☑ |
-| 18 | smoke | `HOLDOUT_CASES`（无宏 / asap7）定义却不用 → 最终候选可能在无宏算例上 NaN | 导出前对 holdout 跑一次免费冒烟/代理，不通过不导出 | ☐ 待做 |
+| 18 | smoke | `HOLDOUT_CASES`（无宏 / asap7）定义却不用 → 最终候选可能在无宏算例上 NaN | 导出前从 patch 重建 + 在"无宏 + ps 单位"合成输入上跑冒烟，结果写 `summary.holdout_check`（失败仍导出但显式告警） | ☑ |
 | 19 | loop | proxy 中 smoke 指标排在前 4 → 历史里给模型看的不是 cut/wcut | 代理统计在前、冒烟在后；`history_digest` 只列统计键 | ☑ |
 | 20 | evaluator | proxy 缓存键只有源码 hash | 键加入 cases/seeds/cmd/基线参考 hash | ☑ |
 | 21 | evaluator | 去重的标签对称假设（0/1 互换）；整体翻转的补集切分被判重复而永不评估 | 去重仍用对称指纹省评估；"近零 hamming"只作 warn；报告里声明该假设 | ☑（文档）；补集探测未做 |
-| 22 | gate / prompts | `sign/ceil/nonzero/cpu/no_grad/.data/.grad` 拦了但 system.md 没写 → 静默被拒浪费一次修复 | 待把禁用清单从同一份常量注入 system.md | ☐ 待做 |
-| 23 | smoke | 硬依赖 `baseline_stub.*` → 换官方任务包后每个候选都 gate_failed 且方向误判 | 区分"移植/环境错误"（ConfigError 停）与"候选错误" | ☐ 待做 |
+| 22 | gate / prompts | `sign/ceil/nonzero/cpu/no_grad/.data/.grad` 拦了但 system.md 没写 → 静默被拒浪费一次修复 | system.md 的 `{FORBIDDEN}` 由 gate 常量生成 | ☑ |
+| 23 | smoke | 硬依赖 `baseline_stub.*` → 换官方任务包后每个候选都 gate_failed 且方向误判 | 冒烟子进程 import 失败 → `ConfigError` 立即停（不误判为候选问题） | ☑ |
 | 24 | codebase | `apply_unified_diff` 用 `splitlines()` 丢 CRLF | 改为按 `\n` 切分保留 `\r` | ☑ |
 
 ## LOW
@@ -44,7 +44,7 @@
 | 25 | loop | propose 抛异常后 meta 停在 proposed（本次运行内悬空） | ☑ |
 | 26 | loop | 事件名一律 "evaluated"（status 可能是 invalid） | ☑ |
 | 27 | selector | final 阶段父代未过滤 `_fail_streak` | ☑ |
-| 28 | profile | 画像打印 `abs(area_dev)` 丢方向 | ☐ |
+| 28 | profile | 画像打印 `abs(area_dev)` 丢方向 | ☑ |
 | 29 | gate | 只查 str 常量（bytes 漏）；`'ng'+'45'` 拼接漏 | ☑（bytes 已查；拼接仍漏） |
 | 30 | precheck | 允许 SEARCH 命中"文件里唯一但提示词没展示"的片段（与 system.md 不一致） | ☐ 保留（设计取舍，见下） |
 | 31 | evaluator | `--ref` 用正则剥除；命令含字面 `{` 会让 format 抛错 | ☐ |

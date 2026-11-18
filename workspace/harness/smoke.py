@@ -42,6 +42,35 @@ def _cases():
 
 
 def smoke_test(kind: str, src: str, fn_name: str, time_limit_s: float = 20.0) -> Tuple[List[str], List[str], Dict[str, float]]:
+    """在**子进程**里跑真实冒烟：模型写的 `while True:` 或死循环只会被硬超时杀掉，不会挂死 harness。"""
+    import json as _json
+    import subprocess as _sp
+    import sys as _sys
+    import tempfile as _tf
+
+    with _tf.NamedTemporaryFile("w", suffix=".py", delete=False, encoding="utf-8") as tf:
+        tf.write(src)
+        src_path = tf.name
+    try:
+        cmd = [_sys.executable, "-m", "harness.smoke", "--kind", kind, "--fn", fn_name, "--src", src_path,
+               "--time-limit", str(time_limit_s)]
+        try:
+            r = _sp.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace",
+                        timeout=time_limit_s + 5.0, cwd=str(WS))
+        except _sp.TimeoutExpired:
+            return [f"smoke exceeded {time_limit_s:.0f}s on a 120-node synthetic graph (infinite loop or runaway complexity; the real circuits are 100x larger)"], [], {}
+        if r.returncode != 0 and not r.stdout.strip():
+            return [f"smoke subprocess failed (rc={r.returncode}): {(r.stderr or '')[-400:]}"], [], {}
+        try:
+            d = _json.loads(r.stdout.strip().splitlines()[-1])
+        except (ValueError, IndexError):
+            return [f"smoke subprocess produced no result: {(r.stdout or r.stderr)[-400:]}"], [], {}
+        return d.get("errors", []), d.get("warnings", []), d.get("metrics", {})
+    finally:
+        Path(src_path).unlink(missing_ok=True)
+
+
+def smoke_test_inproc(kind: str, src: str, fn_name: str, time_limit_s: float = 20.0) -> Tuple[List[str], List[str], Dict[str, float]]:
     errs, warns, metrics = [], [], {}
     try:
         from baseline_stub.common.backend import torch
@@ -153,3 +182,27 @@ def _smoke_decode(fn, g, graph, feats, to_numpy, tag, errs, warns, metrics):
             warns.append(f"[{tag}] pre-repair macro ratios count={mc:.2f} area={ma:.2f} violate 45–55%; repair will move macros")
     if out1.min() == out1.max():
         errs.append(f"[{tag}] decode put every node on the same tier")
+
+
+def _main(argv=None):
+    """子进程入口：跑冒烟并把 (errors, warnings, metrics) 以 JSON 打到 stdout。"""
+    import argparse
+    import json
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--kind", required=True)
+    ap.add_argument("--fn", required=True)
+    ap.add_argument("--src", required=True)
+    ap.add_argument("--time-limit", type=float, default=20.0)
+    a = ap.parse_args(argv)
+    src = Path(a.src).read_text(encoding="utf-8")
+    try:
+        e, w, m = smoke_test_inproc(a.kind, src, a.fn, time_limit_s=a.time_limit)
+    except Exception as ex:  # noqa: BLE001
+        import traceback
+        e, w, m = [f"smoke crashed: {type(ex).__name__}: {ex}\n{traceback.format_exc()[-600:]}"], [], {}
+    print(json.dumps({"errors": e, "warnings": w, "metrics": m}, ensure_ascii=False))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(_main())

@@ -143,8 +143,12 @@ class Harness:
             raise ConfigError(f"baseline files missing under {self.base_root}: {missing}")
         e = cfg["evaluator"]
         g = cfg.get("gate", {})
+        fn_names = g.get("feature_names")
+        if isinstance(fn_names, str):
+            fn_names = [x.strip() for x in fn_names.split(",")]
         self.gate = Gate(self.targets, self.base_root, case_names=list(e.get("cases", [])),
-                         smoke_enabled=bool(g.get("smoke", True)), smoke_time_limit_s=float(g.get("smoke_time_limit_s", 20)))
+                         smoke_enabled=bool(g.get("smoke", True)), smoke_time_limit_s=float(g.get("smoke_time_limit_s", 10)),
+                         feature_names=fn_names)
 
         # ---- 评估器（fail-fast：非 mock 必须有命令） ----
         mode = e["mode"]
@@ -422,8 +426,12 @@ class Harness:
 
         # gate 结论
         passed: List[CandidateMeta] = []
+        # 冒烟子进程连 import 都失败 = 环境/移植问题（不是候选的错）：直接停，别把每个候选都判 gate_failed
         for m in metas:
             errs, rep, patch = results.get(m.id, (["harness error before gate"], None, ""))
+            msg = ("\n".join(errs) if errs else (rep.text() if rep and not rep.ok else ""))
+            if "smoke subprocess failed" in msg or "cannot load candidate function" in msg:
+                raise ConfigError(f"smoke environment is broken (porting/config issue, not a candidate issue): {msg[:300]}")
             work = works.get(m.id)
             m.files_changed = self._changed_files_in(work) if work else []
             self.store.write_patch(m.id, patch)
@@ -627,6 +635,32 @@ class Harness:
             self.finalize(best)
         return best
 
+    def _holdout_check(self, best: CandidateMeta) -> Tuple[bool, str]:
+        """最终候选的泛化自检（免费）：用与训练集不同形态的合成输入（无宏 / 不同工艺单位）跑一遍目标函数。
+        对应题面"验证/隐藏算例上任一种子失败 → 整个最终候选无效"。返回 (ok, 说明)。
+        没有 torch 环境或替身不可用时返回 (True, "skipped")。"""
+        try:
+            from .smoke import smoke_test
+            from .codebase import apply_unified_diff
+        except Exception:
+            return True, "skipped (smoke unavailable)"
+        import tempfile as _tf
+        with _tf.TemporaryDirectory() as td:
+            tw = Path(td)
+            for t in self.targets:
+                (tw / t.file).parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(self.base_root / t.file, tw / t.file)
+            ok, err = apply_unified_diff((self.store.dir(best.id) / "candidate.patch").read_text(encoding="utf-8"), tw)
+            if not ok:
+                return True, f"skipped (patch rebuild failed: {err})"
+            for t in self.targets:
+                src = (tw / t.file).read_text(encoding="utf-8")
+                e, _w, _m = smoke_test(t.kind, src, t.func, time_limit_s=float(self.cfg.get("gate", {}).get("smoke_time_limit_s", 10)))
+                # smoke 内部已经覆盖"无宏 + 不同单位（asap7 ps）"两种退化输入
+                if e:
+                    return False, f"{t.func}: {e[0][:200]}"
+        return True, "ok (no-macro and ps-unit synthetic inputs passed the differentiability feasibility smoke)"
+
     def finalize(self, best: Optional[CandidateMeta]) -> None:
         self.log("=== done | " + self.budget.summary())
         tree = self.store.export_tree_text()
@@ -647,6 +681,12 @@ class Harness:
                              "model": self.lcfg["model"], "evaluator_mode": self.cfg["evaluator"]["mode"], "targets": [vars(t) for t in self.targets]},
         }
         (self.run_dir / "summary.json").write_text(json.dumps(summary, indent=1, ensure_ascii=False, default=str), encoding="utf-8")
+        if best:
+            ok_hold, why_hold = self._holdout_check(best)
+            summary["holdout_check"] = {"ok": ok_hold, "detail": why_hold}
+            (self.run_dir / "summary.json").write_text(json.dumps(summary, indent=1, ensure_ascii=False, default=str), encoding="utf-8")
+            if not ok_hold:
+                self.log(f"  WARNING holdout check failed ({why_hold}); exporting anyway but the candidate may be invalid on unseen circuits")
         if best:
             out = WS / "algorithms" / self.baseline_kind
             out.mkdir(parents=True, exist_ok=True)

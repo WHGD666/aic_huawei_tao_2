@@ -42,14 +42,14 @@ def _stat_mean(rs: List[RunMetrics], key: str) -> Optional[float]:
 
 def render_baseline_profile(base: EvalResult, aliases: Dict[str, str]) -> str:
     lines = ["Baseline (official initial algorithm) on the training circuits, averaged over 3 seeds. Circuits are anonymised C1..Cn by size."]
-    lines.append("circuit | WNS(ns) | TNS(ns) | seed-spread(TNS) | nets cut | crit-weighted cut | crit-pair cross-tier | repair flips | |area dev|")
+    lines.append("circuit | WNS(ns) | TNS(ns) | seed-spread(TNS) | nets cut | crit-weighted cut | crit-pair cross-tier | repair flips | area dev (+ = upper-heavy)")
     for c, rs in sorted(_by_case(base).items(), key=lambda kv: aliases.get(kv[0], kv[0])):
         w = statistics.fmean(r.wns for r in rs)
         t = statistics.fmean(r.tns for r in rs)
         ts = statistics.pstdev([r.tns for r in rs]) if len(rs) > 1 else 0.0
         cut, wcut, cc, fl, ad = (_stat_mean(rs, k) for k in ("cut", "wcut", "crit_cross", "repair_flips", "area_dev"))
         f = lambda x, nd=1: "n/a" if x is None else f"{x:.{nd}f}"  # noqa: E731
-        lines.append(f"{aliases.get(c, c)} | {w:.3f} | {t:.1f} | ±{ts:.1f} | {f(cut, 0)} | {f(wcut, 0)} | {f(cc, 3)} | {f(fl, 0)} | {f(abs(ad) if ad is not None else None, 3)}")
+        lines.append(f"{aliases.get(c, c)} | {w:.3f} | {t:.1f} | ±{ts:.1f} | {f(cut, 0)} | {f(wcut, 0)} | {f(cc, 3)} | {f(fl, 0)} | {f(ad, 3)}")
     lines.append("Notes: 'crit-pair cross-tier' = fraction of adjacent pairs of timing-critical nodes (top-20% by 2D slack rank) that end up on different tiers; "
                  "'repair flips' = nodes moved by the official balance-repair step after thresholding (large = the loss did not learn balance itself).")
     return "\n".join(lines)

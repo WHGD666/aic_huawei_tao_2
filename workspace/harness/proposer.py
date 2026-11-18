@@ -110,6 +110,19 @@ class Proposer:
         self.use_knowledge = True
         self.rebuild_system()
 
+    @staticmethod
+    def _forbidden_list() -> str:
+        """从 gate 的常量生成"禁用操作"清单，保证提示词与实现一致（模型不会先被写错规则再被静默拒绝）。"""
+        try:
+            from .gate import Gate
+            names = sorted(n for n in Gate.GRAD_BREAKERS if not n.endswith("_"))
+            return (", ".join(f".{n}()" for n in names) +
+                    "; getattr/setattr/delattr/vars/globals; dunder attributes (__class__/__mro__/__globals__); "
+                    "assigning attributes to the function object; np.save/torch.save/torch.load; "
+                    "any random call (the sampling is fixed by the trainer)")
+        except Exception:
+            return ".item()/.detach()/argmax (non-differentiable ops)"
+
     def rebuild_system(self) -> None:
         know = _load("knowledge.md") if self.use_knowledge else ""
         self.system = (_load("system.md")
@@ -117,6 +130,7 @@ class Proposer:
                        .replace("{TARGETS}", self.targets_desc)
                        .replace("{KNOWLEDGE}", know)
                        .replace("{K}", str(self.propose_k))
+                       .replace("{FORBIDDEN}", self._forbidden_list())
                        .replace("{OUTLINE}", self.cb.outline()))
         self._system_template = self.system
 

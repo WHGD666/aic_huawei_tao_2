@@ -64,7 +64,9 @@ proxy:
 
 gate:
   smoke: true
-  smoke_time_limit_s: 20
+  # 与任务包核对特征列顺序（单位陷阱检查按此定位时序列）
+  feature_names: [slack, slew, arrival, required, cell_delay, timing_coverage, degree, fanout_max]
+  smoke_time_limit_s: 10            # 合成图（120 节点）上的硬超时；真算例大 100 倍，跑不动的候选在这里就得拒
 
 ablation:                             # 消融开关（技术报告用）；全 true = 完整 harness
   knowledge_block: true
