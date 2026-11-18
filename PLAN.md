@@ -1,6 +1,6 @@
 # 总体规划 —— 面向 3D 芯片网表切分的优化目标演化
 
-> 版本 v0.4 · 2026-11-18 · 状态：**harness v0.2（30 次彩排 + 对抗式审核修复完成），24 测试全绿；等待官方任务包与容器**
+> 版本 v1.0 · 2026-11-19 · 状态：**官方任务包已到手并逐行核对；Agent 已按官方接口重写并通过本地静态校验；等本机 GPU 环境就绪即可真跑**
 > 本文件是本项目的"总控文档"。配套：`docs/hypothesis_library.md`（两种基线的演化假设库，含公式）、`docs/open_questions.md`（待组委会确认清单 + 基线决策清单）、`docs/harness_design.md`（harness 模块设计）、`docs/submission_checklist.md`、`workspace/README.md`（怎么跑）。
 > 仓库：`F:\huawei_aic_tao\task2`，远端 https://github.com/WHGD666/aic_huawei_tao_2 ，本机 `git_sync.bat` 推送。
 
@@ -13,6 +13,37 @@
 这意味着两件事：
 1. 搜索空间小而干净（纯 PyTorch 函数、签名固定），LLM 出错面小、本地免费检查能做得非常强——**候选函数不需要物理流程就能在本地跑**（待确认不计次），这是本题最大的结构性机会。
 2. 7 个计分算例里 4 个（2 验证 + 2 隐藏）的物理反馈 harness 看不见，**稳健性 ≥ 峰值**；任何过拟合三个训练算例的选择策略都会在 4/7 的分数上反噬。
+
+---
+
+## 0.5 官方材料定论（2026-11-19 逐行核对，覆盖旧假设）
+
+旧 PLAN（v0.4 及以前）有 **5 处关键误判**，已全部纠正；细节见 `docs/official_materials_alignment.md`。
+
+| # | 旧说法 | 官方实际 | 出处 |
+|---|---|---|---|
+| 1 | 每任务 30 次评估 | **每基线 10 次训练评估**（两基线各 10 次，独立计账） | `contest2/budget.py:108` `evaluation_limit: int = 10`；README:237 |
+| 2 | 分母 = 初始算法同种子 | 分母 = **该算例两条基线的共同参考值**（α=1.854 校准，两基线五算例均分为 0） | `manifests/common-timing-reference.json` |
+| 3 | 评估失败的候选整体作废 | **物理失败的单组记 −100 分并留在矩阵**；只有接口/范围违规不产生分数 | README:229-237、`scoring.py` |
+| 4 | 交付物 = 自建 harness + patch + results | **交付物 = `agent/<baseline>/`（我们的 `Agent.run(context)`）**，官方替你跑评估、评分、计费 | README"Agent 开发入口" |
+| 5 | 可以在本地免费预筛（读切分统计） | 官方评估在**封闭容器**里；能做的免费预筛只有**官方静态校验器** + 我们自己的替身适配层 | `local_tasks/...validate_program` |
+
+**新增合规约束**（`关于离线专家知识注入的说明.pdf`）：
+- 初始提示词里的离线专家知识 **≤200 计数单位**（汉字 1 / 英文词 2 / 连续数字 1；标题+正文合并；标点空格换行不计）；
+- 只能纯自然语言，**禁代码/伪代码/公式/算例调参**；
+- **不得**通过其他提示词、附加文件、代码注释变相注入；
+- **运行中自主形成的经验允许** → 我们用"初始 200 单位 + Agent 运行时写 `MEMORY.md`"的方案。
+
+**两条基线的真实接口**（`prompt.md` 与 `tp_gnn_local_task_definitions.py` 逐字核对）：
+
+| 基线 | 可改函数 | 关键输入（未被基线使用、可用） |
+|---|---|---|
+| `binary_loss` | `compute_binary_partition_loss`（12 参） | `net_cut_probabilities` + `net_weights`（逐网割概率与冻结时序权重）、`node_features`（10 列）、`epoch/max_epochs` |
+| `loss_decoder` | `compute_tp_gnn_loss`（18 参）+ `decode_tp_gnn_embeddings`（5 参） | 损失侧的 `graph_scores/graph_weights/net_weights/node_features`；解码侧**不能**数组元素赋值、**没有 np.zeros**、只能一个 `for i in range(max_iterations)` |
+
+**本地已核实的关键事实**（`docs/local_findings_saturation.md`）：
+在官方固定配方下，概率饱和到 **99.7%**，割项梯度≈0 → **只改割项，切分 0% 变化**；只改平衡项（±1% 死区 hinge），切分 **48% 变化**。
+→ 搜索顺序必须重排：**平衡/二值 > epoch 调度 > 割项**。
 
 ---
 
@@ -229,10 +260,12 @@ final: 导出 algorithms/<baseline>/{candidate.patch, loss.py[, decode.py], SELE
 | M2 | 本地替身基线 | 两种基线的最小可运行替身（合成网表 + 2D 特征、固定 GNN、修复程序、伪物理分数）+ 命令式评估接口 | 端到端 e2e 通过 | ✅ 2026-11-18 |
 | M3 | 真实 LLM 彩排 | deepseek-flash × 替身评估 × 30 次预算跑满；统计 gate 通过率 / 协议错误 / 费用；修提示词 | 彩排报告 | ✅ 2026-11-18 |
 | M3b | 对抗式审核 + 修复 | 独立 agent 审核 harness（预算/血统/合规/代理层），实测复现绕过路径；HIGH 8 / MED 16 / LOW 14 逐条修 | 审核清单全绿（L-30 为保留设计取舍） | ✅ 2026-11-18 |
-| M4 | 官方任务包 | 核对接口签名、确认本地跑切分是否计次、填 `open_questions`；代理层接真实图；基线决策 | 决策清单打勾 | ☐ |
-| M5 | 真跑小预算 | 3–5 次真实评估，修 gate 漏网 | ≥1 候选有效且不劣于基线 | ☐ |
-| M6 | 冲分 | 完整 30 次 ≥ 2 轮；提交稳健的一轮（提交的算法/结果可能用于**初步成绩筛选**，但正式分数来自组委会复跑 harness 本身） | 训练集三算例均 ≥ 0 | ☐ |
-| M7 | 打包 | README / algorithms / results / logs / 技术报告 | 对照 `docs/submission_checklist.md` | ☐ |
+| M4 | 官方任务包对齐 | 官方三件套 + 两份 PDF 逐行核对；5 处旧误判纠正；静态校验器本地跑通；官方签名适配层 | `docs/official_materials_alignment.md` | ✅ 2026-11-19 |
+| M4b | Agent 重写 | 两个 `agent.py` 按官方接口重写（无 Codex 依赖、本地 validate_program 预检、≤200 单位离线知识、运行时 MEMORY、切分变化门槛） | 本地 mock 闭环跑通 | ✅ 2026-11-19 |
+| M5 | 本机环境 | 用户执行 `docs/windows_setup_checklist.md` 步骤 0–7（docker load / check / smoke） | `contest2 check` 通过 | ☐ 等用户 |
+| M5b | 真跑小预算 | 装我们的 Agent（步骤 8）→ `smoke` → 前 2 次真实评估 | ≥1 候选有效且 ≥ 基线 | ☐ |
+| M6 | 冲分 | 两条基线各跑满 10 次（各 15 元）；按 `search_policy_10.md` 的机制顺序 | 训练集三算例均 ≥ 0 | ☐ |
+| M7 | 公开验证 + 打包 | `contest2 validate --candidate-id`（6 组）；技术报告按官方附录 | 对照 `docs/submission_checklist.md` | ☐ |
 
 ---
 
