@@ -145,7 +145,7 @@ def render(run: Path) -> str:
     out.append("```\n" + (tree or "(empty)") + "\n```\n")
 
     out.append("## 8. 最终导出的函数（algorithms/ 下同名文件为完整版）\n")
-    alg = WS / "algorithms" / str(summary.get("baseline", ""))
+    alg = Path(summary.get("algorithms_dir") or (WS / "algorithms")) / str(summary.get("baseline", ""))
     if alg.exists():
         for p in sorted(alg.glob("*.py")):
             out.append(f"### `{p.name}`\n")

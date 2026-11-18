@@ -12,7 +12,6 @@ from __future__ import annotations
 import hashlib
 import json
 import random
-import re
 import subprocess
 import time
 from abc import ABC, abstractmethod
@@ -116,12 +115,33 @@ class CommandEvaluator(Evaluator):
 
     def _run(self, cid: str, workdir: Path, out: Path, ref: Optional[Path]) -> EvalResult:
         t0 = time.time()
-        cmd = self.cmd.format(workdir=str(workdir), out=str(out), ref=str(ref) if ref else "",
-                              cases=",".join(self.cases), seeds=",".join(map(str, self.seeds)))
-        # 没有参考文件时把 `--ref ` 占位去掉（命令里 {ref} 为空会让 argparse 报错）
-        cmd = re.sub(r"\s--ref\s+(?=\s|$|-)", " ", cmd).replace("--ref ''", "").replace('--ref ""', "")
+        import shlex
+        # 参数化：先按模板 format，再 shlex 切分；空 {ref} 及其 "--ref" 标志整体去掉（不做字符串手术，命令含 `{` 也不炸）
+        filled = self.cmd.replace("{ref}", "__REF__")
+        for k2, v2 in (("workdir", str(workdir)), ("out", str(out)),
+                       ("cases", ",".join(self.cases)), ("seeds", ",".join(map(str, self.seeds)))):
+            filled = filled.replace("{" + k2 + "}", v2)
+        argv = shlex.split(filled, posix=True)
+        if ref is not None:
+            argv = [str(ref) if a == "__REF__" else a for a in argv]
+        else:
+            cleaned = []
+            skip_next = False
+            for a in argv:
+                if skip_next:
+                    skip_next = False
+                    continue
+                if a == "__REF__":
+                    if cleaned and cleaned[-1] in ("--ref", "-r"):
+                        cleaned.pop()
+                    continue
+                if a in ("--ref", "-r"):
+                    skip_next = True
+                    continue
+                cleaned.append(a)
+            argv = cleaned
         try:
-            r = subprocess.run(cmd, shell=True, capture_output=True, text=True, encoding="utf-8", errors="replace",
+            r = subprocess.run(argv, capture_output=True, text=True, encoding="utf-8", errors="replace",
                                timeout=self.timeout_s, cwd=str(self.cwd) if self.cwd else None)
             self.last_stderr = (r.stderr or "")[-2000:]
         except subprocess.TimeoutExpired:

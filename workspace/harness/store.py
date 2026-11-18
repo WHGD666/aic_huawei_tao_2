@@ -140,5 +140,10 @@ class CandidateStore:
         import dataclasses
         known = {f.name for f in dataclasses.fields(CandidateMeta)}
         for mp in self.root.glob("*/meta.json"):
-            d = json.loads(mp.read_text(encoding="utf-8"))
-            self._metas[d["id"]] = CandidateMeta(**{k: v for k, v in d.items() if k in known})
+            try:
+                d = json.loads(mp.read_text(encoding="utf-8"))
+                if "id" not in d:
+                    raise KeyError("id")
+                self._metas[d["id"]] = CandidateMeta(**{k: v for k, v in d.items() if k in known})
+            except (json.JSONDecodeError, KeyError, TypeError) as ex:
+                print(f"[store] WARNING skipping unreadable {mp}: {type(ex).__name__}: {ex}", file=__import__("sys").stderr)

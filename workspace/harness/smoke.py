@@ -33,6 +33,16 @@ def _load_fn(src: str, fn_name: str):
     return getattr(mod, fn_name)
 
 
+def _has_node_loop(fn) -> bool:
+    import ast as _ast
+    for n in _ast.walk(fn):
+        if isinstance(n, (_ast.For, _ast.While)):
+            for x in _ast.walk(n.iter if isinstance(n, _ast.For) else n.test):
+                if isinstance(x, _ast.Call) and isinstance(x.func, _ast.Name) and x.func.id in {"range", "enumerate", "zip"}:
+                    return True
+    return False
+
+
 def _cases():
     from baseline_stub.common.synth import make_case
     return [
@@ -72,6 +82,16 @@ def smoke_test(kind: str, src: str, fn_name: str, time_limit_s: float = 20.0) ->
 
 def smoke_test_inproc(kind: str, src: str, fn_name: str, time_limit_s: float = 20.0) -> Tuple[List[str], List[str], Dict[str, float]]:
     errs, warns, metrics = [], [], {}
+    # 静态提示：函数体里对 range(n) 的 python 循环（n 为节点数）在 10^5 节点上是 O(n) 次解释执行
+    import ast as _ast
+    try:
+        _tree = _ast.parse(src)
+        _fn = next((x for x in _tree.body if isinstance(x, _ast.FunctionDef) and x.name == fn_name), None)
+        if _fn is not None and _has_node_loop(_fn):
+            warns.append("the function contains a Python loop over nodes (range(n) / enumerate over an N-length tensor); "
+                         "on real circuits (1e4-1e5 nodes) this is 100x slower than vectorised tensor ops and may time out")
+    except SyntaxError:
+        pass
     try:
         from baseline_stub.common.backend import torch
         from baseline_stub.common.gnn import to_numpy

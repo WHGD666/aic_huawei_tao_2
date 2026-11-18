@@ -1,7 +1,7 @@
 # Harness 审核清单（2026-11-18，独立 agent 对抗式审核 + 本轮修复记录）
 
 > 审核对象：`workspace/harness/*`、`config/harness.yaml`、`prompts/*`、`baseline_stub/`。视角：预算泄漏、血统正确性、规则合规（函数边界 / 不特判 / 全有效）、多候选与代理层正确性。
-> 审核员在会话里**实测复现**了下列绕过（gate 规模/单位规则可绕过、非目标文件可写穿、空切分指纹导致全判重复、导出回退基线等）。
+> 状态：**全部 HIGH 与除 L-30（保留的设计取舍）外的 MED/LOW 已修**。审核员在会话里**实测复现**了下列绕过（gate 规模/单位规则可绕过、非目标文件可写穿、空切分指纹导致全判重复、导出回退基线等）。
 
 ## HIGH
 
@@ -47,13 +47,13 @@
 | 28 | profile | 画像打印 `abs(area_dev)` 丢方向 | ☑ |
 | 29 | gate | 只查 str 常量（bytes 漏）；`'ng'+'45'` 拼接漏 | ☑（bytes 已查；拼接仍漏） |
 | 30 | precheck | 允许 SEARCH 命中"文件里唯一但提示词没展示"的片段（与 system.md 不一致） | ☐ 保留（设计取舍，见下） |
-| 31 | evaluator | `--ref` 用正则剥除；命令含字面 `{` 会让 format 抛错 | ☐ |
-| 32 | smoke | decode 只在 100–120 节点测，O(n²) 解码在 10⁵ 节点会超时 | ☐ |
-| 33 | llm | replay 缓存键不含 model/thinking | ☐ |
-| 34 | store | 损坏 meta.json 直接 KeyError | ☐ |
+| 31 | evaluator | `--ref` 用正则剥除；命令含字面 `{` 会让 format 抛错 | ☑（显式占位替换 + shlex，空 ref 连同 `--ref` 标志整体去掉） |
+| 32 | smoke | decode 只在 100–120 节点测，O(n²) 解码在 10⁵ 节点会超时 | ☑（静态检测 range(n)/enumerate 节点循环并 warn） |
+| 33 | llm | replay 缓存键不含 model/thinking | ☑ |
+| 34 | store | 损坏 meta.json 直接 KeyError | ☑（跳过并 warn） |
 | 35 | evaluator | `bytes(p)` 对 0/1 外标签抛错 | ☑（hash 前校验） |
-| 36 | tests | e2e 写真实 `workspace/algorithms/` | ☐ |
-| 37 | loop CLI | 新 run-dir 重置本地预算；CLI 可覆盖预算 | ☐（正式跑只读 config；文档已注明） |
+| 36 | tests | e2e 写真实 `workspace/algorithms/` | ☑（`algorithms_dir` 可配置，测试写 tmp） |
+| 37 | loop CLI | 新 run-dir 重置本地预算；CLI 可覆盖预算 | ☑ 文档注明（正式跑由 `run.sh` 只读 config；预算以官方外层计量为准） |
 | 38 | gate | 装饰器列表死比较 | ☑ |
 
 ## 审核确认无问题的点

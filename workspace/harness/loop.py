@@ -669,6 +669,7 @@ class Harness:
         corr = proxy_correlation(self._proxy_samples)
         summary = {
             "baseline": self.baseline_kind, "run_dir": str(self.run_dir), "budget": self.budget.state.to_dict(),
+            "algorithms_dir": str(Path(self.cfg.get("algorithms_dir") or (WS / "algorithms"))),
             "n_candidates": len(self.store.all()), "n_evaluated": len(self.store.evaluated()),
             "n_gate_failed": sum(1 for m in self.store.all() if m.status == "gate_failed"),
             "n_screened": sum(1 for m in self.store.all() if m.status == "screened"),
@@ -688,7 +689,7 @@ class Harness:
             if not ok_hold:
                 self.log(f"  WARNING holdout check failed ({why_hold}); exporting anyway but the candidate may be invalid on unseen circuits")
         if best:
-            out = WS / "algorithms" / self.baseline_kind
+            out = Path(self.cfg.get("algorithms_dir") or (WS / "algorithms")) / self.baseline_kind
             out.mkdir(parents=True, exist_ok=True)
             shutil.copy2(self.store.dir(best.id) / "candidate.patch", out / "candidate.patch")
             # 导出完整的最终函数文件：从基线 + candidate.patch 重建（work/ 可能已被清理；绝不能静默回退基线代码）

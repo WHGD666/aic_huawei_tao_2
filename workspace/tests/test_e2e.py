@@ -24,6 +24,7 @@ def make_harness(tmp_path, script, max_evals=3, baseline="prob", evaluator="comm
     cfg["evaluator"]["mock_fail_rate"] = fail_rate
     cfg["proxy"]["enabled"] = proxy
     # 测试用更短的算例（替身生成器按名字查规格；这里用小图加速）
+    cfg["algorithms_dir"] = str(tmp_path / "algorithms")
     h = L.Harness(cfg, llm_mode="replay", run_dir=tmp_path / "run")
     h.llm = FakeLLM(script)
     return h
@@ -44,7 +45,7 @@ def test_e2e_happy_path_command_evaluator(tmp_path):
     assert (run / "candidates" / best.id / "partitions.json").exists()
     summary = json.loads((run / "summary.json").read_text(encoding="utf-8"))
     assert summary["code_version"]["baseline_targets_sha256"] and summary["case_aliases"]
-    out = WS / "algorithms" / "prob"
+    out = tmp_path / "algorithms" / "prob"
     assert (out / "candidate.patch").exists() and (out / "loss.py").exists()
     assert "def compute_loss(p, graph, feats)" in (out / "loss.py").read_text(encoding="utf-8")
     assert h.budget.state.llm_calls >= 2 and h.budget.state.cost_cny > 0
@@ -106,7 +107,7 @@ def test_e2e_embed_baseline(tmp_path):
     h = make_harness(tmp_path, [dec, dec2], max_evals=2, baseline="embed")
     best = h.run()
     assert best is not None and best.files_changed == ["decode.py"]
-    out = WS / "algorithms" / "embed"
+    out = tmp_path / "algorithms" / "embed"
     assert (out / "decode.py").exists() and (out / "loss.py").exists()
 
 

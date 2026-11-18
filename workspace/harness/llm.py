@@ -119,9 +119,9 @@ class LLMClient:
                 time.sleep(2 ** attempt)
         raise last_err or LLMError("unknown error")
 
-    @staticmethod
-    def _cache_key(messages, temperature, max_tokens) -> str:
-        blob = json.dumps({"m": messages, "t": temperature, "k": max_tokens}, sort_keys=True, ensure_ascii=False)
+    def _cache_key(self, messages, temperature, max_tokens) -> str:
+        blob = json.dumps({"m": messages, "t": temperature, "k": max_tokens, "model": self.model, "thinking": self.thinking},
+                          sort_keys=True, ensure_ascii=False)
         return hashlib.sha256(blob.encode("utf-8")).hexdigest()[:24]
 
     def _record(self, key: str, raw: dict, tag: str) -> None:
