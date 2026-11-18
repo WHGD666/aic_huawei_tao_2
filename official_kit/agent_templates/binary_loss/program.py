@@ -16,8 +16,7 @@ def compute_binary_partition_loss(
     """Balance soft physical area and separate binary probabilities."""
     total_area = node_areas.sum()
     top_area_ratio = (node_areas * probabilities).sum() / total_area
-    dev = (top_area_ratio - balance_target).abs()
-    area_loss = (top_area_ratio - balance_target).square() + 60.0 * F.relu(dev - 0.005).square()
+    area_loss = (top_area_ratio - balance_target).square()
     # Penalize ambiguity until probabilities reach [0,.05] or [.95,1].
     margin_error = (0.9 - (2.0 * probabilities - 1.0).abs()).clamp_min(0.0).square() / 0.81
     binary_loss = (
