@@ -1,0 +1,27 @@
+{
+ "id": "c025",
+ "parent": "c009",
+ "hypothesis": "(proposing)",
+ "expected_effect": "",
+ "files_changed": [],
+ "phase": "structural",
+ "created_at": 1794989864.3489993,
+ "status": "discarded",
+ "gate_report": "",
+ "score_total": null,
+ "score_robust": null,
+ "per_case": {},
+ "all_valid": null,
+ "fail_reasons": [
+  "run interrupted before gate/evaluation"
+ ],
+ "analysis": "",
+ "llm_cost_cny": 0.0,
+ "eval_wall_s": 0.0,
+ "tags": [],
+ "prompt_chars": 0,
+ "proxy": {},
+ "seed_std": null,
+ "duplicate_of": null,
+ "slot": 0
+}

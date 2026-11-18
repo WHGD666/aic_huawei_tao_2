@@ -1,0 +1,48 @@
+{
+ "id": "c058",
+ "parent": "c037",
+ "hypothesis": "The parent's critical-pair locality term uses saturated criticality crit = 1 - rank_q on each node's own slack only; replacing the saturated crit with a centred version (crit - mean(crit)) so that only genuinely critical nodes get positive weight and non-critical nodes contribute ~0 (or negative) would sharpen the locality mechanism without changing its strength, per c054/c055's observation that saturation leaves every node weighted.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "combine",
+ "created_at": 1794990490.3660977,
+ "status": "screened",
+ "gate_report": "OK",
+ "score_total": null,
+ "score_robust": null,
+ "per_case": {},
+ "all_valid": null,
+ "fail_reasons": [],
+ "analysis": "",
+ "llm_cost_cny": 0.0026954,
+ "eval_wall_s": 0.0,
+ "tags": [
+  "locality-sharpened",
+  "centred-criticality",
+  "combine"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 0.920472,
+  "smoke_loss_tiny_gnorm": 0.071861,
+  "smoke_loss_tiny_s": 0.002,
+  "smoke_loss_nomacro_loss": 0.920684,
+  "smoke_loss_nomacro_gnorm": 0.018822,
+  "smoke_loss_nomacro_s": 0.002,
+  "smoke_loss_wall_s": 0.017,
+  "cut": 343.7778,
+  "cut_ratio": 0.4207,
+  "wcut": 1112.1912,
+  "crit_cross": 0.0255,
+  "area_dev": -0.0097,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": -0.0022,
+  "repair_flips": 233.4444,
+  "hamming_ref": 0.0826
+ },
+ "seed_std": null,
+ "duplicate_of": null,
+ "slot": 1
+}

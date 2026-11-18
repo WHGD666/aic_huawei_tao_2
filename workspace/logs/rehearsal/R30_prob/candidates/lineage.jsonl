@@ -1,0 +1,238 @@
+{"t": 1794988767.0939267, "event": "create", "id": "c001", "parent": null, "phase": "probe", "hypothesis": "(proposing)"}
+{"t": 1794988767.1752903, "event": "create", "id": "c002", "parent": null, "phase": "probe", "hypothesis": "(proposing)"}
+{"t": 1794988774.1772296, "event": "proposed", "id": "c001", "status": "proposed", "score": null}
+{"t": 1794988775.2090416, "event": "proposed", "id": "c002", "status": "proposed", "score": null}
+{"t": 1794988795.129478, "event": "screened", "id": "c001", "status": "screened", "score": null, "reason": "another candidate of this round was submitted"}
+{"t": 1794988806.8952944, "event": "evaluated", "id": "c002", "status": "evaluated", "score": -1.0601044669542348}
+{"t": 1794988807.2331839, "event": "create", "id": "c003", "parent": null, "phase": "probe", "hypothesis": "(proposing)"}
+{"t": 1794988807.3173132, "event": "create", "id": "c004", "parent": null, "phase": "probe", "hypothesis": "(proposing)"}
+{"t": 1794988814.1030085, "event": "proposed", "id": "c003", "status": "proposed", "score": null}
+{"t": 1794988822.0410483, "event": "proposed", "id": "c004", "status": "proposed", "score": null}
+{"t": 1794988822.51815, "event": "gate_failed", "id": "c003", "status": "gate_failed", "score": null}
+{"t": 1794988845.5161455, "event": "evaluated", "id": "c004", "status": "evaluated", "score": 0.0654221059715002}
+{"t": 1794988845.8573747, "event": "create", "id": "c005", "parent": null, "phase": "probe", "hypothesis": "(proposing)"}
+{"t": 1794988845.9405038, "event": "create", "id": "c006", "parent": null, "phase": "probe", "hypothesis": "(proposing)"}
+{"t": 1794988852.2718008, "event": "proposed", "id": "c005", "status": "proposed", "score": null}
+{"t": 1794988852.7044811, "event": "proposed", "id": "c006", "status": "proposed", "score": null}
+{"t": 1794988872.3887367, "event": "screened", "id": "c006", "status": "screened", "score": null, "reason": "another candidate of this round was submitted"}
+{"t": 1794988884.1013048, "event": "evaluated", "id": "c005", "status": "evaluated", "score": -0.8674493293237371}
+{"t": 1794988884.4613435, "event": "create", "id": "c007", "parent": null, "phase": "probe", "hypothesis": "(proposing)"}
+{"t": 1794988884.554322, "event": "create", "id": "c008", "parent": null, "phase": "probe", "hypothesis": "(proposing)"}
+{"t": 1794988892.047409, "event": "proposed", "id": "c007", "status": "proposed", "score": null}
+{"t": 1794988892.4637647, "event": "proposed", "id": "c008", "status": "proposed", "score": null}
+{"t": 1794988912.310864, "event": "screened", "id": "c007", "status": "screened", "score": null, "reason": "another candidate of this round was submitted"}
+{"t": 1794988925.0045106, "event": "evaluated", "id": "c008", "status": "evaluated", "score": -0.7185887094644497}
+{"t": 1794989506.2861266, "event": "create", "id": "c009", "parent": null, "phase": "probe", "hypothesis": "(proposing)"}
+{"t": 1794989506.3753507, "event": "create", "id": "c010", "parent": null, "phase": "probe", "hypothesis": "(proposing)"}
+{"t": 1794989513.7194319, "event": "proposed", "id": "c009", "status": "proposed", "score": null}
+{"t": 1794989519.8876748, "event": "proposed", "id": "c010", "status": "proposed", "score": null}
+{"t": 1794989542.598914, "event": "screened", "id": "c010", "status": "screened", "score": null, "reason": "another candidate of this round was submitted"}
+{"t": 1794989553.2919028, "event": "evaluated", "id": "c009", "status": "evaluated", "score": -0.03410315751067197}
+{"t": 1794989553.7466583, "event": "create", "id": "c011", "parent": "c008", "phase": "structural", "hypothesis": "(proposing)"}
+{"t": 1794989553.8368554, "event": "create", "id": "c012", "parent": "c008", "phase": "structural", "hypothesis": "(proposing)"}
+{"t": 1794989559.5602498, "event": "proposed", "id": "c011", "status": "proposed", "score": null}
+{"t": 1794989560.055925, "event": "proposed", "id": "c012", "status": "proposed", "score": null}
+{"t": 1794989582.175609, "event": "screened", "id": "c012", "status": "screened", "score": null, "reason": "another candidate of this round was submitted"}
+{"t": 1794989593.8602135, "event": "evaluated", "id": "c011", "status": "evaluated", "score": -0.3955757068902519}
+{"t": 1794989594.3061528, "event": "create", "id": "c013", "parent": "c011", "phase": "structural", "hypothesis": "(proposing)"}
+{"t": 1794989594.3901327, "event": "create", "id": "c014", "parent": "c011", "phase": "structural", "hypothesis": "(proposing)"}
+{"t": 1794989601.219548, "event": "proposed", "id": "c013", "status": "proposed", "score": null}
+{"t": 1794989601.7369776, "event": "proposed", "id": "c014", "status": "proposed", "score": null}
+{"t": 1794989622.1414487, "event": "screened", "id": "c013", "status": "screened", "score": null, "reason": "another candidate of this round was submitted"}
+{"t": 1794989634.0141456, "event": "evaluated", "id": "c014", "status": "evaluated", "score": -0.4976657631388094}
+{"t": 1794989634.474702, "event": "create", "id": "c015", "parent": "c004", "phase": "structural", "hypothesis": "(proposing)"}
+{"t": 1794989634.5656998, "event": "create", "id": "c016", "parent": "c004", "phase": "structural", "hypothesis": "(proposing)"}
+{"t": 1794989645.5482547, "event": "proposed", "id": "c015", "status": "proposed", "score": null}
+{"t": 1794989646.0952659, "event": "proposed", "id": "c016", "status": "proposed", "score": null}
+{"t": 1794989666.1352737, "event": "duplicate", "id": "c016", "status": "duplicate", "score": 0.0, "of": "baseline"}
+{"t": 1794989700.900701, "event": "interrupted", "id": "c015", "status": "discarded", "score": null}
+{"t": 1794989701.6240659, "event": "create", "id": "c017", "parent": "c011", "phase": "structural", "hypothesis": "(proposing)"}
+{"t": 1794989701.7177823, "event": "create", "id": "c018", "parent": "c011", "phase": "structural", "hypothesis": "(proposing)"}
+{"t": 1794989710.829248, "event": "proposed", "id": "c017", "status": "proposed", "score": null}
+{"t": 1794989711.8667994, "event": "proposed", "id": "c018", "status": "proposed", "score": null}
+{"t": 1794989728.2283046, "event": "duplicate", "id": "c017", "status": "duplicate", "score": -0.7185887094644497, "of": "c008"}
+{"t": 1794989728.3158755, "event": "duplicate", "id": "c018", "status": "duplicate", "score": -0.7185887094644497, "of": "c008"}
+{"t": 1794989728.753817, "event": "create", "id": "c019", "parent": "c014", "phase": "structural", "hypothesis": "(proposing)"}
+{"t": 1794989728.87986, "event": "create", "id": "c020", "parent": "c014", "phase": "structural", "hypothesis": "(proposing)"}
+{"t": 1794989737.6489532, "event": "proposed", "id": "c019", "status": "proposed", "score": null}
+{"t": 1794989738.1585922, "event": "proposed", "id": "c020", "status": "proposed", "score": null}
+{"t": 1794989758.4459589, "event": "screened", "id": "c020", "status": "screened", "score": null, "reason": "another candidate of this round was submitted"}
+{"t": 1794989770.0212045, "event": "evaluated", "id": "c019", "status": "evaluated", "score": -0.514488838114406}
+{"t": 1794989770.4513361, "event": "create", "id": "c021", "parent": "c004", "phase": "structural", "hypothesis": "(proposing)"}
+{"t": 1794989770.570403, "event": "create", "id": "c022", "parent": "c004", "phase": "structural", "hypothesis": "(proposing)"}
+{"t": 1794989777.8239646, "event": "proposed", "id": "c021", "status": "proposed", "score": null}
+{"t": 1794989778.392718, "event": "proposed", "id": "c022", "status": "proposed", "score": null}
+{"t": 1794989799.7882578, "event": "screened", "id": "c022", "status": "screened", "score": null, "reason": "another candidate of this round was submitted"}
+{"t": 1794989812.9180522, "event": "evaluated", "id": "c021", "status": "evaluated", "score": -0.09728366889901276}
+{"t": 1794989813.3742015, "event": "create", "id": "c023", "parent": "c009", "phase": "structural", "hypothesis": "(proposing)"}
+{"t": 1794989813.471214, "event": "create", "id": "c024", "parent": "c009", "phase": "structural", "hypothesis": "(proposing)"}
+{"t": 1794989828.9737313, "event": "proposed", "id": "c023", "status": "proposed", "score": null}
+{"t": 1794989829.554504, "event": "proposed", "id": "c024", "status": "proposed", "score": null}
+{"t": 1794989851.7216556, "event": "screened", "id": "c024", "status": "screened", "score": null, "reason": "another candidate of this round was submitted"}
+{"t": 1794989863.9899912, "event": "evaluated", "id": "c023", "status": "evaluated", "score": -0.035322204607101323}
+{"t": 1794989864.4306233, "event": "create", "id": "c025", "parent": "c009", "phase": "structural", "hypothesis": "(proposing)"}
+{"t": 1794989864.523963, "event": "create", "id": "c026", "parent": "c009", "phase": "structural", "hypothesis": "(proposing)"}
+{"t": 1794989890.9706388, "event": "interrupted", "id": "c025", "status": "discarded", "score": null}
+{"t": 1794989890.9932299, "event": "interrupted", "id": "c026", "status": "discarded", "score": null}
+{"t": 1794989891.7791245, "event": "create", "id": "c027", "parent": "c021", "phase": "structural", "hypothesis": "(proposing)"}
+{"t": 1794989891.8662307, "event": "create", "id": "c028", "parent": "c021", "phase": "structural", "hypothesis": "(proposing)"}
+{"t": 1794989899.4030182, "event": "proposed", "id": "c027", "status": "proposed", "score": null}
+{"t": 1794989920.381936, "event": "proposed", "id": "c028", "status": "proposed", "score": null}
+{"t": 1794989941.643108, "event": "screened", "id": "c028", "status": "screened", "score": null, "reason": "another candidate of this round was submitted"}
+{"t": 1794989955.531908, "event": "evaluated", "id": "c027", "status": "evaluated", "score": -0.07258736913424549}
+{"t": 1794989955.9566464, "event": "create", "id": "c029", "parent": "c004", "phase": "structural", "hypothesis": "(proposing)"}
+{"t": 1794989956.0601845, "event": "create", "id": "c030", "parent": "c004", "phase": "structural", "hypothesis": "(proposing)"}
+{"t": 1794989967.1333916, "event": "proposed", "id": "c029", "status": "proposed", "score": null}
+{"t": 1794989967.6625257, "event": "proposed", "id": "c030", "status": "proposed", "score": null}
+{"t": 1794989991.0832274, "event": "screened", "id": "c030", "status": "screened", "score": null, "reason": "another candidate of this round was submitted"}
+{"t": 1794990003.1615684, "event": "evaluated", "id": "c029", "status": "evaluated", "score": 0.07466304200645632}
+{"t": 1794990003.6327312, "event": "create", "id": "c031", "parent": "c009", "phase": "structural", "hypothesis": "(proposing)"}
+{"t": 1794990003.727028, "event": "create", "id": "c032", "parent": "c009", "phase": "structural", "hypothesis": "(proposing)"}
+{"t": 1794990010.2346084, "event": "proposed", "id": "c031", "status": "proposed", "score": null}
+{"t": 1794990010.7675567, "event": "proposed", "id": "c032", "status": "proposed", "score": null}
+{"t": 1794990031.0378084, "event": "screened", "id": "c031", "status": "screened", "score": null, "reason": "another candidate of this round was submitted"}
+{"t": 1794990043.2426648, "event": "evaluated", "id": "c032", "status": "evaluated", "score": 0.12343850133416474}
+{"t": 1794990043.7379928, "event": "create", "id": "c033", "parent": "c023", "phase": "structural", "hypothesis": "(proposing)"}
+{"t": 1794990043.835969, "event": "create", "id": "c034", "parent": "c023", "phase": "structural", "hypothesis": "(proposing)"}
+{"t": 1794990048.2084408, "event": "proposed", "id": "c033", "status": "proposed", "score": null}
+{"t": 1794990049.2482903, "event": "proposed", "id": "c034", "status": "proposed", "score": null}
+{"t": 1794990072.4674246, "event": "interrupted", "id": "c033", "status": "discarded", "score": null}
+{"t": 1794990072.4917288, "event": "interrupted", "id": "c034", "status": "discarded", "score": null}
+{"t": 1794990073.3701034, "event": "create", "id": "c035", "parent": "c029", "phase": "structural", "hypothesis": "(proposing)"}
+{"t": 1794990073.4546688, "event": "create", "id": "c036", "parent": "c029", "phase": "structural", "hypothesis": "(proposing)"}
+{"t": 1794990079.2651541, "event": "proposed", "id": "c035", "status": "proposed", "score": null}
+{"t": 1794990080.318037, "event": "proposed", "id": "c036", "status": "proposed", "score": null}
+{"t": 1794990101.951763, "event": "screened", "id": "c036", "status": "screened", "score": null, "reason": "another candidate of this round was submitted"}
+{"t": 1794990114.5685005, "event": "evaluated", "id": "c035", "status": "evaluated", "score": 0.16510509922786085}
+{"t": 1794990114.992371, "event": "create", "id": "c037", "parent": "c029", "phase": "structural", "hypothesis": "(proposing)"}
+{"t": 1794990115.0745273, "event": "create", "id": "c038", "parent": "c029", "phase": "structural", "hypothesis": "(proposing)"}
+{"t": 1794990119.2559958, "event": "proposed", "id": "c037", "status": "proposed", "score": null}
+{"t": 1794990119.769789, "event": "proposed", "id": "c038", "status": "proposed", "score": null}
+{"t": 1794990140.4107618, "event": "screened", "id": "c038", "status": "screened", "score": null, "reason": "another candidate of this round was submitted"}
+{"t": 1794990152.565843, "event": "evaluated", "id": "c037", "status": "evaluated", "score": 0.11610033040297642}
+{"t": 1794990153.0185356, "event": "create", "id": "c039", "parent": "c023", "phase": "structural", "hypothesis": "(proposing)"}
+{"t": 1794990153.107089, "event": "create", "id": "c040", "parent": "c023", "phase": "structural", "hypothesis": "(proposing)"}
+{"t": 1794990157.8037043, "event": "proposed", "id": "c039", "status": "proposed", "score": null}
+{"t": 1794990158.348347, "event": "proposed", "id": "c040", "status": "proposed", "score": null}
+{"t": 1794990178.6753201, "event": "duplicate", "id": "c040", "status": "duplicate", "score": -0.035322204607101323, "of": "c023"}
+{"t": 1794990190.5362556, "event": "evaluated", "id": "c039", "status": "evaluated", "score": -0.9522692020462158}
+{"t": 1794990190.9985726, "event": "create", "id": "c041", "parent": "c023", "phase": "structural", "hypothesis": "(proposing)"}
+{"t": 1794990191.0866876, "event": "create", "id": "c042", "parent": "c023", "phase": "structural", "hypothesis": "(proposing)"}
+{"t": 1794990197.2613916, "event": "proposed", "id": "c041", "status": "proposed", "score": null}
+{"t": 1794990197.8214054, "event": "proposed", "id": "c042", "status": "proposed", "score": null}
+{"t": 1794990218.2612746, "event": "screened", "id": "c042", "status": "screened", "score": null, "reason": "another candidate of this round was submitted"}
+{"t": 1794990230.8496535, "event": "evaluated", "id": "c041", "status": "evaluated", "score": -0.050326231346029066}
+{"t": 1794990231.2833657, "event": "create", "id": "c043", "parent": "c037", "phase": "structural", "hypothesis": "(proposing)"}
+{"t": 1794990231.3735816, "event": "create", "id": "c044", "parent": "c037", "phase": "structural", "hypothesis": "(proposing)"}
+{"t": 1794990239.2227452, "event": "proposed", "id": "c043", "status": "proposed", "score": null}
+{"t": 1794990239.7644563, "event": "proposed", "id": "c044", "status": "proposed", "score": null}
+{"t": 1794990254.5736272, "event": "interrupted", "id": "c043", "status": "discarded", "score": null}
+{"t": 1794990254.5988667, "event": "interrupted", "id": "c044", "status": "discarded", "score": null}
+{"t": 1794990255.670278, "event": "create", "id": "c045", "parent": "c009", "phase": "structural", "hypothesis": "(proposing)"}
+{"t": 1794990255.753846, "event": "create", "id": "c046", "parent": "c009", "phase": "structural", "hypothesis": "(proposing)"}
+{"t": 1794990263.7352185, "event": "proposed", "id": "c045", "status": "proposed", "score": null}
+{"t": 1794990264.8154767, "event": "proposed", "id": "c046", "status": "proposed", "score": null}
+{"t": 1794990284.8078964, "event": "screened", "id": "c046", "status": "screened", "score": null, "reason": "another candidate of this round was submitted"}
+{"t": 1794990295.8242958, "event": "evaluated", "id": "c045", "status": "evaluated", "score": -0.15112137326331054}
+{"t": 1794990296.3098245, "event": "create", "id": "c047", "parent": "c009", "phase": "combine", "hypothesis": "(proposing)"}
+{"t": 1794990296.3981564, "event": "create", "id": "c048", "parent": "c009", "phase": "combine", "hypothesis": "(proposing)"}
+{"t": 1794990301.8420198, "event": "proposed", "id": "c047", "status": "proposed", "score": null}
+{"t": 1794990302.455845, "event": "proposed", "id": "c048", "status": "proposed", "score": null}
+{"t": 1794990323.324687, "event": "screened", "id": "c048", "status": "screened", "score": null, "reason": "another candidate of this round was submitted"}
+{"t": 1794990334.6375172, "event": "evaluated", "id": "c047", "status": "evaluated", "score": -0.13523913028289838}
+{"t": 1794990335.1112278, "event": "create", "id": "c049", "parent": "c032", "phase": "combine", "hypothesis": "(proposing)"}
+{"t": 1794990335.2070403, "event": "create", "id": "c050", "parent": "c032", "phase": "combine", "hypothesis": "(proposing)"}
+{"t": 1794990339.7871053, "event": "proposed", "id": "c049", "status": "proposed", "score": null}
+{"t": 1794990340.3183165, "event": "proposed", "id": "c050", "status": "proposed", "score": null}
+{"t": 1794990361.0713143, "event": "screened", "id": "c050", "status": "screened", "score": null, "reason": "another candidate of this round was submitted"}
+{"t": 1794990374.300608, "event": "evaluated", "id": "c049", "status": "evaluated", "score": 0.03761266284157912}
+{"t": 1794990374.7208698, "event": "create", "id": "c051", "parent": "c032", "phase": "combine", "hypothesis": "(proposing)"}
+{"t": 1794990374.8087516, "event": "create", "id": "c052", "parent": "c032", "phase": "combine", "hypothesis": "(proposing)"}
+{"t": 1794990378.9021711, "event": "proposed", "id": "c051", "status": "proposed", "score": null}
+{"t": 1794990383.4722176, "event": "proposed", "id": "c052", "status": "proposed", "score": null}
+{"t": 1794990384.0608032, "event": "gate_failed", "id": "c051", "status": "gate_failed", "score": null}
+{"t": 1794990407.4107375, "event": "evaluated", "id": "c052", "status": "evaluated", "score": 0.04411443836446246}
+{"t": 1794990407.833133, "event": "create", "id": "c053", "parent": "c037", "phase": "combine", "hypothesis": "(proposing)"}
+{"t": 1794990408.0157733, "event": "create", "id": "c054", "parent": "c037", "phase": "combine", "hypothesis": "(proposing)"}
+{"t": 1794990413.3114147, "event": "proposed", "id": "c053", "status": "proposed", "score": null}
+{"t": 1794990413.8273919, "event": "proposed", "id": "c054", "status": "proposed", "score": null}
+{"t": 1794990450.9116726, "event": "interrupted", "id": "c053", "status": "discarded", "score": null}
+{"t": 1794990450.941718, "event": "interrupted", "id": "c054", "status": "discarded", "score": null}
+{"t": 1794990452.2297924, "event": "create", "id": "c055", "parent": "c037", "phase": "combine", "hypothesis": "(proposing)"}
+{"t": 1794990452.3217597, "event": "create", "id": "c056", "parent": "c037", "phase": "combine", "hypothesis": "(proposing)"}
+{"t": 1794990456.9064507, "event": "proposed", "id": "c055", "status": "proposed", "score": null}
+{"t": 1794990457.971315, "event": "proposed", "id": "c056", "status": "proposed", "score": null}
+{"t": 1794990479.1281495, "event": "screened", "id": "c055", "status": "screened", "score": null, "reason": "another candidate of this round was submitted"}
+{"t": 1794990489.8925514, "event": "evaluated", "id": "c056", "status": "evaluated", "score": 0.13364226494146092}
+{"t": 1794990490.3550284, "event": "create", "id": "c057", "parent": "c037", "phase": "combine", "hypothesis": "(proposing)"}
+{"t": 1794990490.4544632, "event": "create", "id": "c058", "parent": "c037", "phase": "combine", "hypothesis": "(proposing)"}
+{"t": 1794990495.1754117, "event": "proposed", "id": "c057", "status": "proposed", "score": null}
+{"t": 1794990495.701569, "event": "proposed", "id": "c058", "status": "proposed", "score": null}
+{"t": 1794990516.0127993, "event": "screened", "id": "c058", "status": "screened", "score": null, "reason": "another candidate of this round was submitted"}
+{"t": 1794990528.7657688, "event": "evaluated", "id": "c057", "status": "evaluated", "score": 0.05679685199604437}
+{"t": 1794990529.2099261, "event": "create", "id": "c059", "parent": "c049", "phase": "combine", "hypothesis": "(proposing)"}
+{"t": 1794990529.2918136, "event": "create", "id": "c060", "parent": "c049", "phase": "combine", "hypothesis": "(proposing)"}
+{"t": 1794990533.467614, "event": "proposed", "id": "c059", "status": "proposed", "score": null}
+{"t": 1794990533.9983912, "event": "proposed", "id": "c060", "status": "proposed", "score": null}
+{"t": 1794990553.7994435, "event": "screened", "id": "c059", "status": "screened", "score": null, "reason": "another candidate of this round was submitted"}
+{"t": 1794990564.9347112, "event": "evaluated", "id": "c060", "status": "evaluated", "score": 0.040449505417401055}
+{"t": 1794990565.3342226, "event": "create", "id": "c061", "parent": "c060", "phase": "combine", "hypothesis": "(proposing)"}
+{"t": 1794990565.4053445, "event": "create", "id": "c062", "parent": "c060", "phase": "combine", "hypothesis": "(proposing)"}
+{"t": 1794990570.8377213, "event": "proposed", "id": "c061", "status": "proposed", "score": null}
+{"t": 1794990571.4001646, "event": "proposed", "id": "c062", "status": "proposed", "score": null}
+{"t": 1794990592.8804772, "event": "screened", "id": "c062", "status": "screened", "score": null, "reason": "another candidate of this round was submitted"}
+{"t": 1794990604.4845939, "event": "evaluated", "id": "c061", "status": "evaluated", "score": -0.0026452588559256387}
+{"t": 1794990604.9327605, "event": "create", "id": "c063", "parent": "c061", "phase": "combine", "hypothesis": "(proposing)"}
+{"t": 1794990605.018065, "event": "create", "id": "c064", "parent": "c061", "phase": "combine", "hypothesis": "(proposing)"}
+{"t": 1794990610.213253, "event": "proposed", "id": "c063", "status": "proposed", "score": null}
+{"t": 1794990615.219375, "event": "proposed", "id": "c064", "status": "proposed", "score": null}
+{"t": 1794990648.942335, "event": "interrupted", "id": "c063", "status": "discarded", "score": null}
+{"t": 1794990648.9640436, "event": "interrupted", "id": "c064", "status": "discarded", "score": null}
+{"t": 1794990650.4412758, "event": "create", "id": "c065", "parent": "c049", "phase": "combine", "hypothesis": "(proposing)"}
+{"t": 1794990650.5297484, "event": "create", "id": "c066", "parent": "c049", "phase": "combine", "hypothesis": "(proposing)"}
+{"t": 1794990656.1651382, "event": "proposed", "id": "c065", "status": "proposed", "score": null}
+{"t": 1794990657.2296374, "event": "proposed", "id": "c066", "status": "proposed", "score": null}
+{"t": 1794990678.367428, "event": "duplicate", "id": "c066", "status": "duplicate", "score": 0.03761266284157912, "of": "c049"}
+{"t": 1794990691.8494291, "event": "evaluated", "id": "c065", "status": "evaluated", "score": 0.1413562604291189}
+{"t": 1794990692.31366, "event": "create", "id": "c067", "parent": "c065", "phase": "final", "hypothesis": "(proposing)"}
+{"t": 1794990694.8972213, "event": "proposed", "id": "c067", "status": "proposed", "score": null}
+{"t": 1794990717.0353742, "event": "evaluated", "id": "c067", "status": "evaluated", "score": 0.1173952849651184}
+{"t": 1794990717.4421804, "event": "create", "id": "c068", "parent": "c067", "phase": "final", "hypothesis": "(proposing)"}
+{"t": 1794990720.3158329, "event": "proposed", "id": "c068", "status": "proposed", "score": null}
+{"t": 1794990743.3377829, "event": "evaluated", "id": "c068", "status": "evaluated", "score": 0.1282209881335014}
+{"t": 1794990743.800365, "event": "create", "id": "c069", "parent": "c067", "phase": "final", "hypothesis": "(proposing)"}
+{"t": 1794990746.543941, "event": "proposed", "id": "c069", "status": "proposed", "score": null}
+{"t": 1794990757.7181313, "event": "duplicate", "id": "c069", "status": "duplicate", "score": 0.1282209881335014, "of": "c068"}
+{"t": 1794990758.1557493, "event": "create", "id": "c070", "parent": "c067", "phase": "final", "hypothesis": "(proposing)"}
+{"t": 1794990760.8909743, "event": "proposed", "id": "c070", "status": "proposed", "score": null}
+{"t": 1794990770.768416, "event": "duplicate", "id": "c070", "status": "duplicate", "score": 0.1173952849651184, "of": "c067"}
+{"t": 1794990771.146327, "event": "create", "id": "c071", "parent": "c067", "phase": "final", "hypothesis": "(proposing)"}
+{"t": 1794990773.5615587, "event": "proposed", "id": "c071", "status": "proposed", "score": null}
+{"t": 1794990784.6894324, "event": "duplicate", "id": "c071", "status": "duplicate", "score": 0.12343850133416474, "of": "c032"}
+{"t": 1794990785.1310039, "event": "create", "id": "c072", "parent": "c067", "phase": "final", "hypothesis": "(proposing)"}
+{"t": 1794990787.9055307, "event": "proposed", "id": "c072", "status": "proposed", "score": null}
+{"t": 1794990798.9913454, "event": "duplicate", "id": "c072", "status": "duplicate", "score": 0.1282209881335014, "of": "c068"}
+{"t": 1794990799.43195, "event": "create", "id": "c073", "parent": "c067", "phase": "final", "hypothesis": "(proposing)"}
+{"t": 1794990802.4870002, "event": "proposed", "id": "c073", "status": "proposed", "score": null}
+{"t": 1794990811.581809, "event": "duplicate", "id": "c073", "status": "duplicate", "score": 0.1282209881335014, "of": "c068"}
+{"t": 1794994354.878178, "event": "create", "id": "c074", "parent": "c067", "phase": "final", "hypothesis": "(proposing)"}
+{"t": 1794994357.972924, "event": "proposed", "id": "c074", "status": "proposed", "score": null}
+{"t": 1794994363.880641, "event": "duplicate", "id": "c074", "status": "duplicate", "score": 0.1282209881335014, "of": "c068"}
+{"t": 1794994364.0600262, "event": "create", "id": "c075", "parent": "c067", "phase": "final", "hypothesis": "(proposing)"}
+{"t": 1794994366.6100104, "event": "proposed", "id": "c075", "status": "proposed", "score": null}
+{"t": 1794994372.4505973, "event": "duplicate", "id": "c075", "status": "duplicate", "score": 0.1282209881335014, "of": "c068"}
+{"t": 1794994372.6541755, "event": "create", "id": "c076", "parent": "c067", "phase": "final", "hypothesis": "(proposing)"}
+{"t": 1794994375.9060404, "event": "proposed", "id": "c076", "status": "proposed", "score": null}
+{"t": 1794994381.5316725, "event": "duplicate", "id": "c076", "status": "duplicate", "score": 0.1282209881335014, "of": "c068"}
+{"t": 1794994381.7505257, "event": "create", "id": "c077", "parent": "c067", "phase": "final", "hypothesis": "(proposing)"}
+{"t": 1794994384.117963, "event": "proposed", "id": "c077", "status": "proposed", "score": null}
+{"t": 1794994384.4010868, "event": "duplicate", "id": "c077", "status": "duplicate", "score": 0.1282209881335014, "of": "c068"}
+{"t": 1794994384.595317, "event": "create", "id": "c078", "parent": "c067", "phase": "final", "hypothesis": "(proposing)"}
+{"t": 1794994387.18652, "event": "proposed", "id": "c078", "status": "proposed", "score": null}
+{"t": 1794994392.9220698, "event": "duplicate", "id": "c078", "status": "duplicate", "score": 0.1282209881335014, "of": "c068"}
+{"t": 1794994393.125734, "event": "create", "id": "c079", "parent": "c067", "phase": "final", "hypothesis": "(proposing)"}
+{"t": 1794994396.4137127, "event": "proposed", "id": "c079", "status": "proposed", "score": null}
+{"t": 1794994409.8378298, "event": "evaluated", "id": "c079", "status": "evaluated", "score": 0.12379894711395728}
+{"t": 1794994457.0066516, "event": "create", "id": "c080", "parent": "c067", "phase": "final", "hypothesis": "(proposing)"}
+{"t": 1794994461.4952528, "event": "proposed", "id": "c080", "status": "proposed", "score": null}
+{"t": 1794994475.3726106, "event": "evaluated", "id": "c080", "status": "evaluated", "score": 0.1274908778218255}

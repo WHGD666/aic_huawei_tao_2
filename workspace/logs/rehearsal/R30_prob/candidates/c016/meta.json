@@ -1,0 +1,50 @@
+{
+ "id": "c016",
+ "parent": "c004",
+ "hypothesis": "Because the product-form cut saturates on high-fanout nets and the critical-pair cross-tier statistic correlates negatively with score, we add a *soft-range* (logsumexp-style) penalty on the spread of p within each net, normalized by pin count and by a case-relative criticality weight — this penalizes nets whose pins are split across tiers more smoothly than the saturating product, with criticality weighting capped so hub nets do not dominate.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "structural",
+ "created_at": 1794989634.4829187,
+ "status": "duplicate",
+ "gate_report": "OK",
+ "score_total": 0.0,
+ "score_robust": 0.0,
+ "per_case": {},
+ "all_valid": true,
+ "fail_reasons": [],
+ "analysis": "",
+ "llm_cost_cny": 0.0044034,
+ "eval_wall_s": 0.0,
+ "tags": [
+  "soft-range-cut",
+  "logsumexp",
+  "fanout-normalised",
+  "criticality-weight",
+  "spread-penalty"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 0.899718,
+  "smoke_loss_tiny_gnorm": 0.071244,
+  "smoke_loss_tiny_s": 0.011,
+  "smoke_loss_nomacro_loss": 0.896363,
+  "smoke_loss_nomacro_gnorm": 0.016628,
+  "smoke_loss_nomacro_s": 0.001,
+  "smoke_loss_wall_s": 0.025,
+  "cut": 345.5556,
+  "cut_ratio": 0.4227,
+  "wcut": 1127.6956,
+  "crit_cross": 0.0267,
+  "area_dev": -0.0098,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": 0.0125,
+  "repair_flips": 231.3333,
+  "hamming_ref": 0.0
+ },
+ "seed_std": null,
+ "duplicate_of": "baseline",
+ "slot": 1
+}

@@ -1,0 +1,27 @@
+diff --git a/loss.py b/loss.py
+--- a/loss.py
++++ b/loss.py
+@@ -33,13 +33,17 @@ def compute_loss(p, graph, feats):
+     area = graph["area"]
+     n_nets = graph["n_nets"]
+ 
+-    # ---- 割网期望：P(net is cut) = 1 - prod(p) - prod(1-p) ----
++    # ---- 割网期望（星形展开）：sum_pins (p_i - mean_net)^2 / k ----
+     pp = p[net_nodes]
+-    log_p = torch.log(torch.clamp(pp, 1e-6, 1.0))
+-    log_q = torch.log(torch.clamp(1.0 - pp, 1e-6, 1.0))
+-    sum_log_p = torch.zeros(n_nets).index_add(0, net_of_pin, log_p)
+-    sum_log_q = torch.zeros(n_nets).index_add(0, net_of_pin, log_q)
+-    cut_prob = 1.0 - torch.exp(sum_log_p) - torch.exp(sum_log_q)
++    ones = torch.ones_like(pp)
++    cnt = torch.zeros(n_nets).index_add(0, net_of_pin, ones)
++    cnt = torch.clamp(cnt, min=1.0)
++    sum_p = torch.zeros(n_nets).index_add(0, net_of_pin, pp)
++    mean_p = sum_p / cnt
++    dev2 = (pp - mean_p[net_of_pin]) ** 2
++    star = torch.zeros(n_nets).index_add(0, net_of_pin, dev2)
++    # 单引脚网无贡献；按 fanout 归一化避免大网主导
++    cut_prob = star / cnt
+     l_cut = cut_prob.sum() / float(n_nets)
+ 
+     # ---- 面积平衡：上层面积占比接近 0.5 ----

@@ -1,0 +1,33 @@
+{
+ "id": "c015",
+ "parent": "c004",
+ "hypothesis": "The baseline (parent) critical-pair Laplacian backfired because it *adds* a locality term on top of the cut term, letting critical nets be sacrificed to minimize l_loc; instead we keep the exact baseline backbone (cut + 10*balance + bin) and simply *modulate the existing cut probability* by a mild, case-relative criticality factor (1 + alpha*max_pin_crit) so that critical nets are the last to be cut, with alpha small enough not to perturb the low-crit_cross backbone.",
+ "expected_effect": "",
+ "files_changed": [],
+ "phase": "structural",
+ "created_at": 1794989634.392683,
+ "status": "discarded",
+ "gate_report": "",
+ "score_total": null,
+ "score_robust": null,
+ "per_case": {},
+ "all_valid": null,
+ "fail_reasons": [
+  "run interrupted before gate/evaluation"
+ ],
+ "analysis": "",
+ "llm_cost_cny": 0.0,
+ "eval_wall_s": 0.0,
+ "tags": [
+  "criticality-weighted-cut",
+  "mild-alpha",
+  "backbone-preserved",
+  "max-pin-crit",
+  "quantile"
+ ],
+ "prompt_chars": 0,
+ "proxy": {},
+ "seed_std": null,
+ "duplicate_of": null,
+ "slot": 0
+}

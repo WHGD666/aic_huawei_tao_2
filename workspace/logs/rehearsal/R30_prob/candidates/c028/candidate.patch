@@ -1,0 +1,73 @@
+diff --git a/loss.py b/loss.py
+--- a/loss.py
++++ b/loss.py
+@@ -40,13 +40,65 @@ def compute_loss(p, graph, feats):
+     sum_log_p = torch.zeros(n_nets).index_add(0, net_of_pin, log_p)
+     sum_log_q = torch.zeros(n_nets).index_add(0, net_of_pin, log_q)
+     cut_prob = 1.0 - torch.exp(sum_log_p) - torch.exp(sum_log_q)
+-    l_cut = cut_prob.sum() / float(n_nets)
+ 
+-    # ---- 面积平衡：上层面积占比接近 0.5 ----
++    # ---- 关键网乘性加权：仅按网级平均关键度轻微放大割代价（rank 归一，无绝对量纲） ----
++    n_nodes = p.shape[0]
++    slack = feats[:, 0]
++    order = torch.argsort(torch.argsort(slack))
++    rank_q = order.to(p.dtype) / max(1.0, float(n_nodes - 1))
++    crit = 1.0 - rank_q  # [0,1]，越关键越大
++
++    pp = p[net_nodes]
++    pin_cnt = torch.zeros(n_nets).index_add(
++        0, net_of_pin, torch.ones_like(pp)
++    )
++    crit_sum = torch.zeros(n_nets).index_add(0, net_of_pin, crit[net_nodes])
++    crit_mean = crit_sum / torch.clamp(pin_cnt, min=1.0)  # 网级关键度，[0,1]
++    net_w = 1.0 + 0.5 * crit_mean  # 温和放大，避免主导割项
++
++    l_cut = (net_w * cut_prob).sum() / float(n_nets)
++
++    # ---- 面积平衡：上层面积占比接近 0.5（带死区的软铰链，避免修复步大量翻转） ----
+     ratio = (area * p).sum() / area.sum()
+-    l_bal = (ratio - 0.5) ** 2
++    dev = torch.abs(ratio - 0.5) - 0.01
++    l_bal = torch.clamp(dev, min=0.0) ** 2
++
++    # ---- 宏单元平衡：数量与面积占比同时约束（无宏时自动为 0） ----
++    is_macro = graph["is_macro"].to(p.dtype)
++    m_total = is_macro.sum()
++    m_ratio = (is_macro * p).sum() / torch.clamp(m_total, min=1.0)
++    m_area = (is_macro * area * p).sum() / torch.clamp(
++        (is_macro * area).sum(), min=1e-12
++    )
++    m_dev = torch.clamp(torch.abs(m_ratio - 0.5) - 0.02, min=0.0) ** 2 \
++        + torch.clamp(torch.abs(m_area - 0.5) - 0.02, min=0.0) ** 2
++    has_macro = (m_total > 1.0).to(p.dtype)
++    l_macro = has_macro * m_dev
+ 
+     # ---- 二值化：p 远离 0.5 ----
+     l_bin = (p * (1.0 - p)).mean()
+ 
+-    return l_cut + 10.0 * l_bal + 1.0 * l_bin
++    # ---- 关键对局部性：star 展开 sum_pins (p_i - mean_p)^2，按关键度加权 ----
++    # 用 net 内均值近似 pair，避免 O(k^2)；权重用两引脚关键度的软上界
++    n_nodes = p.shape[0]
++    slack = feats[:, 0]
++    order = torch.argsort(torch.argsort(slack))
++    rank_q = order.to(p.dtype) / max(1.0, float(n_nodes - 1))
++    crit = (1.0 - rank_q) ** 2  # [0,1]，越关键越大
++
++    pp = p[net_nodes]
++    pin_cnt = torch.zeros(n_nets).index_add(
++        0, net_of_pin, torch.ones_like(pp)
++    )
++    sum_p = torch.zeros(n_nets).index_add(0, net_of_pin, pp)
++    mean_p = sum_p / torch.clamp(pin_cnt, min=1.0)
++    dev2 = (pp - mean_p[net_of_pin]) ** 2
++
++    # 每网的关键度权重 = 引脚关键度均值（软 max 的替代）
++    crit_sum = torch.zeros(n_nets).index_add(0, net_of_pin, crit[net_nodes])
++    crit_mean = crit_sum / torch.clamp(pin_cnt, min=1.0)
++    w_pin = crit_mean[net_of_pin] * crit[net_nodes]
++
++    l_loc = (w_pin * dev2).sum() / float(n_nets)
++
++    return l_cut + 40.0 * l_bal + 20.0 * l_macro + 1.0 * l_bin + 2.0 * l_loc

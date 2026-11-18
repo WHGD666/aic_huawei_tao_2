@@ -1,0 +1,52 @@
+{
+ "id": "c049",
+ "parent": "c032",
+ "hypothesis": "The parent's critical-pair Laplacian (c032, +0.123) is the only mechanism that paid off, but its gain concentrated on C1 while C3's crit_cross rose; halving the Laplacian coefficient (0.6→0.3) keeps the critical-locality benefit on C1 while letting the fan-out-damped cut dominate again on C3, improving robustness across circuits.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "combine",
+ "created_at": 1794990335.0147908,
+ "status": "evaluated",
+ "gate_report": "OK",
+ "score_total": 0.03761266284157912,
+ "score_robust": -0.01897591131814331,
+ "per_case": {
+  "case_small": 0.041725055917587954,
+  "case_mid": 0.008290963803041852,
+  "case_large": -0.01240335687905069
+ },
+ "all_valid": true,
+ "fail_reasons": [],
+ "analysis": "(1) Partially. Halving the Laplacian kept C1's gain (+0.042, dWNS +8.4%) but did not restore C3: score still -0.012, dWNS -2.1%, and crit_cross rose 0.069→0.073, so the C3 critical-cross regression persists rather than being damped by the cut term.\n\n(2) C1: cut 137→139, wcut 421→423, crit_cross flat, repair_flips flat — gain is timing-driven, not cut-driven. C2: cut 318→313, wcut 1007→985, flips 238→241 — mild cut win. C3: cut 582→580, wcut 1955→1950, flips 353→345, but crit_cross up — cut improved while critical locality worsened.\n\n(3) Seed spread: C1 [0.06,-0.00,+0.07] and C3 [-0.02,+0.01,-0.04] are wide; robust mean-std -0.010 and min_case -0.012 indicate fragility, not acceptable.\n\n(4) Next: sweep coefficient 0.3→0.45 and add a C3-specific crit_cross penalty term, evaluating per-seed variance before accepting.",
+ "llm_cost_cny": 0.0041079,
+ "eval_wall_s": 10.755565881729126,
+ "tags": [
+  "critical-pair-laplacian",
+  "coefficient-downscale",
+  "robustness"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 0.885547,
+  "smoke_loss_tiny_gnorm": 0.071461,
+  "smoke_loss_tiny_s": 0.002,
+  "smoke_loss_nomacro_loss": 0.876495,
+  "smoke_loss_nomacro_gnorm": 0.018774,
+  "smoke_loss_nomacro_s": 0.002,
+  "smoke_loss_wall_s": 0.015,
+  "cut": 343.8889,
+  "cut_ratio": 0.4214,
+  "wcut": 1119.542,
+  "crit_cross": 0.0279,
+  "area_dev": -0.0099,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": 0.0082,
+  "repair_flips": 229.4444,
+  "hamming_ref": 0.0251
+ },
+ "seed_std": 0.018425095181814167,
+ "duplicate_of": null,
+ "slot": 0
+}

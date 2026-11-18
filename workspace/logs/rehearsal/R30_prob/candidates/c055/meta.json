@@ -1,0 +1,49 @@
+{
+ "id": "c055",
+ "parent": "c037",
+ "hypothesis": "The parent's critical-pair locality term uses saturated criticality (1-rank_q) on the node's own slack only; replacing the per-pin weight by the product of the pin's criticality and the net's maximum-pin criticality (i.e. only nets that actually touch a critical pin get locality pressure) sharpens the term on genuine critical nets without changing its magnitude, reducing crit_cross on the big circuit while leaving C1's gain intact.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "combine",
+ "created_at": 1794990452.144491,
+ "status": "screened",
+ "gate_report": "OK",
+ "score_total": null,
+ "score_robust": null,
+ "per_case": {},
+ "all_valid": null,
+ "fail_reasons": [],
+ "analysis": "",
+ "llm_cost_cny": 0.0027664,
+ "eval_wall_s": 0.0,
+ "tags": [
+  "critical-pair",
+  "net-max-criticality",
+  "locality-sharpening",
+  "scale-invariant"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 0.917775,
+  "smoke_loss_tiny_gnorm": 0.071708,
+  "smoke_loss_tiny_s": 0.004,
+  "smoke_loss_nomacro_loss": 0.917462,
+  "smoke_loss_nomacro_gnorm": 0.019262,
+  "smoke_loss_nomacro_s": 0.002,
+  "smoke_loss_wall_s": 0.288,
+  "cut": 342.4444,
+  "cut_ratio": 0.4189,
+  "wcut": 1109.7219,
+  "crit_cross": 0.0252,
+  "area_dev": -0.0099,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": -0.0047,
+  "repair_flips": 232.8889,
+  "hamming_ref": 0.0857
+ },
+ "seed_std": null,
+ "duplicate_of": null,
+ "slot": 0
+}

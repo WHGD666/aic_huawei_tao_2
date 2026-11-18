@@ -1,0 +1,32 @@
+diff --git a/loss.py b/loss.py
+--- a/loss.py
++++ b/loss.py
+@@ -49,4 +49,27 @@ def compute_loss(p, graph, feats):
+     # ---- 二值化：p 远离 0.5 ----
+     l_bin = (p * (1.0 - p)).mean()
+ 
+-    return l_cut + 10.0 * l_bal + 1.0 * l_bin
++    # ---- 关键对局部性：star 展开 sum_pins (p_i - mean_p)^2，按关键度加权 ----
++    # 权重 = 饱和关键度 * 扇出阻尼(1/log(1+k))，再按总引脚权重归一（尺度无关）
++    n_nodes = p.shape[0]
++    slack = feats[:, 0]
++    order = torch.argsort(torch.argsort(slack))
++    rank_q = order.to(p.dtype) / max(1.0, float(n_nodes - 1))
++    crit = 1.0 - rank_q  # [0,1]，越关键越大（饱和，不平方）
++
++    pp = p[net_nodes]
++    pin_cnt = torch.zeros(n_nets).index_add(
++        0, net_of_pin, torch.ones_like(pp)
++    )
++    sum_p = torch.zeros(n_nets).index_add(0, net_of_pin, pp)
++    mean_p = sum_p / torch.clamp(pin_cnt, min=1.0)
++    dev2 = (pp - mean_p[net_of_pin]) ** 2
++
++    # 扇出阻尼：大网（时钟/复位）不应主导局部性项
++    net_damp = 1.0 / torch.log1p(torch.clamp(pin_cnt, min=1.0) + 1.0)
++    w_pin = net_damp[net_of_pin] * crit[net_nodes]
++
++    w_tot = torch.clamp(w_pin.sum(), min=1e-6)
++    l_loc = (w_pin * dev2).sum() / w_tot
++
++    return l_cut + 10.0 * l_bal + 1.0 * l_bin + 2.0 * l_loc

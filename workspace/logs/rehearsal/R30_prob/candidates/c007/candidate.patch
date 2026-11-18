@@ -1,0 +1,17 @@
+diff --git a/loss.py b/loss.py
+--- a/loss.py
++++ b/loss.py
+@@ -49,4 +49,12 @@ def compute_loss(p, graph, feats):
+     # ---- 二值化：p 远离 0.5 ----
+     l_bin = (p * (1.0 - p)).mean()
+ 
+-    return l_cut + 10.0 * l_bal + 1.0 * l_bin
++    # ---- 关键节点单侧偏好：把最关键的节点推向同一层（case 相对量）----
++    slack = feats[:, 0]
++    n = slack.shape[0]
++    order = torch.argsort(torch.argsort(slack))
++    q = order.to(slack.dtype) / float(max(n - 1, 1))  # 0 = 最差 slack, 1 = 最好
++    crit = (1.0 - q) ** 2
++    l_tier = (crit * p).sum() / (crit.sum() + 1e-6)
++
++    return l_cut + 10.0 * l_bal + 1.0 * l_bin + 0.05 * l_tier

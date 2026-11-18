@@ -1,0 +1,16 @@
+diff --git a/loss.py b/loss.py
+--- a/loss.py
++++ b/loss.py
+@@ -40,7 +40,11 @@ def compute_loss(p, graph, feats):
+     sum_log_p = torch.zeros(n_nets).index_add(0, net_of_pin, log_p)
+     sum_log_q = torch.zeros(n_nets).index_add(0, net_of_pin, log_q)
+     cut_prob = 1.0 - torch.exp(sum_log_p) - torch.exp(sum_log_q)
+-    l_cut = cut_prob.sum() / float(n_nets)
++    # 高扇出网（时钟/复位）梯度饱和且几乎必然被割，按 1/log(1+k) 降权，
++    # 把割代价的注意力转移到真正承载时序违例的小信号网上。
++    deg = (net_ptr[1:] - net_ptr[:-1]).to(cut_prob.dtype)
++    net_w = 1.0 / torch.log1p(deg + 1.0)
++    l_cut = (net_w * cut_prob).sum() / torch.clamp(net_w.sum(), min=1e-6)
+ 
+     # ---- 面积平衡：上层面积占比接近 0.5 ----
+     ratio = (area * p).sum() / area.sum()

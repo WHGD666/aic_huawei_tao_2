@@ -1,0 +1,54 @@
+{
+ "id": "c023",
+ "parent": "c009",
+ "hypothesis": "The probe statistics say crit_cross is the strongest (negative) correlate of score and that the baseline product-form cut already gives the lowest crit_cross; the successful C1 gains came from *fewer* cut/wcut nets, so I keep the parent's fan-out-weighted product cut and add a small, rank-based criticality *bonus* that only mildly penalises cutting a net whose pins are all timing-critical (use max-minus-mean of criticality per net, unit-free, scaled small) — this should lower crit_cross without the backbone perturbation that killed c014/c019.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "structural",
+ "created_at": 1794989813.2881646,
+ "status": "evaluated",
+ "gate_report": "OK",
+ "score_total": -0.035322204607101323,
+ "score_robust": -0.03171811556518187,
+ "per_case": {
+  "case_small": -0.0015564066549522352,
+  "case_mid": -0.013560719101971713,
+  "case_large": -0.020205078850177374
+ },
+ "all_valid": true,
+ "fail_reasons": [],
+ "analysis": "(1) No. The criticality bonus did not lower crit_cross; C3 worsened (0.069→0.088) and C1/C2 were flat, while total score is negative (-0.035).\n\n(2) C3 moved most: cut 582→586, wcut 1955→1978, crit_cross up, repair_flips unchanged — the bonus perturbed partitioning without reducing critical cross-tier pairs, and slightly increased cut nets. C1/C2 barely changed (0.9–2.4% changed-vs-baseline), consistent with a too-small, rank-based term being swamped by the product cut.\n\n(3) Seed spread (std 0.024, per-seed swings ±0.05) is marginal but not disqualifying; all valid.\n\n(4) Next: gate the bonus on nets with high max-minus-mean criticality only when it also reduces wcut, or drop it and instead directly penalize crit_cross pairs.",
+ "llm_cost_cny": 0.0081654,
+ "eval_wall_s": 9.55474305152893,
+ "tags": [
+  "criticality-weighted-cut",
+  "net-criticality",
+  "rank-based",
+  "fanout-robust",
+  "small-alpha"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 0.864772,
+  "smoke_loss_tiny_gnorm": 0.071425,
+  "smoke_loss_tiny_s": 0.002,
+  "smoke_loss_nomacro_loss": 0.857085,
+  "smoke_loss_nomacro_gnorm": 0.017202,
+  "smoke_loss_nomacro_s": 0.001,
+  "smoke_loss_wall_s": 0.015,
+  "cut": 346.4444,
+  "cut_ratio": 0.4227,
+  "wcut": 1133.3588,
+  "crit_cross": 0.0329,
+  "area_dev": -0.0101,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": 0.0133,
+  "repair_flips": 231.8889,
+  "hamming_ref": 0.0148
+ },
+ "seed_std": 0.024453299856975624,
+ "duplicate_of": null,
+ "slot": 0
+}

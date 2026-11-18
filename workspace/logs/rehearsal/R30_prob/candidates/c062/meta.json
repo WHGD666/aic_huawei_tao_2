@@ -1,0 +1,49 @@
+{
+ "id": "c062",
+ "parent": "c060",
+ "hypothesis": "Combine the parent's critical-pair locality term (coefficient 0.15, the only mechanism that paid off) with a mild hinge on the raw area balance so the raw partition stays inside the 47-53% band itself, reducing repair flips (which correlate positively with score) without fighting the cut term.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "combine",
+ "created_at": 1794990565.3413138,
+ "status": "screened",
+ "gate_report": "OK",
+ "score_total": null,
+ "score_robust": null,
+ "per_case": {},
+ "all_valid": null,
+ "fail_reasons": [],
+ "analysis": "",
+ "llm_cost_cny": 0.0029724,
+ "eval_wall_s": 0.0,
+ "tags": [
+  "balance-hinge",
+  "repair-flips",
+  "dead-band",
+  "locality"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 0.899895,
+  "smoke_loss_tiny_gnorm": 0.182672,
+  "smoke_loss_tiny_s": 0.002,
+  "smoke_loss_nomacro_loss": 0.868126,
+  "smoke_loss_nomacro_gnorm": 0.023958,
+  "smoke_loss_nomacro_s": 0.003,
+  "smoke_loss_wall_s": 0.016,
+  "cut": 354.4444,
+  "cut_ratio": 0.4361,
+  "wcut": 1150.1002,
+  "crit_cross": 0.0267,
+  "area_dev": -0.0096,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": 0.009,
+  "repair_flips": 235.4444,
+  "hamming_ref": 0.1307
+ },
+ "seed_std": null,
+ "duplicate_of": null,
+ "slot": 1
+}

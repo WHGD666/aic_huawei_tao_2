@@ -1,0 +1,49 @@
+{
+ "id": "c013",
+ "parent": "c011",
+ "hypothesis": "Replacing the saturating product-form cut with a fan-out-robust soft-range (logsumexp-style) cut on the same net-pin probabilities, plus a dead-band balance hinge, keeps the low crit_cross of the baseline backbone while giving gradient on high-fan-out nets, so nets-cut/crit_cross fall and TNS improves.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "structural",
+ "created_at": 1794989594.2270324,
+ "status": "screened",
+ "gate_report": "OK",
+ "score_total": null,
+ "score_robust": null,
+ "per_case": {},
+ "all_valid": null,
+ "fail_reasons": [],
+ "analysis": "",
+ "llm_cost_cny": 0.0028149,
+ "eval_wall_s": 0.0,
+ "tags": [
+  "soft_range_cut",
+  "logsumexp_cut",
+  "balance_hinge",
+  "dead_band"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 0.918752,
+  "smoke_loss_tiny_gnorm": 0.150148,
+  "smoke_loss_tiny_s": 0.002,
+  "smoke_loss_nomacro_loss": 0.893481,
+  "smoke_loss_nomacro_gnorm": 0.014483,
+  "smoke_loss_nomacro_s": 0.001,
+  "smoke_loss_wall_s": 0.014,
+  "cut": 338.3333,
+  "cut_ratio": 0.414,
+  "wcut": 1125.9375,
+  "crit_cross": 0.0963,
+  "area_dev": -0.0086,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": 0.0049,
+  "repair_flips": 182.5556,
+  "hamming_ref": 0.2924
+ },
+ "seed_std": null,
+ "duplicate_of": null,
+ "slot": 0
+}

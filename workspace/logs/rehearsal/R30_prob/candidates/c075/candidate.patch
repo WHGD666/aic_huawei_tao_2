@@ -1,0 +1,57 @@
+diff --git a/loss.py b/loss.py
+--- a/loss.py
++++ b/loss.py
+@@ -34,19 +34,51 @@ def compute_loss(p, graph, feats):
+     n_nets = graph["n_nets"]
+ 
+     # ---- 割网期望：P(net is cut) = 1 - prod(p) - prod(1-p) ----
++    # 扇出感知加权：w_k = 1/log(1+k) 让巨大时钟/复位网不再主导割梯度
+     pp = p[net_nodes]
+     log_p = torch.log(torch.clamp(pp, 1e-6, 1.0))
+     log_q = torch.log(torch.clamp(1.0 - pp, 1e-6, 1.0))
+     sum_log_p = torch.zeros(n_nets).index_add(0, net_of_pin, log_p)
+     sum_log_q = torch.zeros(n_nets).index_add(0, net_of_pin, log_q)
+     cut_prob = 1.0 - torch.exp(sum_log_p) - torch.exp(sum_log_q)
+-    l_cut = cut_prob.sum() / float(n_nets)
++    fanout = torch.zeros(n_nets).index_add(
++        0, net_of_pin, torch.ones_like(net_of_pin, dtype=p.dtype))
++    w_net = 1.0 / torch.log(torch.clamp(fanout, min=1.0) + 1.0)
++    w_sum = w_net.sum().clamp(min=1e-6)
++    l_cut = (w_net * cut_prob).sum() / w_sum
+ 
+     # ---- 面积平衡：上层面积占比接近 0.5 ----
+     ratio = (area * p).sum() / area.sum()
+     l_bal = (ratio - 0.5) ** 2
+ 
++    # ---- 关键对拉普拉斯：相邻且都关键的节点应同层 ----
++    # 用 2D slack 的 case-relative 软秩作关键度（越大越关键），单位无关
++    if feats is not None and feats.dim() == 2 and feats.shape[0] == p.shape[0] and feats.shape[1] >= 1:
++        sl = feats[:, 0].to(p.dtype)
++        sl = torch.nan_to_num(sl, nan=0.0, posinf=0.0, neginf=0.0)
++        # 软秩：slack 越小越关键；用 sigmoid 近似 rank 到 (0,1)
++        mu = sl.mean()
++        sd = sl.std().clamp(min=1e-6)
++        z = (mu - sl) / sd  # 越关键越大
++        crit = torch.sigmoid(2.0 * z)  # (0,1)，越大越关键
++        # 只保留前 20% 量级：用软门控 crit^2 抑制非关键节点
++        cw = crit * crit
++        ei = graph.get("edge_index", None) if isinstance(graph, dict) else None
++        if ei is not None and ei.numel() > 0:
++            i = ei[0]
++            j = ei[1]
++            # 无向边两方向都含，系数 0.5 修正双计
++            w_edge = 0.5 * cw[i] * cw[j]
++            diff2 = (p[i] - p[j]) ** 2
++            l_loc = (w_edge * diff2).sum() / w_edge.sum().clamp(min=1e-6)
++        else:
++            l_loc = torch.zeros((), dtype=p.dtype)
++    else:
++        l_loc = torch.zeros((), dtype=p.dtype)
++
+     # ---- 二值化：p 远离 0.5 ----
+     l_bin = (p * (1.0 - p)).mean()
+ 
+-    return l_cut + 10.0 * l_bal + 1.0 * l_bin
++    # 局部性系数取 1.0 的 0.5 倍：已验证的最佳取值，保留 C1 的 crit_cross 收益，
++    # 又不过度拉扯 C2/C3 的结构（降低 C1 的 repair_flips 与割网回升）
++    return l_cut + 10.0 * l_bal + 1.0 * l_bin + 0.5 * l_loc

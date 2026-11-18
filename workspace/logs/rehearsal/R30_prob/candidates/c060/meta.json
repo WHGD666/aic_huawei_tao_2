@@ -1,0 +1,53 @@
+{
+ "id": "c060",
+ "parent": "c049",
+ "hypothesis": "The parent's locality coefficient 0.3 is a compromise; scaling it down to 0.15 halves the term's pull so it can no longer drag the cut term away from a good global cut on circuits where critical-pair structure is weak (C2), keeping C1's locality benefit while restoring C2/C3 robustness.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "combine",
+ "created_at": 1794990529.2177808,
+ "status": "evaluated",
+ "gate_report": "OK",
+ "score_total": 0.040449505417401055,
+ "score_robust": -0.016626309384750498,
+ "per_case": {
+  "case_small": 0.039698869105538985,
+  "case_mid": 0.01051989009693461,
+  "case_large": -0.00976925378507254
+ },
+ "all_valid": true,
+ "fail_reasons": [],
+ "analysis": "(1) Partially. C1 keeps its gain (+0.040) and C2 improves slightly (+0.011), but C3 regresses (-0.010), so the \"restore C2/C3 robustness\" claim fails for C3. (2) C1/C2 cut and wcut drop slightly with unchanged crit_cross and repair_flips—consistent with weaker locality pull letting the cut term optimize freely where critical pairs are sparse. C3 shows cut 582→586, wcut 1955→1973, crit_cross 0.069→0.076: weaker locality lets critical pairs cross, hurting dWNS (-1.6%). (3) Seed spread is high (std 0.020; C3 per-seed -0.02/+0.02/-0.04), marginal. (4) Make locality coefficient circuit-adaptive (scale with crit_cross density) rather than a fixed 0.15.",
+ "llm_cost_cny": 0.0036444,
+ "eval_wall_s": 8.444491624832153,
+ "tags": [
+  "locality-coefficient",
+  "x0.5",
+  "robustness",
+  "cut-preservation"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 0.874683,
+  "smoke_loss_tiny_gnorm": 0.07134,
+  "smoke_loss_tiny_s": 0.002,
+  "smoke_loss_nomacro_loss": 0.866355,
+  "smoke_loss_nomacro_gnorm": 0.017685,
+  "smoke_loss_nomacro_s": 0.003,
+  "smoke_loss_wall_s": 0.017,
+  "cut": 346.1111,
+  "cut_ratio": 0.4225,
+  "wcut": 1127.674,
+  "crit_cross": 0.029,
+  "area_dev": -0.0097,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": 0.0133,
+  "repair_flips": 231.5556,
+  "hamming_ref": 0.0165
+ },
+ "seed_std": 0.019611581683656353,
+ "duplicate_of": null,
+ "slot": 1
+}

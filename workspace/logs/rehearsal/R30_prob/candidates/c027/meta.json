@@ -1,0 +1,52 @@
+{
+ "id": "c027",
+ "parent": "c021",
+ "hypothesis": "The parent's `l_loc` term double-counts criticality (crit_mean × crit_pin) and its star-expansion gradient also pulls non-critical pins, diluting the critical-pair signal; replacing it with a per-net criticality weight built from the *contrast* between the most-critical and least-critical pins of each net (soft, rank-based) keeps genuinely critical pairs together while leaving non-critical nets untouched, lowering crit_cross without inflating the total cut.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "structural",
+ "created_at": 1794989891.7069132,
+ "status": "evaluated",
+ "gate_report": "OK",
+ "score_total": -0.07258736913424549,
+ "score_robust": -0.2822711530159406,
+ "per_case": {
+  "case_small": 0.08876298061711975,
+  "case_mid": -0.2901070363671678,
+  "case_large": 0.12875668661580256
+ },
+ "all_valid": true,
+ "fail_reasons": [],
+ "analysis": "(1) Partially. Crit_cross fell to 0 on C1 and held on C3, but C2 regressed badly (crit_cross 0→0.027, dWNS −56.6%), so the contrast-weighting did not reliably preserve critical pairs.\n\n(2) C1/C3 improved: lower wcut (421→388, 1955→1818) and fewer repair flips on C3, consistent with cleaner critical-pair signal. C2's cut dropped (318→298) yet crit_cross rose and WNS collapsed—likely the soft rank contrast mis-weighted C2's nets, letting critical pairs cross.\n\n(3) Seed spread is high (std 0.139; C2 per-seed −0.34/+0.03/−0.57)—not acceptable.\n\n(4) Diagnose C2's net criticality distribution and gate the contrast weight by net criticality density before re-running.",
+ "llm_cost_cny": 0.0071563,
+ "eval_wall_s": 10.342398405075073,
+ "tags": [
+  "crit_pair_contrast",
+  "product_cut_reweight",
+  "no_local_term"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 1.593927,
+  "smoke_loss_tiny_gnorm": 0.118427,
+  "smoke_loss_tiny_s": 0.002,
+  "smoke_loss_nomacro_loss": 1.683127,
+  "smoke_loss_nomacro_gnorm": 0.123957,
+  "smoke_loss_nomacro_s": 0.002,
+  "smoke_loss_wall_s": 0.016,
+  "cut": 327.2222,
+  "cut_ratio": 0.4029,
+  "wcut": 1051.4795,
+  "crit_cross": 0.0312,
+  "area_dev": -0.0032,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": 0.003,
+  "repair_flips": 235.4444,
+  "hamming_ref": 0.217
+ },
+ "seed_std": 0.13868031292204527,
+ "duplicate_of": null,
+ "slot": 0
+}

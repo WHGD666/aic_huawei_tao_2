@@ -1,0 +1,49 @@
+{
+ "id": "c046",
+ "parent": "c009",
+ "hypothesis": "Repair flips stay high because the quadratic balance term is flat near 50%; replacing it with a soft hinge outside a small dead-band (softplus(|ratio-0.5| - band) with a large coefficient) plus an analogous macro-area hinge will keep the raw partition inside the 47-53% band so the official repair has almost nothing to flip, preserving the learned structure and reducing TNS.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "structural",
+ "created_at": 1794990255.678235,
+ "status": "screened",
+ "gate_report": "OK",
+ "score_total": null,
+ "score_robust": null,
+ "per_case": {},
+ "all_valid": null,
+ "fail_reasons": [],
+ "analysis": "",
+ "llm_cost_cny": 0.0033778000000000002,
+ "eval_wall_s": 0.0,
+ "tags": [
+  "balance-hinge",
+  "softplus-deadband",
+  "macro-area-hinge",
+  "repair-flips"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 3.833991,
+  "smoke_loss_tiny_gnorm": 3.22543,
+  "smoke_loss_tiny_s": 0.002,
+  "smoke_loss_nomacro_loss": 2.435753,
+  "smoke_loss_nomacro_gnorm": 0.516605,
+  "smoke_loss_nomacro_s": 0.002,
+  "smoke_loss_wall_s": 0.018,
+  "cut": 408.2222,
+  "cut_ratio": 0.5218,
+  "wcut": 1350.5655,
+  "crit_cross": 0.0533,
+  "area_dev": -0.0127,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": 0.0085,
+  "repair_flips": 81.4444,
+  "hamming_ref": 0.3913
+ },
+ "seed_std": null,
+ "duplicate_of": null,
+ "slot": 1
+}

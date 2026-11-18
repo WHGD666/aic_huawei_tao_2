@@ -1,0 +1,49 @@
+{
+ "id": "c007",
+ "parent": null,
+ "hypothesis": "Adding a mild linear tier-preference term pushing the most timing-critical nodes (top ranks by 2D slack, case-relative quantile) toward one tier reduces the number of critical paths that later get split across tiers, and tests whether the fixed repair/placement flow is tier-asymmetric.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "probe",
+ "created_at": 1794988884.374411,
+ "status": "screened",
+ "gate_report": "OK",
+ "score_total": null,
+ "score_robust": null,
+ "per_case": {},
+ "all_valid": null,
+ "fail_reasons": [],
+ "analysis": "",
+ "llm_cost_cny": 0.0019402,
+ "eval_wall_s": 0.0,
+ "tags": [
+  "critical-tier-preference",
+  "linear-term",
+  "slack-quantile",
+  "tier-asymmetry"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 0.92701,
+  "smoke_loss_tiny_gnorm": 0.071335,
+  "smoke_loss_tiny_s": 0.001,
+  "smoke_loss_nomacro_loss": 0.920157,
+  "smoke_loss_nomacro_gnorm": 0.017493,
+  "smoke_loss_nomacro_s": 0.001,
+  "smoke_loss_wall_s": 0.014,
+  "cut": 353.4444,
+  "cut_ratio": 0.4386,
+  "wcut": 1148.2552,
+  "crit_cross": 0.0363,
+  "area_dev": -0.0097,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": 0.0065,
+  "repair_flips": 236.3333,
+  "hamming_ref": 0.0785
+ },
+ "seed_std": null,
+ "duplicate_of": null,
+ "slot": 0
+}

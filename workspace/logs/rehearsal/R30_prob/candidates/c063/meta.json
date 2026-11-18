@@ -1,0 +1,32 @@
+{
+ "id": "c063",
+ "parent": "c061",
+ "hypothesis": "Combining the parent's successful critical-pair locality term (coef 0.30) with a macro-count/area balance term (when macros exist) reduces repair flips and preserves the learned structure, since repair_flips correlates positively with score loss and the locality term alone leaves macro balance to the greedy repair.",
+ "expected_effect": "",
+ "files_changed": [],
+ "phase": "combine",
+ "created_at": 1794990604.8483105,
+ "status": "discarded",
+ "gate_report": "",
+ "score_total": null,
+ "score_robust": null,
+ "per_case": {},
+ "all_valid": null,
+ "fail_reasons": [
+  "run interrupted before gate/evaluation"
+ ],
+ "analysis": "",
+ "llm_cost_cny": 0.0,
+ "eval_wall_s": 0.0,
+ "tags": [
+  "macro-balance",
+  "hinge",
+  "repair-flips",
+  "locality-retained"
+ ],
+ "prompt_chars": 0,
+ "proxy": {},
+ "seed_std": null,
+ "duplicate_of": null,
+ "slot": 0
+}

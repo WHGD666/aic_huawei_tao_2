@@ -1,0 +1,33 @@
+{
+ "id": "c043",
+ "parent": "c037",
+ "hypothesis": "The parent's star-expansion locality term (p_i - mean_p)^2 is maximised by putting critical pins on the same tier, so it fights the cut term and dilutes it; replacing it with a proper Laplacian on critical pins that is MINIMISED when critical pins agree (weighted by crit_i*crit_j, fan-out damped and scale-normalised) will lower crit_cross and hence TNS without disturbing the balance/cut backbone.",
+ "expected_effect": "",
+ "files_changed": [],
+ "phase": "structural",
+ "created_at": 1794990231.2050245,
+ "status": "discarded",
+ "gate_report": "",
+ "score_total": null,
+ "score_robust": null,
+ "per_case": {},
+ "all_valid": null,
+ "fail_reasons": [
+  "run interrupted before gate/evaluation"
+ ],
+ "analysis": "",
+ "llm_cost_cny": 0.0,
+ "eval_wall_s": 0.0,
+ "tags": [
+  "critical-pair-laplacian",
+  "pairwise-agreement",
+  "crit-product-weight",
+  "fanout-damped",
+  "unit-free"
+ ],
+ "prompt_chars": 0,
+ "proxy": {},
+ "seed_std": null,
+ "duplicate_of": null,
+ "slot": 0
+}

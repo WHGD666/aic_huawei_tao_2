@@ -1,0 +1,53 @@
+{
+ "id": "c065",
+ "parent": "c049",
+ "hypothesis": "The locality term is the only paying mechanism (c056 at coef 4.0 scored +0.134 but regressed C2; c060 at 0.15 scored +0.040 with flat C2/C3), so combining the locality term at an intermediate coefficient 1.0 with the fan-out-aware cut weighting already present gives a moderate pull that keeps C1's crit_cross reduction without starving C2/C3.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "combine",
+ "created_at": 1794990650.361655,
+ "status": "evaluated",
+ "gate_report": "OK",
+ "score_total": 0.1413562604291189,
+ "score_robust": -0.007319653845654871,
+ "per_case": {
+  "case_small": 0.09381934731251111,
+  "case_mid": 0.029750383416942982,
+  "case_large": 0.017786529699664783
+ },
+ "all_valid": true,
+ "fail_reasons": [],
+ "analysis": "(1) Partially. The intermediate coefficient 1.0 does keep C1's crit_cross flat (0.011) while lifting C2/C3, but C1 cut/wcut rose (137→148, 421→434) and repair_flips jumped 103→119, so the locality pull is not free—it trades C1 cut quality for C2/C3 gains rather than avoiding the tradeoff.\n\n(2) C1: dWNS +12.5%, dTNS +8.3% despite higher cut; crit_cross unchanged, so gains come from timing-driven repair, not cross-tier critical pairs. C2: cut/wcut down (318→309, 1007→969), dWNS +4.5%. C3: crit_cross 0.069→0.067, dWNS +3.6%.\n\n(3) Seed spread is high: C1 [+0.06,+0.03,+0.19], C3 [+0.02,−0.01,+0.05]; min_case +0.018 and seed_std 0.042 are marginal—acceptable but not robust.\n\n(4) Sweep locality coef 0.5–1.5 with fixed seeds and log repair_flips vs cut to find the knee where C1 cut stops inflating.",
+ "llm_cost_cny": 0.0042089,
+ "eval_wall_s": 10.7743821144104,
+ "tags": [
+  "locality_coef_1p0",
+  "critical_pair_laplacian",
+  "fanout_weighted_cut",
+  "robustness_midpoint"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 0.936248,
+  "smoke_loss_tiny_gnorm": 0.074347,
+  "smoke_loss_tiny_s": 0.003,
+  "smoke_loss_nomacro_loss": 0.923812,
+  "smoke_loss_nomacro_gnorm": 0.030716,
+  "smoke_loss_nomacro_s": 0.003,
+  "smoke_loss_wall_s": 0.289,
+  "cut": 349.5556,
+  "cut_ratio": 0.4305,
+  "wcut": 1128.2303,
+  "crit_cross": 0.0259,
+  "area_dev": -0.0096,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": -0.0059,
+  "repair_flips": 236.8889,
+  "hamming_ref": 0.0936
+ },
+ "seed_std": 0.042113700128567556,
+ "duplicate_of": null,
+ "slot": 0
+}

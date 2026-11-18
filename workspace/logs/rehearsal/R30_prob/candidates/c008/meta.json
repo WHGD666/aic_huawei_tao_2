@@ -1,0 +1,54 @@
+{
+ "id": "c008",
+ "parent": null,
+ "hypothesis": "Adding an explicit hinge on the upper-tier macro COUNT ratio and macro AREA ratio (only when macros exist) keeps the raw partition macro-balanced so the official repair step flips fewer macro nodes and preserves the learned cut structure.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "probe",
+ "created_at": 1794988884.4708445,
+ "status": "evaluated",
+ "gate_report": "OK",
+ "score_total": -0.7185887094644497,
+ "score_robust": -0.5027184144647229,
+ "per_case": {
+  "case_small": -0.11031327520948848,
+  "case_mid": -0.34379466459845714,
+  "case_large": -0.26448076965650413
+ },
+ "all_valid": true,
+ "fail_reasons": [],
+ "analysis": "Hypothesis partly held: repair_flips fell on all circuits (103→71, 238→207, 353→295) and cut/wcut improved on C1/C3, but C2 worsened (cut 318→334, wcut 1007→1097) and crit_cross rose everywhere (C1 0.011→0.093). Yet scores are negative on all circuits (total −0.719), so macro-balance gains did not translate to timing; the crit_cross increase plausibly offsets fewer flips. Seed spread is high (std 0.333; C2/C3 per-seed range ~0.6–0.9), unacceptable. Next: gate the hinge weight per-circuit or add a crit_cross penalty, and re-test with more seeds.",
+ "llm_cost_cny": 0.0028132,
+ "eval_wall_s": 9.710872888565063,
+ "tags": [
+  "macro-balance",
+  "hinge",
+  "count-ratio",
+  "area-ratio",
+  "guard-nomacro"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 0.902452,
+  "smoke_loss_tiny_gnorm": 0.137986,
+  "smoke_loss_tiny_s": 0.002,
+  "smoke_loss_nomacro_loss": 0.896363,
+  "smoke_loss_nomacro_gnorm": 0.016628,
+  "smoke_loss_nomacro_s": 0.002,
+  "smoke_loss_wall_s": 0.017,
+  "cut": 344.3333,
+  "cut_ratio": 0.4212,
+  "wcut": 1147.8535,
+  "crit_cross": 0.0678,
+  "area_dev": -0.0098,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": 0.0028,
+  "repair_flips": 191.0,
+  "hamming_ref": 0.3044
+ },
+ "seed_std": 0.3325027359262877,
+ "duplicate_of": null,
+ "slot": 1
+}

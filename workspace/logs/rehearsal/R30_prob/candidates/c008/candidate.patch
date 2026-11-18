@@ -1,0 +1,21 @@
+diff --git a/loss.py b/loss.py
+--- a/loss.py
++++ b/loss.py
+@@ -49,4 +49,16 @@ def compute_loss(p, graph, feats):
+     # ---- 二值化：p 远离 0.5 ----
+     l_bin = (p * (1.0 - p)).mean()
+ 
+-    return l_cut + 10.0 * l_bal + 1.0 * l_bin
++    # ---- 宏单元平衡：上层宏数量与宏面积占比接近 0.5（无宏时自动为 0）----
++    is_macro = graph["is_macro"].to(p.dtype)
++    n_macro = is_macro.sum()
++    macro_area = graph["area"] * is_macro
++    cnt_ratio = (is_macro * p).sum() / (n_macro + 1e-6)
++    area_ratio = (macro_area * p).sum() / (macro_area.sum() + 1e-6)
++    has_macro = (n_macro > 0.5).to(p.dtype)
++    l_macro = has_macro * (
++        torch.clamp(torch.abs(cnt_ratio - 0.5) - 0.05, min=0.0) ** 2
++        + torch.clamp(torch.abs(area_ratio - 0.5) - 0.05, min=0.0) ** 2
++    )
++
++    return l_cut + 10.0 * l_bal + 1.0 * l_bin + 20.0 * l_macro

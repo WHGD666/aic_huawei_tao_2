@@ -1,0 +1,25 @@
+diff --git a/loss.py b/loss.py
+--- a/loss.py
++++ b/loss.py
+@@ -49,4 +49,20 @@ def compute_loss(p, graph, feats):
+     # ---- 二值化：p 远离 0.5 ----
+     l_bin = (p * (1.0 - p)).mean()
+ 
+-    return l_cut + 10.0 * l_bal + 1.0 * l_bin
++    # ---- 关键对局部性：无向边上的拉普拉斯，边权 = 两端关键度乘积 ----
++    # 关键度用 case 内秩（与单位/PDK 无关）；总权重归一保证尺度无关
++    n_nodes = p.shape[0]
++    slack = feats[:, 0]
++    order = torch.argsort(torch.argsort(slack))
++    rank_q = order.to(p.dtype) / max(1.0, float(n_nodes - 1))
++    crit = 1.0 - rank_q  # [0,1]，越关键越大
++
++    ei = graph["edge_index"]
++    src = ei[0]
++    dst = ei[1]
++    dp2 = (p[src] - p[dst]) ** 2
++    w_edge = crit[src] * crit[dst]
++    w_tot = torch.clamp(w_edge.sum(), min=1e-6)
++    l_loc = (w_edge * dp2).sum() / w_tot
++
++    return l_cut + 10.0 * l_bal + 1.0 * l_bin + 2.0 * l_loc

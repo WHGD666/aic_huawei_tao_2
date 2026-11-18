@@ -1,0 +1,31 @@
+{
+ "id": "c053",
+ "parent": "c037",
+ "hypothesis": "The parent's fan-out-damped cut plus critical-pair star-locality term (c032, +0.123) is the best performer; halving the locality coefficient (2.0 -> 1.0) reduces the C3 critical-cross regression that appeared at full strength while keeping C1's gain, since the C3 regression scaled with locality pressure.",
+ "expected_effect": "",
+ "files_changed": [],
+ "phase": "combine",
+ "created_at": 1794990407.7575762,
+ "status": "discarded",
+ "gate_report": "",
+ "score_total": null,
+ "score_robust": null,
+ "per_case": {},
+ "all_valid": null,
+ "fail_reasons": [
+  "run interrupted before gate/evaluation"
+ ],
+ "analysis": "",
+ "llm_cost_cny": 0.0,
+ "eval_wall_s": 0.0,
+ "tags": [
+  "locality_scale",
+  "coefficient_halving",
+  "robustness"
+ ],
+ "prompt_chars": 0,
+ "proxy": {},
+ "seed_std": null,
+ "duplicate_of": null,
+ "slot": 0
+}

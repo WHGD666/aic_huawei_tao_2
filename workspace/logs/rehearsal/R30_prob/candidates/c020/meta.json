@@ -1,0 +1,49 @@
+{
+ "id": "c020",
+ "parent": "c014",
+ "hypothesis": "Keeping the baseline product-form cut untouched, replace the per-net cut with a star-expansion cut (sum over pins of (p_i - mean_p_net)^2 normalised by fan-out) so high-fan-out clock/reset nets no longer saturate, giving the backbone a gradient on the nets that actually span the design and reducing cut/wcut without perturbing critical containment.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "structural",
+ "created_at": 1794989728.7627435,
+ "status": "screened",
+ "gate_report": "OK",
+ "score_total": null,
+ "score_robust": null,
+ "per_case": {},
+ "all_valid": null,
+ "fail_reasons": [],
+ "analysis": "",
+ "llm_cost_cny": 0.0035885,
+ "eval_wall_s": 0.0,
+ "tags": [
+  "star-expansion-cut",
+  "fanout-normalised",
+  "no-saturation",
+  "backbone-preserved"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 0.438273,
+  "smoke_loss_tiny_gnorm": 0.170931,
+  "smoke_loss_tiny_s": 0.002,
+  "smoke_loss_nomacro_loss": 0.389143,
+  "smoke_loss_nomacro_gnorm": 0.035527,
+  "smoke_loss_nomacro_s": 0.003,
+  "smoke_loss_wall_s": 0.017,
+  "cut": 400.1111,
+  "cut_ratio": 0.5271,
+  "wcut": 1348.5557,
+  "crit_cross": 0.2427,
+  "area_dev": -0.0175,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": 0.0167,
+  "repair_flips": 128.4444,
+  "hamming_ref": 0.4389
+ },
+ "seed_std": null,
+ "duplicate_of": null,
+ "slot": 1
+}

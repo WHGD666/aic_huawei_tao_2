@@ -1,0 +1,49 @@
+{
+ "id": "c059",
+ "parent": "c049",
+ "hypothesis": "The locality term's raw normalization by w_edge.sum() lets a few very-critical edge pairs dominate the gradient; normalizing instead by the total number of edges keeps the locality gradient bounded and makes the term's effect consistent across circuits of different sizes, improving robustness on C2/C3 without losing C1's gain.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "combine",
+ "created_at": 1794990529.1330442,
+ "status": "screened",
+ "gate_report": "OK",
+ "score_total": null,
+ "score_robust": null,
+ "per_case": {},
+ "all_valid": null,
+ "fail_reasons": [],
+ "analysis": "",
+ "llm_cost_cny": 0.0026744,
+ "eval_wall_s": 0.0,
+ "tags": [
+  "locality-normalization",
+  "edge-count",
+  "robustness",
+  "bounded-gradient"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 0.865443,
+  "smoke_loss_tiny_gnorm": 0.071379,
+  "smoke_loss_tiny_s": 0.002,
+  "smoke_loss_nomacro_loss": 0.857526,
+  "smoke_loss_nomacro_gnorm": 0.017413,
+  "smoke_loss_nomacro_s": 0.002,
+  "smoke_loss_wall_s": 0.016,
+  "cut": 344.0,
+  "cut_ratio": 0.4222,
+  "wcut": 1122.7585,
+  "crit_cross": 0.0306,
+  "area_dev": -0.0099,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": 0.0125,
+  "repair_flips": 231.3333,
+  "hamming_ref": 0.0181
+ },
+ "seed_std": null,
+ "duplicate_of": null,
+ "slot": 0
+}

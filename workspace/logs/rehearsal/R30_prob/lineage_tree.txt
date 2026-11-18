@@ -1,0 +1,80 @@
+c001 [   screened]   --    Replacing the saturating product-form cut probability with a
+c002 [  evaluated] -1.060  Adding a steep hinge penalty only when the raw upper-tier ar
+c003 [gate_failed]   --    Weighting each net's cut probability by a case-relative crit
+c004 [  evaluated] +0.065  Adding a Laplacian-style penalty sum over net pins of crit_i
+  c015 [  discarded]   --    The baseline (parent) critical-pair Laplacian backfired beca
+  c016 [  duplicate] +0.000  Because the product-form cut saturates on high-fanout nets a
+  c021 [  evaluated] -0.097  The baseline product-form cut already gives the lowest crit_
+    c027 [  evaluated] -0.073  The parent's `l_loc` term double-counts criticality (crit_me
+    c028 [   screened]   --    Replace the parent's flat quadratic balance `(ratio-0.5)^2` 
+  c022 [   screened]   --    Repair flips are driven by raw area imbalance, and the quadr
+  c029 [  evaluated] +0.075  The parent's `l_loc` double-counts criticality and its gradi
+    c035 [  evaluated] +0.165  The parent's `l_loc` uses star-expansion deviation which is 
+    c036 [   screened]   --    Repair flips stay high (103/238/353) because the quadratic b
+    c037 [  evaluated] +0.116  Replace the raw pin-count cut with a fan-out-damped cut weig
+      c043 [  discarded]   --    The parent's star-expansion locality term (p_i - mean_p)^2 i
+      c044 [  discarded]   --    Repair flips stay high because the quadratic balance term is
+      c053 [  discarded]   --    The parent's fan-out-damped cut plus critical-pair star-loca
+      c054 [  discarded]   --    The parent's locality term uses saturated criticality crit =
+      c055 [   screened]   --    The parent's critical-pair locality term uses saturated crit
+      c056 [  evaluated] +0.134  Scaling the parent's successful locality coefficient from 2.
+      c057 [  evaluated] +0.057  The parent's critical-pair locality term (coefficient 2.0, c
+      c058 [   screened]   --    The parent's critical-pair locality term uses saturated crit
+    c038 [   screened]   --    Keep the parent's cut/balance/binarisation and star-expansio
+  c030 [   screened]   --    Repair flips remain large (103/238/353) because the quadrati
+c005 [  evaluated] -0.867  Replacing the saturating product-form cut probability with a
+c006 [   screened]   --    Down-weighting each net's cut probability by 1/log(1+k) (fan
+c007 [   screened]   --    Adding a mild linear tier-preference term pushing the most t
+c008 [  evaluated] -0.719  Adding an explicit hinge on the upper-tier macro COUNT ratio
+  c011 [  evaluated] -0.396  The history shows the macro-balance hinge (c008) cut repair 
+    c013 [   screened]   --    Replacing the saturating product-form cut with a fan-out-rob
+    c014 [  evaluated] -0.498  Keeping the baseline cut/balance/binarisation backbone untou
+      c019 [  evaluated] -0.514  Removing the criticality-weighted cut (`net_w`) and the macr
+      c020 [   screened]   --    Keeping the baseline product-form cut untouched, replace the
+    c017 [  duplicate] -0.719  Keep the baseline backbone but replace the macro-balance qua
+    c018 [  duplicate] -0.719  Keep the baseline backbone but replace the macro-balance qua
+  c012 [   screened]   --    Keep the baseline cut/balance/bin backbone intact (which has
+c009 [  evaluated] -0.034  Down-weighting each net's cut probability by 1/log(1+k) (fan
+  c023 [  evaluated] -0.035  The probe statistics say crit_cross is the strongest (negati
+    c033 [  discarded]   --    Replace the flat quadratic balance term with a smooth hinge 
+    c034 [  discarded]   --    Add a critical-pair Laplacian on undirected edges weighted b
+    c039 [  evaluated] -0.952  Replace the flat quadratic balance term with a smooth hinge 
+    c040 [  duplicate] -0.035  Replace the criticality bonus on the cut term with a critica
+    c041 [  evaluated] -0.050  The parent's criticality bonus uses `mean_c` (average crit o
+    c042 [   screened]   --    The parent's quadratic balance term is flat near 50%, so the
+  c024 [   screened]   --    The quadratic balance term is flat near 50% (repair flips we
+  c025 [  discarded]   --    (proposing)
+  c026 [  discarded]   --    (proposing)
+  c031 [   screened]   --    Replace the flat quadratic balance term with a smooth hinge 
+  c032 [  evaluated] +0.123  Add a critical-pair Laplacian on undirected edges, weighting
+    c049 [  evaluated] +0.038  The parent's critical-pair Laplacian (c032, +0.123) is the o
+      c059 [   screened]   --    The locality term's raw normalization by w_edge.sum() lets a
+      c060 [  evaluated] +0.040  The parent's locality coefficient 0.3 is a compromise; scali
+        c061 [  evaluated] -0.003  The locality term's per-edge weight normalisation by w_edge.
+          c063 [  discarded]   --    Combining the parent's successful critical-pair locality ter
+          c064 [  discarded]   --    Halving the parent's locality coefficient from 0.30 to 0.15 
+        c062 [   screened]   --    Combine the parent's critical-pair locality term (coefficien
+      c065 [  evaluated] +0.141  The locality term is the only paying mechanism (c056 at coef
+        c067 [  evaluated] +0.117  The critical-pair locality term at coefficient 1.0 (c065, +0
+          c068 [  evaluated] +0.128  The parent's locality coefficient 0.7 still over-pulls C1 (c
+          c069 [  duplicate] +0.128  Scaling the critical-pair locality coefficient from 0.7 down
+          c070 [  duplicate] +0.117  The validated best partition (c068, +0.128) came from locali
+          c071 [  duplicate] +0.123  The validated best partition (c068, +0.128) comes from local
+          c072 [  duplicate] +0.128  The validated best partition (c068, +0.128) came from locali
+          c073 [  duplicate] +0.128  The validated best partition (c068, +0.128) came from locali
+          c074 [  duplicate] +0.128  The validated best partition (c068, +0.128) came from locali
+          c075 [  duplicate] +0.128  The validated best partition came from locality coefficient 
+          c076 [  duplicate] +0.128  The validated best partition (c068, +0.128) came from locali
+          c077 [  duplicate] +0.128  The validated best partition (c068, +0.128) came from locali
+          c078 [  duplicate] +0.128  The validated best partition (c068, +0.128) came from locali
+          c079 [  evaluated] +0.124  Removing the soft criticality gate (crit^2) that over-suppre
+          c080 [  evaluated] +0.127  The `crit^2` soft gate in the locality term over-suppresses 
+      c066 [  duplicate] +0.038  The locality term is normalised by w_edge.sum(), so its magn
+    c050 [   screened]   --    Combine the parent's critical-pair Laplacian with a mild fan
+    c051 [gate_failed]   --    The parent's critical-pair Laplacian is the only mechanism t
+    c052 [  evaluated] +0.044  Repair flips correlate positively with score (rho=+0.41) and
+  c045 [  evaluated] -0.151  The parent's fan-out-damped cut lowers total cut but leaves 
+  c046 [   screened]   --    Repair flips stay high because the quadratic balance term is
+  c047 [  evaluated] -0.135  Scaling the parent's fan-out damping by using a stronger exp
+  c048 [   screened]   --    Combine the parent's fan-out-damped cut with the successful 
+c010 [   screened]   --    Replacing the flat quadratic balance term with a hinge that 

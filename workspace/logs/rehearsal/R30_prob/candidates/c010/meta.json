@@ -1,0 +1,49 @@
+{
+ "id": "c010",
+ "parent": null,
+ "hypothesis": "Replacing the flat quadratic balance term with a hinge that is silent inside a dead-band around 50% and grows steeply outside it (plus a weak quadratic everywhere), so the raw partition stays near balance without the quadratic constantly fighting the cut term and without over-correcting like a pure steep hinge.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "probe",
+ "created_at": 1794989506.2943172,
+ "status": "screened",
+ "gate_report": "OK",
+ "score_total": null,
+ "score_robust": null,
+ "per_case": {},
+ "all_valid": null,
+ "fail_reasons": [],
+ "analysis": "",
+ "llm_cost_cny": 0.0021722,
+ "eval_wall_s": 0.0,
+ "tags": [
+  "balance-hinge",
+  "dead-band",
+  "repair-flips",
+  "soft-quadratic"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 1.403967,
+  "smoke_loss_tiny_gnorm": 2.312179,
+  "smoke_loss_tiny_s": 0.002,
+  "smoke_loss_nomacro_loss": 0.931771,
+  "smoke_loss_nomacro_gnorm": 0.187413,
+  "smoke_loss_nomacro_s": 0.002,
+  "smoke_loss_wall_s": 0.025,
+  "cut": 399.2222,
+  "cut_ratio": 0.5019,
+  "wcut": 1337.4136,
+  "crit_cross": 0.129,
+  "area_dev": -0.0096,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": 0.0048,
+  "repair_flips": 243.7778,
+  "hamming_ref": 0.2577
+ },
+ "seed_std": null,
+ "duplicate_of": null,
+ "slot": 1
+}

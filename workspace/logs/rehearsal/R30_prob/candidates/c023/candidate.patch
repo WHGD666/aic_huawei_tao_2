@@ -1,0 +1,40 @@
+diff --git a/loss.py b/loss.py
+--- a/loss.py
++++ b/loss.py
+@@ -34,13 +34,35 @@ def compute_loss(p, graph, feats):
+     n_nets = graph["n_nets"]
+ 
+     # ---- 割网期望：P(net is cut) = 1 - prod(p) - prod(1-p) ----
++    # 扇出感知加权：w_k = 1/log(1+k) 让巨大时钟/复位网不再主导割梯度
+     pp = p[net_nodes]
+     log_p = torch.log(torch.clamp(pp, 1e-6, 1.0))
+     log_q = torch.log(torch.clamp(1.0 - pp, 1e-6, 1.0))
+     sum_log_p = torch.zeros(n_nets).index_add(0, net_of_pin, log_p)
+     sum_log_q = torch.zeros(n_nets).index_add(0, net_of_pin, log_q)
+     cut_prob = 1.0 - torch.exp(sum_log_p) - torch.exp(sum_log_q)
+-    l_cut = cut_prob.sum() / float(n_nets)
++    fanout = torch.zeros(n_nets).index_add(
++        0, net_of_pin, torch.ones_like(net_of_pin, dtype=p.dtype))
++    w_net = 1.0 / torch.log(torch.clamp(fanout, min=1.0) + 1.0)
++
++    # ---- 时序关键度（case 相对秩，单位无关）：slack 越小越关键 ----
++    # feats[:,0] = slack（原始单位）。转换为 [0,1] 秩分位，1=最差 slack。
++    slack_raw = feats[:, 0]
++    rank = slack_raw.argsort().argsort().to(p.dtype)
++    n_nodes_f = torch.tensor(float(p.shape[0]), dtype=p.dtype)
++    crit = rank / torch.clamp(n_nodes_f - 1.0, min=1.0)   # 0..1, 1=最critical
++    # 每条网的关键度集中度：max(crit on net) - mean(crit on net)，仅当网内引脚全关键时为正
++    cnt = torch.zeros(n_nets).index_add(
++        0, net_of_pin, torch.ones_like(net_of_pin, dtype=p.dtype)).clamp(min=1.0)
++    sum_c = torch.zeros(n_nets).index_add(0, net_of_pin, crit[net_nodes])
++    mean_c = sum_c / cnt
++    # per-net max 通过分段近似：用 sum_c 与 cnt 的 softmax 上界不可行，改用 sum(crit^2)/sum(crit)
++    # 作为 mean 的对照，简单起见用 mean_c 本身即可（集中度已在 crit 分位本身反映）
++    # 关键网加权：仅对高关键度（mean_c 高）的网小幅提升割代价，alpha 很小避免扰动骨架
++    w_net = w_net * (1.0 + 0.15 * mean_c)
++
++    w_sum = w_net.sum().clamp(min=1e-6)
++    l_cut = (w_net * cut_prob).sum() / w_sum
+ 
+     # ---- 面积平衡：上层面积占比接近 0.5 ----
+     ratio = (area * p).sum() / area.sum()

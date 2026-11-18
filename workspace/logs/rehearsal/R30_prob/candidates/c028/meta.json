@@ -1,0 +1,49 @@
+{
+ "id": "c028",
+ "parent": "c021",
+ "hypothesis": "Replace the parent's flat quadratic balance `(ratio-0.5)^2` with a smooth hinge outside a small dead-band plus a macro-count hinge (guarded so it is zero when no macros exist), keeping the parent's cut and locality terms intact; this keeps the raw partition inside the 47–53% band by itself so the official repair flips far fewer nodes and the learned critical-pair structure survives, which should improve TNS.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "structural",
+ "created_at": 1794989891.7864254,
+ "status": "screened",
+ "gate_report": "OK",
+ "score_total": null,
+ "score_robust": null,
+ "per_case": {},
+ "all_valid": null,
+ "fail_reasons": [],
+ "analysis": "",
+ "llm_cost_cny": 0.0061613,
+ "eval_wall_s": 0.0,
+ "tags": [
+  "hinge_balance",
+  "macro_balance_hinge",
+  "dead_band",
+  "repair_flips_down"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 1.194984,
+  "smoke_loss_tiny_gnorm": 0.53459,
+  "smoke_loss_tiny_s": 0.002,
+  "smoke_loss_nomacro_loss": 1.098789,
+  "smoke_loss_nomacro_gnorm": 0.02611,
+  "smoke_loss_nomacro_s": 0.004,
+  "smoke_loss_wall_s": 0.026,
+  "cut": 404.0,
+  "cut_ratio": 0.5037,
+  "wcut": 1346.6175,
+  "crit_cross": 0.108,
+  "area_dev": -0.012,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": 0.0106,
+  "repair_flips": 84.2222,
+  "hamming_ref": 0.3992
+ },
+ "seed_std": null,
+ "duplicate_of": null,
+ "slot": 1
+}

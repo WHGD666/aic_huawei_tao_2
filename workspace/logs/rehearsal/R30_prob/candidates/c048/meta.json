@@ -1,0 +1,49 @@
+{
+ "id": "c048",
+ "parent": "c009",
+ "hypothesis": "Combine the parent's fan-out-damped cut with the successful c032 critical-pair Laplacian, but scale the Laplacian coefficient down by x0.5 relative to c032 so it acts as a mild tie-breaker on critical-pair locality without overriding the cut term on any single circuit (robustness-first combination of two independently positive mechanisms).",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "combine",
+ "created_at": 1794990296.3187344,
+ "status": "screened",
+ "gate_report": "OK",
+ "score_total": null,
+ "score_robust": null,
+ "per_case": {},
+ "all_valid": null,
+ "fail_reasons": [],
+ "analysis": "",
+ "llm_cost_cny": 0.002741,
+ "eval_wall_s": 0.0,
+ "tags": [
+  "critical-pair-laplacian",
+  "fanout-damping",
+  "combine",
+  "robustness"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 0.899499,
+  "smoke_loss_tiny_gnorm": 0.071839,
+  "smoke_loss_tiny_s": 0.004,
+  "smoke_loss_nomacro_loss": 0.893342,
+  "smoke_loss_nomacro_gnorm": 0.018069,
+  "smoke_loss_nomacro_s": 0.007,
+  "smoke_loss_wall_s": 0.039,
+  "cut": 345.7778,
+  "cut_ratio": 0.4269,
+  "wcut": 1122.5414,
+  "crit_cross": 0.0297,
+  "area_dev": -0.0099,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": -0.0059,
+  "repair_flips": 235.2222,
+  "hamming_ref": 0.0856
+ },
+ "seed_std": null,
+ "duplicate_of": null,
+ "slot": 1
+}

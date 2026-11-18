@@ -1,0 +1,42 @@
+diff --git a/loss.py b/loss.py
+--- a/loss.py
++++ b/loss.py
+@@ -49,4 +49,37 @@ def compute_loss(p, graph, feats):
+     # ---- 二值化：p 远离 0.5 ----
+     l_bin = (p * (1.0 - p)).mean()
+ 
+-    return l_cut + 10.0 * l_bal + 1.0 * l_bin
++    # ---- 软 spread 惩罚（logsumexp 形式，fan-out 归一化，关键度调制）----
++    # 对每个 net 计算软范围：logsumexp(beta*p) - logsumexp(-beta*p) 近似 max-min
++    # 归一化到 [0,1]，用 1/beta 缩放；关键度用 case-relative 秩的均值
++    n_nodes = p.shape[0]
++    slack = feats[:, 0]
++    order = torch.argsort(torch.argsort(slack))
++    rank_q = order.to(p.dtype) / max(1.0, float(n_nodes - 1))
++    crit = 1.0 - rank_q  # [0,1]
++
++    pp = p[net_nodes]
++    pin_cnt = torch.zeros(n_nets).index_add(
++        0, net_of_pin, torch.ones_like(pp)
++    )
++    pin_cnt_safe = torch.clamp(pin_cnt, min=1.0)
++
++    # 软 max 与软 min（beta 适中，保持梯度稳定）
++    beta = 3.0
++    log_exp_pos = torch.log(torch.exp(beta * pp) + 1e-9)
++    log_exp_neg = torch.log(torch.exp(-beta * pp) + 1e-9)
++    sum_lp = torch.zeros(n_nets).index_add(0, net_of_pin, log_exp_pos)
++    sum_ln = torch.zeros(n_nets).index_add(0, net_of_pin, log_exp_neg)
++    soft_max = (sum_lp - torch.log(pin_cnt_safe)) / beta
++    soft_min = -(sum_ln - torch.log(pin_cnt_safe)) / beta
++    spread = torch.clamp(soft_max - soft_min, 0.0, 1.0)
++
++    # 关键度：net 内引脚关键度均值
++    crit_sum = torch.zeros(n_nets).index_add(0, net_of_pin, crit[net_nodes])
++    crit_mean = crit_sum / pin_cnt_safe
++    # fan-out 归一化：1/log(1+k) 抑制 hub 网
++    fanout_w = 1.0 / torch.log(1.0 + pin_cnt_safe)
++
++    l_spread = (crit_mean * fanout_w * spread).sum() / float(n_nets)
++
++    return l_cut + 10.0 * l_bal + 1.0 * l_bin + 0.5 * l_spread

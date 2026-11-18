@@ -1,0 +1,32 @@
+{
+ "id": "c033",
+ "parent": "c023",
+ "hypothesis": "Replace the flat quadratic balance term with a smooth hinge outside a ±1.5% dead-band (large coefficient) so the raw partition lands inside the official 47–53% band by itself, cutting repair flips that destroy the learned cut structure and thereby lowering TNS.",
+ "expected_effect": "",
+ "files_changed": [],
+ "phase": "structural",
+ "created_at": 1794990043.635875,
+ "status": "discarded",
+ "gate_report": "",
+ "score_total": null,
+ "score_robust": null,
+ "per_case": {},
+ "all_valid": null,
+ "fail_reasons": [
+  "run interrupted before gate/evaluation"
+ ],
+ "analysis": "",
+ "llm_cost_cny": 0.0,
+ "eval_wall_s": 0.0,
+ "tags": [
+  "balance-hinge",
+  "deadband",
+  "repair-flips",
+  "area-ratio"
+ ],
+ "prompt_chars": 0,
+ "proxy": {},
+ "seed_std": null,
+ "duplicate_of": null,
+ "slot": 0
+}

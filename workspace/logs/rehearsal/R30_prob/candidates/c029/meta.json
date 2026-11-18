@@ -1,0 +1,53 @@
+{
+ "id": "c029",
+ "parent": "c004",
+ "hypothesis": "The parent's `l_loc` double-counts criticality and its gradient keeps pulling critical pins apart because it is normalised per net (so a huge critical hub net dominates), and it lacks any direct pressure to keep critical pins on the same side; replacing it with a pairwise star-expansion term whose per-pin weight is a *saturating* criticality (crit, not crit^2) times a fan-out damping 1/log(1+k) applied to the *net*, and normalising by the total pin weight, will lower crit_cross without letting hub nets swamp small critical nets, shrinking TNS.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "structural",
+ "created_at": 1794989955.8762894,
+ "status": "evaluated",
+ "gate_report": "OK",
+ "score_total": 0.07466304200645632,
+ "score_robust": -0.04604925359072924,
+ "per_case": {
+  "case_small": 0.07335289379753275,
+  "case_mid": 0.03461368454948937,
+  "case_large": -0.03330353634056579
+ },
+ "all_valid": true,
+ "fail_reasons": [],
+ "analysis": "(1) Partially. TNS improved on C1/C2 but C3 regressed; crit_cross rose on C1 (0.011→0.016) despite the same-side pressure, so the saturating/damped weighting didn't reliably reduce critical crossings.\n\n(2) C1: cut/wcut down, dWNS +10.5%, dTNS +5.7%, but crit_cross up and repair_flips up (103→121) — more repair churn likely from hub-net damping weakening critical-pin cohesion. C3: crit_cross down (0.069→0.061) yet dWNS −9.8%, suggesting cut reduction didn't translate to timing.\n\n(3) Seed spread is high (std 0.054, min −0.033); not acceptable.\n\n(4) Ablate the 1/log(1+k) damping vs crit-only weighting on C3 to isolate the regression.",
+ "llm_cost_cny": 0.0075297,
+ "eval_wall_s": 9.935112714767456,
+ "tags": [
+  "star-expansion",
+  "fanout-damped-weight",
+  "saturating-criticality",
+  "crit-pair-locality"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 0.947002,
+  "smoke_loss_tiny_gnorm": 0.071742,
+  "smoke_loss_tiny_s": 0.002,
+  "smoke_loss_nomacro_loss": 0.950758,
+  "smoke_loss_nomacro_gnorm": 0.017983,
+  "smoke_loss_nomacro_s": 0.001,
+  "smoke_loss_wall_s": 0.016,
+  "cut": 341.1111,
+  "cut_ratio": 0.4156,
+  "wcut": 1103.9914,
+  "crit_cross": 0.0258,
+  "area_dev": -0.0096,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": -0.0001,
+  "repair_flips": 233.2222,
+  "hamming_ref": 0.0811
+ },
+ "seed_std": 0.053709705186278635,
+ "duplicate_of": null,
+ "slot": 0
+}

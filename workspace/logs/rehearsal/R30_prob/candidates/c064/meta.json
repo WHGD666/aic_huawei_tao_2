@@ -1,0 +1,31 @@
+{
+ "id": "c064",
+ "parent": "c061",
+ "hypothesis": "Halving the parent's locality coefficient from 0.30 to 0.15 modestly reduces the term's pull, restoring C2/C3 robustness (which regressed at higher coefficients) while keeping C1's crit_cross gains, since the locality term pays off only where crit_cross has headroom.",
+ "expected_effect": "",
+ "files_changed": [],
+ "phase": "combine",
+ "created_at": 1794990604.9415493,
+ "status": "discarded",
+ "gate_report": "",
+ "score_total": null,
+ "score_robust": null,
+ "per_case": {},
+ "all_valid": null,
+ "fail_reasons": [
+  "run interrupted before gate/evaluation"
+ ],
+ "analysis": "",
+ "llm_cost_cny": 0.0,
+ "eval_wall_s": 0.0,
+ "tags": [
+  "locality-scaling",
+  "robustness",
+  "coefficient-halved"
+ ],
+ "prompt_chars": 0,
+ "proxy": {},
+ "seed_std": null,
+ "duplicate_of": null,
+ "slot": 1
+}

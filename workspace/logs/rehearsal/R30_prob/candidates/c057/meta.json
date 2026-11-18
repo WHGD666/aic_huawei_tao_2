@@ -1,0 +1,54 @@
+{
+ "id": "c057",
+ "parent": "c037",
+ "hypothesis": "The parent's critical-pair locality term (coefficient 2.0, c056 +0.134) is the only mechanism that pays off; scaling it modestly upward (x2 to 4.0 was tested as c056 and helped C1 but stayed flat elsewhere) — instead I combine it with a mild hinge-style dead-band on the area balance so the raw partition stays near 50% without a flat quadratic, reducing repair flips (rho=+0.48 with score) while keeping the locality strength unchanged.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "combine",
+ "created_at": 1794990490.27152,
+ "status": "evaluated",
+ "gate_report": "OK",
+ "score_total": 0.05679685199604437,
+ "score_robust": -0.09436642084768532,
+ "per_case": {
+  "case_small": 0.11672569317639421,
+  "case_mid": -0.06339667429690168,
+  "case_large": 0.003467833116551841
+ },
+ "all_valid": true,
+ "fail_reasons": [],
+ "analysis": "(1) Partially: C1 improved (+0.117) with crit_cross halved (0.011→0.005) and wcut down, but C2 regressed (-0.063, dWNS -14.9%) and C3 flat; repair_flips rose on C1/C2, contradicting the intended flip reduction. (2) Locality term helped C1 via fewer critical-pair crossings; C2's cut reduction didn't translate to timing, suggesting the dead-band shifted balance without net benefit. (3) Seed spread is high (std 0.078, C2 per-seed -0.21 to +0.03) — not acceptable. (4) Ablate the dead-band alone vs. locality-alone on C2 to isolate the regression before retuning.",
+ "llm_cost_cny": 0.0036424,
+ "eval_wall_s": 10.75439977645874,
+ "tags": [
+  "locality-preserved",
+  "hinge-balance",
+  "dead-band",
+  "repair-flips-down",
+  "combine"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 0.913127,
+  "smoke_loss_tiny_gnorm": 0.056569,
+  "smoke_loss_tiny_s": 0.002,
+  "smoke_loss_nomacro_loss": 0.918994,
+  "smoke_loss_nomacro_gnorm": 0.016223,
+  "smoke_loss_nomacro_s": 0.002,
+  "smoke_loss_wall_s": 0.016,
+  "cut": 342.1111,
+  "cut_ratio": 0.418,
+  "wcut": 1108.8355,
+  "crit_cross": 0.0234,
+  "area_dev": -0.0099,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": 0.0067,
+  "repair_flips": 239.3333,
+  "hamming_ref": 0.0866
+ },
+ "seed_std": 0.07791090506539702,
+ "duplicate_of": null,
+ "slot": 0
+}

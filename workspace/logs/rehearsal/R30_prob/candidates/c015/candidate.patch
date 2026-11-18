@@ -1,0 +1,28 @@
+diff --git a/loss.py b/loss.py
+--- a/loss.py
++++ b/loss.py
+@@ -40,7 +40,23 @@ def compute_loss(p, graph, feats):
+     sum_log_p = torch.zeros(n_nets).index_add(0, net_of_pin, log_p)
+     sum_log_q = torch.zeros(n_nets).index_add(0, net_of_pin, log_q)
+     cut_prob = 1.0 - torch.exp(sum_log_p) - torch.exp(sum_log_q)
+-    l_cut = cut_prob.sum() / float(n_nets)
++
++    # ---- 关键度调制：只对关键网轻微加价，保持基座结构不变 ----
++    # 用 2D slack 的 case-relative 秩构造 [0,1] 关键度，取 net 内最大引脚关键度
++    n_nodes = p.shape[0]
++    slack = feats[:, 0]
++    order = torch.argsort(torch.argsort(slack))
++    rank_q = order.to(p.dtype) / max(1.0, float(n_nodes - 1))
++    crit = 1.0 - rank_q  # [0,1]，越关键越大
++    # 每网最大引脚关键度：用 index_add 的软 max 近似（多次幂再开方）
++    pin_crit = crit[net_nodes]
++    # 软最大：sum(crit^K) / sum(crit^(K-1))  对 K=2 即 sum(c^2)/sum(c)，落在 [min,max] 内
++    c2 = torch.zeros(n_nets).index_add(0, net_of_pin, pin_crit * pin_crit)
++    c1 = torch.zeros(n_nets).index_add(0, net_of_pin, pin_crit)
++    soft_max_crit = c2 / torch.clamp(c1, min=1e-6)
++
++    alpha = 0.5
++    l_cut = ((1.0 + alpha * soft_max_crit) * cut_prob).sum() / float(n_nets)
+ 
+     # ---- 面积平衡：上层面积占比接近 0.5 ----
+     ratio = (area * p).sum() / area.sum()

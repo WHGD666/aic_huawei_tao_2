@@ -1,0 +1,49 @@
+{
+ "id": "c030",
+ "parent": "c004",
+ "hypothesis": "Repair flips remain large (103/238/353) because the quadratic balance term is flat near 50%; adding a smooth hinge that is active only outside a narrow dead-band (|ratio-0.5|>0.01) with a large coefficient keeps the raw partition itself inside the official band, so the repair step barely touches the learned structure and the timing-locality term survives to STA, reducing TNS.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "structural",
+ "created_at": 1794989955.9661853,
+ "status": "screened",
+ "gate_report": "OK",
+ "score_total": null,
+ "score_robust": null,
+ "per_case": {},
+ "all_valid": null,
+ "fail_reasons": [],
+ "analysis": "",
+ "llm_cost_cny": 0.0065027,
+ "eval_wall_s": 0.0,
+ "tags": [
+  "balance-hinge",
+  "dead-band",
+  "repair-flips",
+  "unit-free"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 3.448573,
+  "smoke_loss_tiny_gnorm": 11.280135,
+  "smoke_loss_tiny_s": 0.002,
+  "smoke_loss_nomacro_loss": 1.103807,
+  "smoke_loss_nomacro_gnorm": 0.898145,
+  "smoke_loss_nomacro_s": 0.001,
+  "smoke_loss_wall_s": 0.015,
+  "cut": 416.6667,
+  "cut_ratio": 0.5247,
+  "wcut": 1401.8108,
+  "crit_cross": 0.1278,
+  "area_dev": -0.0099,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": 0.0048,
+  "repair_flips": 249.4444,
+  "hamming_ref": 0.2722
+ },
+ "seed_std": null,
+ "duplicate_of": null,
+ "slot": 1
+}

@@ -1,0 +1,50 @@
+{
+ "id": "c012",
+ "parent": "c008",
+ "hypothesis": "Keep the baseline cut/balance/bin backbone intact (which has the lowest crit_cross of all evaluated candidates) and add a small, unit-free tier-preference term that pushes the most timing-critical nodes (top slack-rank quantile, computed case-relative via sigmoid soft-rank) toward the SAME tier by penalising their spread of p — i.e. a criticality-weighted variance around the critical-set mean — so critical logic clusters on one tier, cutting critical-pair cross-tier crossings and reducing TNS.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "structural",
+ "created_at": 1794989553.7545912,
+ "status": "screened",
+ "gate_report": "OK",
+ "score_total": null,
+ "score_robust": null,
+ "per_case": {},
+ "all_valid": null,
+ "fail_reasons": [],
+ "analysis": "",
+ "llm_cost_cny": 0.0026419,
+ "eval_wall_s": 0.0,
+ "tags": [
+  "critical-cluster",
+  "tier-preference",
+  "soft-rank",
+  "variance-penalty",
+  "unit-free"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 0.925724,
+  "smoke_loss_tiny_gnorm": 0.137887,
+  "smoke_loss_tiny_s": 0.002,
+  "smoke_loss_nomacro_loss": 0.916598,
+  "smoke_loss_nomacro_gnorm": 0.015014,
+  "smoke_loss_nomacro_s": 0.002,
+  "smoke_loss_wall_s": 0.018,
+  "cut": 343.4444,
+  "cut_ratio": 0.4204,
+  "wcut": 1137.8918,
+  "crit_cross": 0.0691,
+  "area_dev": -0.0097,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": 0.0028,
+  "repair_flips": 209.4444,
+  "hamming_ref": 0.2546
+ },
+ "seed_std": null,
+ "duplicate_of": null,
+ "slot": 1
+}

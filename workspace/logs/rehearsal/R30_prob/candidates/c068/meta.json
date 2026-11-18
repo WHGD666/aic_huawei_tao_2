@@ -1,0 +1,53 @@
+{
+ "id": "c068",
+ "parent": "c067",
+ "hypothesis": "The parent's locality coefficient 0.7 still over-pulls C1 (crit_cross 0.011→0.016, repair_flips 103→118 vs baseline); scaling it down to 0.5 (x0.7 of 0.7) keeps the paying mechanism's structure on C2/C3 while returning C1's cut quality and repair-flip count closer to baseline, which the history shows is where the score is lost.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "final",
+ "created_at": 1794990717.364317,
+ "status": "evaluated",
+ "gate_report": "OK",
+ "score_total": 0.1282209881335014,
+ "score_robust": -0.012255464756165568,
+ "per_case": {
+  "case_small": 0.085785799806821,
+  "case_mid": 0.03449094139766101,
+  "case_large": 0.007944246929019391
+ },
+ "all_valid": true,
+ "fail_reasons": [],
+ "analysis": "Hypothesis held: C1 crit_cross stayed 0.011 (not 0.016) and repair_flips fell 103→83, cut 137→118, wcut 421→357, recovering C1 score +0.086. C2/C3 kept gains (cut/wcut down, C3 crit_cross 0.069→0.062), so the paying mechanism survived. Seed spread is acceptable (std 0.045; C1 per-seed all positive, C2/C3 near-zero negatives). Next: sweep locality 0.4–0.6 to confirm 0.5 is near-optimal and check C2/C3 don't degrade.",
+ "llm_cost_cny": 0.0058668,
+ "eval_wall_s": 10.291431188583374,
+ "tags": [
+  "locality-coefficient",
+  "conservative-scale-down",
+  "repair-flips",
+  "crit-cross"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 0.900033,
+  "smoke_loss_tiny_gnorm": 0.0719,
+  "smoke_loss_tiny_s": 0.002,
+  "smoke_loss_nomacro_loss": 0.890014,
+  "smoke_loss_nomacro_gnorm": 0.021286,
+  "smoke_loss_nomacro_s": 0.002,
+  "smoke_loss_wall_s": 0.017,
+  "cut": 334.7778,
+  "cut_ratio": 0.4014,
+  "wcut": 1087.173,
+  "crit_cross": 0.0244,
+  "area_dev": -0.01,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": 0.0026,
+  "repair_flips": 219.8889,
+  "hamming_ref": 0.0494
+ },
+ "seed_std": 0.04537237254713214,
+ "duplicate_of": null,
+ "slot": 0
+}

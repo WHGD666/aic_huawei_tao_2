@@ -1,0 +1,50 @@
+{
+ "id": "c031",
+ "parent": "c009",
+ "hypothesis": "Replace the flat quadratic balance term with a smooth hinge outside a ±1.5% dead-band (large coefficient) so the raw partition lands near 50% by itself, cutting repair flips and preserving whatever cut structure the cut term learns, which should lower TNS across circuits.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "structural",
+ "created_at": 1794990003.5502653,
+ "status": "screened",
+ "gate_report": "OK",
+ "score_total": null,
+ "score_robust": null,
+ "per_case": {},
+ "all_valid": null,
+ "fail_reasons": [],
+ "analysis": "",
+ "llm_cost_cny": 0.0028159,
+ "eval_wall_s": 0.0,
+ "tags": [
+  "balance-hinge",
+  "dead-band",
+  "repair-flips",
+  "area-ratio",
+  "softplus"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 1.698799,
+  "smoke_loss_tiny_gnorm": 2.45323,
+  "smoke_loss_tiny_s": 0.001,
+  "smoke_loss_nomacro_loss": 0.964606,
+  "smoke_loss_nomacro_gnorm": 0.611022,
+  "smoke_loss_nomacro_s": 0.003,
+  "smoke_loss_wall_s": 0.021,
+  "cut": 401.5556,
+  "cut_ratio": 0.4991,
+  "wcut": 1346.5157,
+  "crit_cross": 0.1143,
+  "area_dev": -0.0099,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": 0.0004,
+  "repair_flips": 245.4444,
+  "hamming_ref": 0.2534
+ },
+ "seed_std": null,
+ "duplicate_of": null,
+ "slot": 0
+}

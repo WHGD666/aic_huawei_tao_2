@@ -1,0 +1,51 @@
+diff --git a/loss.py b/loss.py
+--- a/loss.py
++++ b/loss.py
+@@ -42,11 +42,44 @@ def compute_loss(p, graph, feats):
+     cut_prob = 1.0 - torch.exp(sum_log_p) - torch.exp(sum_log_q)
+     l_cut = cut_prob.sum() / float(n_nets)
+ 
+-    # ---- 面积平衡：上层面积占比接近 0.5 ----
++    # ---- 软范围割网：对每网引脚概率做 smooth range，扇出大时仍有梯度 ----
++    # range = softmax(t*p) - softmin(t*p)，与绝对单位无关，仅用概率本身
++    t_rng = 4.0
++    pin_p = pp
++    pin_max = torch.zeros(n_nets).index_add(
++        0, net_of_pin, torch.exp(t_rng * pin_p)
++    )
++    pin_min = torch.zeros(n_nets).index_add(
++        0, net_of_pin, torch.exp(-t_rng * pin_p)
++    )
++    pin_cnt = torch.zeros(n_nets).index_add(
++        0, net_of_pin, torch.ones_like(pin_p)
++    )
++    pin_cnt = torch.clamp(pin_cnt, min=1.0)
++    soft_max = torch.log(pin_max) / t_rng
++    soft_min = -torch.log(pin_min) / t_rng
++    soft_range = torch.clamp(soft_max - soft_min, min=0.0)
++    # 用扇出对数做温和降权，避免时钟/复位网主导
++    fo_w = 1.0 / torch.log1p(pin_cnt + 1.0)
++    l_rng = (fo_w * soft_range).sum() / torch.clamp(fo_w.sum(), min=1e-6)
++
++    # ---- 面积平衡：死区内静默的铰链，外侧大系数 ----
+     ratio = (area * p).sum() / area.sum()
+-    l_bal = (ratio - 0.5) ** 2
++    dev_bal = torch.clamp(torch.abs(ratio - 0.5) - 0.01, min=0.0)
++    l_bal = dev_bal ** 2
+ 
+     # ---- 二值化：p 远离 0.5 ----
+     l_bin = (p * (1.0 - p)).mean()
+ 
+-    return l_cut + 10.0 * l_bal + 1.0 * l_bin
++    # ---- 宏单元平衡：上层宏数量与宏面积占比接近 0.5（无宏时自动为 0）----
++    is_macro = graph["is_macro"].to(p.dtype)
++    n_macro = is_macro.sum()
++    macro_area = graph["area"] * is_macro
++    cnt_ratio = (is_macro * p).sum() / (n_macro + 1e-6)
++    area_ratio = (macro_area * p).sum() / (macro_area.sum() + 1e-6)
++    has_macro = (n_macro > 0.5).to(p.dtype)
++    l_macro = has_macro * (
++        (cnt_ratio - 0.5) ** 2 + (area_ratio - 0.5) ** 2
++    )
++
++    return l_cut + 10.0 * l_bal + 1.0 * l_bin + 4.0 * l_macro

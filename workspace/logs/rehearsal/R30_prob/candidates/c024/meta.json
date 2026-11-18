@@ -1,0 +1,50 @@
+{
+ "id": "c024",
+ "parent": "c009",
+ "hypothesis": "The quadratic balance term is flat near 50% (repair flips were 103/238/353 with |area dev|≈0.01), so replacing it with a hinge outside a ±1% dead-band (large coefficient outside, small quadratic inside) forces the raw partition to sit inside the official 47–53% band on its own — repair then flips fewer nodes and the cut structure the parent learned survives, lifting TNS on all circuits without touching the cut backbone.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "structural",
+ "created_at": 1794989813.3835597,
+ "status": "screened",
+ "gate_report": "OK",
+ "score_total": null,
+ "score_robust": null,
+ "per_case": {},
+ "all_valid": null,
+ "fail_reasons": [],
+ "analysis": "",
+ "llm_cost_cny": 0.007134399999999999,
+ "eval_wall_s": 0.0,
+ "tags": [
+  "balance-hinge",
+  "dead-band",
+  "repair-flips",
+  "structure-preserving",
+  "unit-free"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 1.368067,
+  "smoke_loss_tiny_gnorm": 2.312198,
+  "smoke_loss_tiny_s": 0.001,
+  "smoke_loss_nomacro_loss": 0.891624,
+  "smoke_loss_nomacro_gnorm": 0.187764,
+  "smoke_loss_nomacro_s": 0.001,
+  "smoke_loss_wall_s": 0.014,
+  "cut": 398.5556,
+  "cut_ratio": 0.5001,
+  "wcut": 1333.0734,
+  "crit_cross": 0.119,
+  "area_dev": -0.01,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": 0.0048,
+  "repair_flips": 243.3333,
+  "hamming_ref": 0.2589
+ },
+ "seed_std": null,
+ "duplicate_of": null,
+ "slot": 1
+}

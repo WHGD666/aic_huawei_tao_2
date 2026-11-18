@@ -1,0 +1,53 @@
+{
+ "id": "c070",
+ "parent": "c067",
+ "hypothesis": "The validated best partition (c068, +0.128) came from locality coefficient 0.5; scaling that coefficient up modestly to 0.7 restores a bit of the critical-pair pull that lifted C2/C3 in c065 while staying below the over-pulling regime that hurt C1 at 1.0, so TNS should improve slightly without reintroducing C1 repair flips.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "final",
+ "created_at": 1794990758.0803125,
+ "status": "duplicate",
+ "gate_report": "OK",
+ "score_total": 0.1173952849651184,
+ "score_robust": -0.0009898877575963052,
+ "per_case": {
+  "case_small": 0.07407155379054874,
+  "case_mid": 0.028724853779847334,
+  "case_large": 0.01459887739472234
+ },
+ "all_valid": true,
+ "fail_reasons": [],
+ "analysis": "",
+ "llm_cost_cny": 0.0047783999999999995,
+ "eval_wall_s": 0.0,
+ "tags": [
+  "locality-coefficient",
+  "critical-pair-laplacian",
+  "conservative-rescale",
+  "tns"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 0.914519,
+  "smoke_loss_tiny_gnorm": 0.072653,
+  "smoke_loss_tiny_s": 0.022,
+  "smoke_loss_nomacro_loss": 0.903533,
+  "smoke_loss_nomacro_gnorm": 0.024664,
+  "smoke_loss_nomacro_s": 0.004,
+  "smoke_loss_wall_s": 0.04,
+  "cut": 347.8889,
+  "cut_ratio": 0.429,
+  "wcut": 1126.2905,
+  "crit_cross": 0.0301,
+  "area_dev": -0.0102,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": 0.0001,
+  "repair_flips": 232.1111,
+  "hamming_ref": 0.0892
+ },
+ "seed_std": 0.029502713936703995,
+ "duplicate_of": "c067",
+ "slot": 0
+}

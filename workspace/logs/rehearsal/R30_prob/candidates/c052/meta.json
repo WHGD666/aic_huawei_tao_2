@@ -1,0 +1,53 @@
+{
+ "id": "c052",
+ "parent": "c032",
+ "hypothesis": "Repair flips correlate positively with score (rho=+0.41) and the quadratic balance term is flat near 50%, so the raw partition drifts and the official repair mangles the learned critical structure; scaling the balance coefficient 10 -> 20 (modest x2, no new mechanism) lands the raw area ratio closer to 0.5 and reduces how much the repair step has to move, preserving the Laplacian's critical-pair locality.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "combine",
+ "created_at": 1794990374.7300217,
+ "status": "evaluated",
+ "gate_report": "OK",
+ "score_total": 0.04411443836446246,
+ "score_robust": -0.05712851541588866,
+ "per_case": {
+  "case_small": 0.07991803994952691,
+  "case_mid": -0.03155032913281631,
+  "case_large": -0.004253272452248147
+ },
+ "all_valid": true,
+ "fail_reasons": [],
+ "analysis": "(1) No. Repair flips rose (103→118) rather than falling, and crit_cross worsened on C1 (0.011→0.016); the x2 balance scaling did not reduce repair movement as predicted.\n\n(2) C1 drove the gain (score +0.080, dWNS +10.3%) despite higher cut/wcut and crit_cross—so improvement isn't from preserved critical-pair locality; C2 regressed (-0.032), C3 flat. Mechanism unclear/contradicts hypothesis.\n\n(3) No: seed_std=0.049 with robust mean -0.033 and min_case -0.032—gains are seed-fragile, not robust.\n\n(4) Ablate balance coefficient (10/15/20) on C1 alone, logging raw area ratio and repair_flips, to test whether the C1 gain is causal or noise.",
+ "llm_cost_cny": 0.0050182000000000004,
+ "eval_wall_s": 10.435624361038208,
+ "tags": [
+  "balance-coefficient-scaling",
+  "repair-flips",
+  "combine",
+  "robustness"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 0.927983,
+  "smoke_loss_tiny_gnorm": 0.142942,
+  "smoke_loss_tiny_s": 0.002,
+  "smoke_loss_nomacro_loss": 0.90054,
+  "smoke_loss_nomacro_gnorm": 0.028746,
+  "smoke_loss_nomacro_s": 0.002,
+  "smoke_loss_wall_s": 0.02,
+  "cut": 350.3333,
+  "cut_ratio": 0.4319,
+  "wcut": 1135.2318,
+  "crit_cross": 0.0266,
+  "area_dev": -0.0098,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": -0.0004,
+  "repair_flips": 235.8889,
+  "hamming_ref": 0.1109
+ },
+ "seed_std": 0.04878629562383422,
+ "duplicate_of": null,
+ "slot": 1
+}

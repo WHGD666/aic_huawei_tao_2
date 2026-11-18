@@ -1,0 +1,54 @@
+{
+ "id": "c074",
+ "parent": "c067",
+ "hypothesis": "The validated best partition (c068, +0.128) came from locality coefficient 0.5 on top of this exact parent; scaling the parent's 0.7 down to 0.5 restores that exact validated best configuration, further reducing the over-pull on C1 (cut/wcut/repair_flips) while keeping the C2/C3 gains.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "final",
+ "created_at": 1794994354.8323112,
+ "status": "duplicate",
+ "gate_report": "OK",
+ "score_total": 0.1282209881335014,
+ "score_robust": -0.012255464756165568,
+ "per_case": {
+  "case_small": 0.085785799806821,
+  "case_mid": 0.03449094139766101,
+  "case_large": 0.007944246929019391
+ },
+ "all_valid": true,
+ "fail_reasons": [],
+ "analysis": "",
+ "llm_cost_cny": 0.0049178,
+ "eval_wall_s": 0.0,
+ "tags": [
+  "locality-coefficient",
+  "scale-down",
+  "c068-restore",
+  "balance-repair",
+  "critical-pair"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 0.900033,
+  "smoke_loss_tiny_gnorm": 0.0719,
+  "smoke_loss_tiny_s": 0.003,
+  "smoke_loss_nomacro_loss": 0.890014,
+  "smoke_loss_nomacro_gnorm": 0.021286,
+  "smoke_loss_nomacro_s": 0.001,
+  "smoke_loss_wall_s": 0.213,
+  "cut": 334.7778,
+  "cut_ratio": 0.4014,
+  "wcut": 1087.173,
+  "crit_cross": 0.0244,
+  "area_dev": -0.01,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": 0.0026,
+  "repair_flips": 219.8889,
+  "hamming_ref": 0.0494
+ },
+ "seed_std": 0.04537237254713214,
+ "duplicate_of": "c068",
+ "slot": 0
+}

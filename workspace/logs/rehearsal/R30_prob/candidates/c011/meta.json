@@ -1,0 +1,54 @@
+{
+ "id": "c011",
+ "parent": "c008",
+ "hypothesis": "The history shows the macro-balance hinge (c008) cut repair flips but raised crit_cross and lost score, while a pure cut-only backbone keeps crit_cross low; so keep the baseline cut/bin backbone and replace the hard 0.05 dead-band macro hinge with a soft, always-on but low-weight quadratic macro-balance term (no dead-band, no clamp) that gently steers macro count/area toward 50% without the aggressive flips that mangled structure.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "structural",
+ "created_at": 1794989553.6643016,
+ "status": "evaluated",
+ "gate_report": "OK",
+ "score_total": -0.3955757068902519,
+ "score_robust": -0.4056913070884833,
+ "per_case": {
+  "case_small": -0.12880097498547205,
+  "case_mid": -0.2626554960978566,
+  "case_large": -0.004119235806923249
+ },
+ "all_valid": true,
+ "fail_reasons": [],
+ "analysis": "All runs valid. Hypothesis partly held: repair flips fell (103→75, 238→212, 353→284) and C3 crit_cross dropped (0.069→0.002), but crit_cross rose sharply on C1/C2 (0.011→0.126, 0.000→0.120) and cut/wcut worsened on C2, driving score losses (C2 −0.263). Soft term still perturbs structure enough to create critical-pair crossings. Seed spread is unacceptable (std 0.337; C3 per-seed +0.37 to −0.62). Next: sweep the quadratic weight downward and add a crit_cross-aware penalty, validating per-seed stability before accepting.",
+ "llm_cost_cny": 0.0035509,
+ "eval_wall_s": 9.42037296295166,
+ "tags": [
+  "macro-balance",
+  "soft-quadratic",
+  "no-deadband",
+  "gentle-weight",
+  "structure-preserving"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 0.926853,
+  "smoke_loss_tiny_gnorm": 0.165854,
+  "smoke_loss_tiny_s": 0.002,
+  "smoke_loss_nomacro_loss": 0.896363,
+  "smoke_loss_nomacro_gnorm": 0.016628,
+  "smoke_loss_nomacro_s": 0.001,
+  "smoke_loss_wall_s": 0.014,
+  "cut": 337.0,
+  "cut_ratio": 0.419,
+  "wcut": 1110.9471,
+  "crit_cross": 0.0827,
+  "area_dev": -0.0099,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": 0.0099,
+  "repair_flips": 190.4444,
+  "hamming_ref": 0.2946
+ },
+ "seed_std": 0.3365272205533443,
+ "duplicate_of": null,
+ "slot": 0
+}

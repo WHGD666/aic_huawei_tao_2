@@ -1,0 +1,53 @@
+{
+ "id": "c040",
+ "parent": "c023",
+ "hypothesis": "Replace the criticality bonus on the cut term with a critical-pair Laplacian on undirected edges weighted by the product of case-relative slack criticality, so adjacent critical nodes are pulled to the same tier (lower crit_cross) while non-critical edges contribute almost nothing, reducing cross-tier HBT delay on critical paths.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "structural",
+ "created_at": 1794990153.026295,
+ "status": "duplicate",
+ "gate_report": "OK",
+ "score_total": -0.035322204607101323,
+ "score_robust": -0.03171811556518187,
+ "per_case": {
+  "case_small": -0.0015564066549522352,
+  "case_mid": -0.013560719101971713,
+  "case_large": -0.020205078850177374
+ },
+ "all_valid": true,
+ "fail_reasons": [],
+ "analysis": "",
+ "llm_cost_cny": 0.0027659,
+ "eval_wall_s": 0.0,
+ "tags": [
+  "critical-pair-laplacian",
+  "edge-weight",
+  "crit-cross",
+  "same-tier"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 0.864772,
+  "smoke_loss_tiny_gnorm": 0.071425,
+  "smoke_loss_tiny_s": 0.002,
+  "smoke_loss_nomacro_loss": 0.857085,
+  "smoke_loss_nomacro_gnorm": 0.017202,
+  "smoke_loss_nomacro_s": 0.001,
+  "smoke_loss_wall_s": 0.015,
+  "cut": 346.4444,
+  "cut_ratio": 0.4227,
+  "wcut": 1133.3588,
+  "crit_cross": 0.0329,
+  "area_dev": -0.0101,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": 0.0133,
+  "repair_flips": 231.8889,
+  "hamming_ref": 0.0148
+ },
+ "seed_std": 0.024453299856975624,
+ "duplicate_of": "c023",
+ "slot": 1
+}

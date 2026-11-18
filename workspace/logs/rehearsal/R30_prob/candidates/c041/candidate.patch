@@ -1,0 +1,43 @@
+diff --git a/loss.py b/loss.py
+--- a/loss.py
++++ b/loss.py
+@@ -34,13 +34,38 @@ def compute_loss(p, graph, feats):
+     n_nets = graph["n_nets"]
+ 
+     # ---- 割网期望：P(net is cut) = 1 - prod(p) - prod(1-p) ----
++    # 扇出感知加权：w_k = 1/log(1+k) 让巨大时钟/复位网不再主导割梯度
+     pp = p[net_nodes]
+     log_p = torch.log(torch.clamp(pp, 1e-6, 1.0))
+     log_q = torch.log(torch.clamp(1.0 - pp, 1e-6, 1.0))
+     sum_log_p = torch.zeros(n_nets).index_add(0, net_of_pin, log_p)
+     sum_log_q = torch.zeros(n_nets).index_add(0, net_of_pin, log_q)
+     cut_prob = 1.0 - torch.exp(sum_log_p) - torch.exp(sum_log_q)
+-    l_cut = cut_prob.sum() / float(n_nets)
++    fanout = torch.zeros(n_nets).index_add(
++        0, net_of_pin, torch.ones_like(net_of_pin, dtype=p.dtype))
++    w_net = 1.0 / torch.log(torch.clamp(fanout, min=1.0) + 1.0)
++
++    # ---- 时序关键度（case 相对秩，单位无关）：slack 越小越关键 ----
++    # feats[:,0] = slack（原始单位）。转换为 [0,1] 秩分位，1=最差 slack。
++    slack_raw = feats[:, 0]
++    rank = slack_raw.argsort().argsort().to(p.dtype)
++    n_nodes_f = torch.tensor(float(p.shape[0]), dtype=p.dtype)
++    crit = rank / torch.clamp(n_nodes_f - 1.0, min=1.0)   # 0..1, 1=最critical
++    # 每条网的关键度集中度：max(crit on net) - mean(crit on net)，仅当网内引脚全关键时为正
++    cnt = torch.zeros(n_nets).index_add(
++        0, net_of_pin, torch.ones_like(net_of_pin, dtype=p.dtype)).clamp(min=1.0)
++    sum_c = torch.zeros(n_nets).index_add(0, net_of_pin, crit[net_nodes])
++    sum_c2 = torch.zeros(n_nets).index_add(0, net_of_pin, crit[net_nodes] ** 2)
++    # 关键"对"占比：网内引脚两两之间同为关键（crit 高）的比例。
++    # pair_frac = (sum_c^2 - sum_c2) / (k*(k-1)) ∈ [0,1]，只在整条网都关键时接近 1。
++    k = cnt
++    denom = torch.clamp(k * (k - 1.0), min=1.0)
++    pair_frac = (sum_c * sum_c - sum_c2) / denom
++    # 只惩罚"关键-关键"连接跨层：alpha 温和，避免把所有网都当成关键网
++    w_net = w_net * (1.0 + 0.60 * pair_frac)
++
++    w_sum = w_net.sum().clamp(min=1e-6)
++    l_cut = (w_net * cut_prob).sum() / w_sum
+ 
+     # ---- 面积平衡：上层面积占比接近 0.5 ----
+     ratio = (area * p).sum() / area.sum()

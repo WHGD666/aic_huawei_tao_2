@@ -1,0 +1,53 @@
+{
+ "id": "c045",
+ "parent": "c009",
+ "hypothesis": "The parent's fan-out-damped cut lowers total cut but leaves crit_cross unchanged because the cut term treats every pin of a net equally; adding a pin-level criticality weight inside the expected-cut product (each pin's log-prob scaled by 1 + alpha * normalized crit rank of that pin) will pull critical pins of the same net together, lowering crit-pair cross-tier and thus TNS.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "structural",
+ "created_at": 1794990255.585606,
+ "status": "evaluated",
+ "gate_report": "OK",
+ "score_total": -0.15112137326331054,
+ "score_robust": -0.1614727297943919,
+ "per_case": {
+  "case_small": 0.00037000318211426593,
+  "case_mid": -0.008343152527325254,
+  "case_large": -0.14314822391809956
+ },
+ "all_valid": true,
+ "fail_reasons": [],
+ "analysis": "(1) Partially: crit_cross fell only on C3 (0.069→0.040) with cut also down (582→573), but total cut worsened overall (total=-0.151) and TNS barely moved (-0.003). (2) C3 drove the effect—lower crit-pair cross-tier and fewer repair flips (353→349); C1/C2 showed no crit_cross change and C1 cut rose (137→142). Mechanism consistent with pin-level weighting pulling critical pins together, but gains don't generalize. (3) Seed spread is high (seed_std=0.091; C3 per-seed -0.45 outlier)—not acceptable. (4) Gate alpha by net criticality density or anneal it, and re-test on C3-like circuits to confirm the crit_cross→TNS link before scaling.",
+ "llm_cost_cny": 0.0043228,
+ "eval_wall_s": 8.566423416137695,
+ "tags": [
+  "pin-criticality-weighted-cut",
+  "rank-normalised-crit",
+  "fanout-damped",
+  "per-pin-log-weight"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 0.862175,
+  "smoke_loss_tiny_gnorm": 0.071481,
+  "smoke_loss_tiny_s": 0.002,
+  "smoke_loss_nomacro_loss": 0.856128,
+  "smoke_loss_nomacro_gnorm": 0.017672,
+  "smoke_loss_nomacro_s": 0.003,
+  "smoke_loss_wall_s": 0.266,
+  "cut": 341.4444,
+  "cut_ratio": 0.4206,
+  "wcut": 1108.5727,
+  "crit_cross": 0.0171,
+  "area_dev": -0.0097,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": 0.0089,
+  "repair_flips": 229.5556,
+  "hamming_ref": 0.052
+ },
+ "seed_std": 0.09080227818865035,
+ "duplicate_of": null,
+ "slot": 0
+}

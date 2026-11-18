@@ -1,0 +1,53 @@
+{
+ "id": "c032",
+ "parent": "c009",
+ "hypothesis": "Add a critical-pair Laplacian on undirected edges, weighting each edge by the product of case-relative criticality ranks (quantile of 2D slack, mapped to [0,1] via a soft rank), so adjacent critical nodes are pulled to the same tier and critical-pair cross-tier drops, which the probe correlations say is the strongest predictor of TNS.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "structural",
+ "created_at": 1794990003.6406434,
+ "status": "evaluated",
+ "gate_report": "OK",
+ "score_total": 0.12343850133416474,
+ "score_robust": -0.013831705852683566,
+ "per_case": {
+  "case_small": 0.08790684985671259,
+  "case_mid": 0.030475524232388893,
+  "case_large": 0.0050561272450632706
+ },
+ "all_valid": true,
+ "fail_reasons": [],
+ "analysis": "(1) Partially. Gains concentrate on C1 (score +0.088, dWNS +13.1%, dTNS +6.8%); C2/C3 near-flat. Hypothesis only weakly supported: crit_cross unchanged on C1/C2 and rose on C3 (0.069→0.074), so the intended critical-pair mechanism isn't visibly firing—gains track cut/wcut reduction (421→363) and fewer repair_flips (103→82), i.e., general cut minimization, not criticality weighting.\n(2) C1 moved most; C3 slightly worsened cut/wcut and crit_cross.\n(3) Seed spread high (std 0.041; C1 per-seed +0.05/+0.03/+0.18) — one seed drives the mean; not yet acceptable.\n(4) Verify the soft-rank weights actually differentiate edges (log weight distribution); if near-uniform, sharpen the rank mapping and re-test.",
+ "llm_cost_cny": 0.0038139000000000003,
+ "eval_wall_s": 10.097513914108276,
+ "tags": [
+  "critical-pair-laplacian",
+  "soft-rank",
+  "timing-locality",
+  "edge-weight"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 0.907276,
+  "smoke_loss_tiny_gnorm": 0.072238,
+  "smoke_loss_tiny_s": 0.002,
+  "smoke_loss_nomacro_loss": 0.896774,
+  "smoke_loss_nomacro_gnorm": 0.022889,
+  "smoke_loss_nomacro_s": 0.002,
+  "smoke_loss_wall_s": 0.015,
+  "cut": 337.0,
+  "cut_ratio": 0.4046,
+  "wcut": 1095.782,
+  "crit_cross": 0.0282,
+  "area_dev": -0.0099,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": 0.0026,
+  "repair_flips": 219.8889,
+  "hamming_ref": 0.0519
+ },
+ "seed_std": 0.040645669240714895,
+ "duplicate_of": null,
+ "slot": 1
+}

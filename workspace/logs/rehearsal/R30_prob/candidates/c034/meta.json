@@ -1,0 +1,32 @@
+{
+ "id": "c034",
+ "parent": "c023",
+ "hypothesis": "Add a critical-pair Laplacian on undirected edges weighted by the product of case-relative slack criticality (low slack = critical), so adjacent critical nodes are pulled to the same tier and critical paths cross tiers less often, shrinking the many moderate violations that dominate TNS.",
+ "expected_effect": "",
+ "files_changed": [],
+ "phase": "structural",
+ "created_at": 1794990043.7480152,
+ "status": "discarded",
+ "gate_report": "",
+ "score_total": null,
+ "score_robust": null,
+ "per_case": {},
+ "all_valid": null,
+ "fail_reasons": [
+  "run interrupted before gate/evaluation"
+ ],
+ "analysis": "",
+ "llm_cost_cny": 0.0,
+ "eval_wall_s": 0.0,
+ "tags": [
+  "critical-pair-laplacian",
+  "edge-smoothing",
+  "cross-tier",
+  "slack-rank"
+ ],
+ "prompt_chars": 0,
+ "proxy": {},
+ "seed_std": null,
+ "duplicate_of": null,
+ "slot": 1
+}

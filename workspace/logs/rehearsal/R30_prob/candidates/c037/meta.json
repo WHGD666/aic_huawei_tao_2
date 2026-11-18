@@ -1,0 +1,54 @@
+{
+ "id": "c037",
+ "parent": "c029",
+ "hypothesis": "Replace the raw pin-count cut with a fan-out-damped cut weight (1/log1p(k+1) normalised) so hub/clock nets stop dominating the cut gradient, letting the partition actually separate moderate-fanout signal nets — this should cut total nets-cut and reduce the many moderate violations that drive TNS, while the criticality-weighted star-expansion locality term (kept from the parent) preserves critical pairs.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "structural",
+ "created_at": 1794990114.914481,
+ "status": "evaluated",
+ "gate_report": "OK",
+ "score_total": 0.11610033040297642,
+ "score_robust": -0.035597273695298796,
+ "per_case": {
+  "case_small": 0.10734024240372632,
+  "case_mid": 0.02569171882692418,
+  "case_large": -0.01693163082767409
+ },
+ "all_valid": true,
+ "fail_reasons": [],
+ "analysis": "(1) Partially. Cut/wcut fell on all circuits and TNS improved (+0.037), but the gain is concentrated in C1; C3 regressed (score −0.017, dWNS −5.5%) despite lower cut, so hub-damping didn't uniformly help.\n\n(2) C1: cut 137→136, wcut 421→400, dTNS +10.3%, repair_flips up 103→118 (more local churn). C2: cut 318→309, wcut 1007→974, modest dTNS +1.3%. C3: cut 582→580, wcut 1955→1942, crit_cross 0.069→0.062, yet dWNS −5.5% — criticality term not fully protecting timing there.\n\n(3) Seed spread borderline: seed_std 0.045, robust −0.013, min_case −0.017; C2/C3 per-seed straddle zero.\n\n(4) Gate the damping by fanout threshold or add a WNS-aware tie-break to recover C3 before adopting.",
+ "llm_cost_cny": 0.0035499000000000004,
+ "eval_wall_s": 9.769819974899292,
+ "tags": [
+  "fanout-damped-cut",
+  "hub-downweight",
+  "tns",
+  "robust-cut",
+  "star-locality"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 0.921228,
+  "smoke_loss_tiny_gnorm": 0.071877,
+  "smoke_loss_tiny_s": 0.002,
+  "smoke_loss_nomacro_loss": 0.921876,
+  "smoke_loss_nomacro_gnorm": 0.018473,
+  "smoke_loss_nomacro_s": 0.002,
+  "smoke_loss_wall_s": 0.015,
+  "cut": 341.7778,
+  "cut_ratio": 0.4177,
+  "wcut": 1105.1253,
+  "crit_cross": 0.0244,
+  "area_dev": -0.0096,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": -0.0038,
+  "repair_flips": 232.6667,
+  "hamming_ref": 0.0804
+ },
+ "seed_std": 0.04547298460749083,
+ "duplicate_of": null,
+ "slot": 0
+}

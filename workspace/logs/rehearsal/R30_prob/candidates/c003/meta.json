@@ -1,0 +1,35 @@
+{
+ "id": "c003",
+ "parent": null,
+ "hypothesis": "Weighting each net's cut probability by a case-relative criticality factor (1 + alpha * mean-pin criticality, criticality from within-case slack rank) will push the optimiser to keep timing-critical nets on one tier, reducing the number of critical cross-tier nets that each pay HBT delay and therefore shrinking many moderate TNS violations.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "probe",
+ "created_at": 1794988807.150267,
+ "status": "gate_failed",
+ "gate_report": "ERROR: smoke[loss]: [tiny] raised ValueError: array is not broadcastable to correct shape @ File \"/sessions/serene-sleepy-edison/mnt/huawei_aic_tao/task2/workspace/harness/smoke.py\", line 87, in _smoke_loss",
+ "score_total": null,
+ "score_robust": null,
+ "per_case": {},
+ "all_valid": null,
+ "fail_reasons": [
+  "ERROR: smoke[loss]: [tiny] raised ValueError: array is not broadcastable to correct shape @ File \"/sessions/serene-sleepy-edison/mnt/huawei_aic_tao/task2/workspace/harness/smoke.py\", line 87, in _smok"
+ ],
+ "analysis": "",
+ "llm_cost_cny": 0.0038385,
+ "eval_wall_s": 0.0,
+ "tags": [
+  "criticality-weighted-cut",
+  "slack-rank",
+  "quantile",
+  "TNS",
+  "soft-weight"
+ ],
+ "prompt_chars": 0,
+ "proxy": {},
+ "seed_std": null,
+ "duplicate_of": null,
+ "slot": 0
+}

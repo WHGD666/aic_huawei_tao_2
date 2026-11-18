@@ -1,0 +1,53 @@
+{
+ "id": "c079",
+ "parent": "c067",
+ "hypothesis": "Removing the soft criticality gate (crit^2) that over-suppresses non-critical neighbours and instead keeping the validated 0.7 locality coefficient unchanged is risky; the conservative refinement is to tighten the locality gate to crit^1.5 with the same 0.7 coefficient, which preserves the validated balance of critical-pair cohesion while letting moderately critical adjacent pairs also share a tier, reducing repair flips.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "final",
+ "created_at": 1794994393.0916173,
+ "status": "evaluated",
+ "gate_report": "OK",
+ "score_total": 0.12379894711395728,
+ "score_robust": -0.01755677334208662,
+ "per_case": {
+  "case_small": 0.09263518871490607,
+  "case_mid": 0.013673237844987538,
+  "case_large": 0.017490520554063662
+ },
+ "all_valid": true,
+ "fail_reasons": [],
+ "analysis": "(1) Partially. Overall positive (total +0.124, robust +0.005) but the mechanism is not clean: C1 worsened on every partition metric (cut 137→146, crit_cross 0.011→0.016, repair_flips 103→119) despite the best score, so the crit^1.5 gate did not reduce flips where it mattered most.\n\n(2) C2 drove the gain via fewer cut nets (318→304, wcut 1007→954) with flat crit_cross and flips; C3 marginal (flips 353→347). C1's regression suggests loosening the gate admitted moderately critical pairs that increased crossing and repair.\n\n(3) Seed spread borderline: seed_std 0.045, C2 has a negative seed (-0.04); min_case +0.014 is thin.\n\n(4) Next: sweep crit exponent 1.5→1.75 and locality coefficient jointly on C1 only, targeting repair_flips ≤ baseline before re-running full set.",
+ "llm_cost_cny": 0.0052988,
+ "eval_wall_s": 5.2334959506988525,
+ "tags": [
+  "locality",
+  "criticality-gate",
+  "exponent-tighten",
+  "conservative"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 0.913929,
+  "smoke_loss_tiny_gnorm": 0.072327,
+  "smoke_loss_tiny_s": 0.001,
+  "smoke_loss_nomacro_loss": 0.906204,
+  "smoke_loss_nomacro_gnorm": 0.022827,
+  "smoke_loss_nomacro_s": 0.001,
+  "smoke_loss_wall_s": 0.009,
+  "cut": 344.5556,
+  "cut_ratio": 0.4244,
+  "wcut": 1114.8284,
+  "crit_cross": 0.0281,
+  "area_dev": -0.0101,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": -0.0045,
+  "repair_flips": 235.2222,
+  "hamming_ref": 0.0909
+ },
+ "seed_std": 0.04493279101649064,
+ "duplicate_of": null,
+ "slot": 0
+}

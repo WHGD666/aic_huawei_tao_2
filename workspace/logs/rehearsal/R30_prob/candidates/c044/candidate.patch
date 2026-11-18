@@ -1,0 +1,63 @@
+diff --git a/loss.py b/loss.py
+--- a/loss.py
++++ b/loss.py
+@@ -40,13 +40,56 @@ def compute_loss(p, graph, feats):
+     sum_log_p = torch.zeros(n_nets).index_add(0, net_of_pin, log_p)
+     sum_log_q = torch.zeros(n_nets).index_add(0, net_of_pin, log_q)
+     cut_prob = 1.0 - torch.exp(sum_log_p) - torch.exp(sum_log_q)
+-    l_cut = cut_prob.sum() / float(n_nets)
++    # 扇出阻尼：时钟/复位/高扇出网不应主导割项梯度（尺度无关，按总权重归一）
++    pin_cnt_c = torch.zeros(n_nets).index_add(
++        0, net_of_pin, torch.ones_like(pp)
++    )
++    net_w = 1.0 / torch.log1p(torch.clamp(pin_cnt_c, min=1.0) + 1.0)
++    net_w = net_w / torch.clamp(net_w.mean(), min=1e-6)
++    l_cut = (net_w * cut_prob).sum() / float(n_nets)
+ 
+-    # ---- 面积平衡：上层面积占比接近 0.5 ----
++    # ---- 面积平衡：二次项 + 小死区外的平滑 hinge ----
++    # 二次项在 50% 附近梯度平坦，官方修复步骤会大改结构；加一个 |ratio-0.5|>band 的
++    # softplus hinge（band 取 1% 面积占比，尺度无关），把原始划分压进 47-53% 带内。
+     ratio = (area * p).sum() / area.sum()
+     l_bal = (ratio - 0.5) ** 2
++    band = 0.01
++    l_hinge = torch.nn.functional.softplus(
++        (torch.abs(ratio - 0.5) - band) * 200.0
++    ) / 200.0
++    l_bal = l_bal + l_hinge
++
++    # ---- 宏单元平衡（存在宏时才有意义；无宏时布尔和为零，项自动消失）----
++    is_macro = graph["is_macro"]
++    macro_area = area * is_macro.to(area.dtype)
++    macro_den = torch.clamp(macro_area.sum(), min=1e-6)
++    macro_ratio = (macro_area * p).sum() / macro_den
++    l_bal = l_bal + 0.25 * (macro_ratio - 0.5) ** 2
+ 
+     # ---- 二值化：p 远离 0.5 ----
+     l_bin = (p * (1.0 - p)).mean()
+ 
+-    return l_cut + 10.0 * l_bal + 1.0 * l_bin
++    # ---- 关键对局部性：star 展开 sum_pins (p_i - mean_p)^2，按关键度加权 ----
++    # 权重 = 饱和关键度 * 扇出阻尼(1/log(1+k))，再按总引脚权重归一（尺度无关）
++    n_nodes = p.shape[0]
++    slack = feats[:, 0]
++    order = torch.argsort(torch.argsort(slack))
++    rank_q = order.to(p.dtype) / max(1.0, float(n_nodes - 1))
++    crit = 1.0 - rank_q  # [0,1]，越关键越大（饱和，不平方）
++
++    pp = p[net_nodes]
++    pin_cnt = torch.zeros(n_nets).index_add(
++        0, net_of_pin, torch.ones_like(pp)
++    )
++    sum_p = torch.zeros(n_nets).index_add(0, net_of_pin, pp)
++    mean_p = sum_p / torch.clamp(pin_cnt, min=1.0)
++    dev2 = (pp - mean_p[net_of_pin]) ** 2
++
++    # 扇出阻尼：大网（时钟/复位）不应主导局部性项
++    net_damp = 1.0 / torch.log1p(torch.clamp(pin_cnt, min=1.0) + 1.0)
++    w_pin = net_damp[net_of_pin] * crit[net_nodes]
++
++    w_tot = torch.clamp(w_pin.sum(), min=1e-6)
++    l_loc = (w_pin * dev2).sum() / w_tot
++
++    return l_cut + 10.0 * l_bal + 1.0 * l_bin + 2.0 * l_loc

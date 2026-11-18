@@ -1,0 +1,54 @@
+{
+ "id": "c004",
+ "parent": null,
+ "hypothesis": "Adding a Laplacian-style penalty sum over net pins of crit_i*crit_j*(p_i-p_j)^2 (critical-pair locality, star-expanded per net) will keep adjacent timing-critical nodes on the same tier, directly attacking the crit-pair cross-tier fraction that the baseline leaves nonzero on C3.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "probe",
+ "created_at": 1794988807.2410185,
+ "status": "evaluated",
+ "gate_report": "OK",
+ "score_total": 0.0654221059715002,
+ "score_robust": -0.04988096870844075,
+ "per_case": {
+  "case_small": 0.07845021913193935,
+  "case_mid": 0.018558795720484796,
+  "case_large": -0.03158690888092395
+ },
+ "all_valid": true,
+ "fail_reasons": [],
+ "analysis": "(1) No. The critical-pair penalty did not reduce crit_cross on C3 (0.069→0.073) and C3 regressed (score −0.032, dWNS −5.5%); C1 crit_cross also rose (0.011→0.016) despite its score gain.\n\n(2) C1 improved via wcut (421→406) but with more repair_flips (103→121) and higher crit_cross—gain likely from cut/weighted-cut, not the penalty. C2 flat (crit_cross already 0). C3 barely changed (3.2% flips) yet worsened, suggesting the penalty perturbed tiers without fixing critical pairs.\n\n(3) No: seed_std 0.053, robust mean −0.023, min −0.032—spread swamps the mean.\n\n(4) Ablate the penalty weight and log crit-pair cross-tier directly per seed on C3 before retuning.",
+ "llm_cost_cny": 0.0048225,
+ "eval_wall_s": 10.21036148071289,
+ "tags": [
+  "critical-pair-laplacian",
+  "star-expansion",
+  "locality",
+  "TNS",
+  "soft"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 0.92733,
+  "smoke_loss_tiny_gnorm": 0.071304,
+  "smoke_loss_tiny_s": 0.002,
+  "smoke_loss_nomacro_loss": 0.926766,
+  "smoke_loss_nomacro_gnorm": 0.0177,
+  "smoke_loss_nomacro_s": 0.001,
+  "smoke_loss_wall_s": 0.015,
+  "cut": 342.2222,
+  "cut_ratio": 0.4186,
+  "wcut": 1111.6096,
+  "crit_cross": 0.0297,
+  "area_dev": -0.0094,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": -0.0057,
+  "repair_flips": 236.0,
+  "hamming_ref": 0.0803
+ },
+ "seed_std": 0.05341435217451313,
+ "duplicate_of": null,
+ "slot": 1
+}

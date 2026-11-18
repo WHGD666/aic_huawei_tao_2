@@ -1,0 +1,48 @@
+{
+ "id": "c050",
+ "parent": "c032",
+ "hypothesis": "Combine the parent's critical-pair Laplacian with a mild fan-out damping on the Laplacian edge weights themselves (divide by 1+log1p of the net fan-out proxy via node degree), so hub-driven critical pairs stop pulling unrelated pins together; the Laplacian then acts only on local, low-fanout critical adjacencies, which is where same-tier placement actually saves HBT delay.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "combine",
+ "created_at": 1794990335.119529,
+ "status": "screened",
+ "gate_report": "OK",
+ "score_total": null,
+ "score_robust": null,
+ "per_case": {},
+ "all_valid": null,
+ "fail_reasons": [],
+ "analysis": "",
+ "llm_cost_cny": 0.0029499,
+ "eval_wall_s": 0.0,
+ "tags": [
+  "critical-pair-laplacian",
+  "degree-damped-edges",
+  "tns-locality"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 0.90832,
+  "smoke_loss_tiny_gnorm": 0.072211,
+  "smoke_loss_tiny_s": 0.002,
+  "smoke_loss_nomacro_loss": 0.896547,
+  "smoke_loss_nomacro_gnorm": 0.021837,
+  "smoke_loss_nomacro_s": 0.002,
+  "smoke_loss_wall_s": 0.015,
+  "cut": 344.1111,
+  "cut_ratio": 0.424,
+  "wcut": 1112.0123,
+  "crit_cross": 0.0247,
+  "area_dev": -0.0101,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": -0.0045,
+  "repair_flips": 235.5556,
+  "hamming_ref": 0.0883
+ },
+ "seed_std": null,
+ "duplicate_of": null,
+ "slot": 1
+}

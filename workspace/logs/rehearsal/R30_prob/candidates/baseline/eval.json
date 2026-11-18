@@ -1,0 +1,170 @@
+{
+ "candidate_id": "baseline",
+ "wall_s": 0.0,
+ "runs": {
+  "case_small/1001": {
+   "case": "case_small",
+   "seed": 1001,
+   "wns": -0.6347389714989692,
+   "tns": -23.406066542190537,
+   "valid": true,
+   "fail_reason": "",
+   "stats": {
+    "cut": 154,
+    "cut_ratio": 0.3811881188118812,
+    "wcut": 460.08377982349174,
+    "crit_cross": 0.01639344262295082,
+    "area_dev": 0.028579115867614746,
+    "macro_cnt_dev": 0.0,
+    "macro_area_dev": 0.011649549007415771,
+    "repair_flips": 112
+   }
+  },
+  "case_small/1002": {
+   "case": "case_small",
+   "seed": 1002,
+   "wns": -0.5727449896506253,
+   "tns": -19.900244768888413,
+   "valid": true,
+   "fail_reason": "",
+   "stats": {
+    "cut": 131,
+    "cut_ratio": 0.32425742574257427,
+    "wcut": 381.0299101799757,
+    "crit_cross": 0.01639344262295082,
+    "area_dev": -0.029483437538146973,
+    "macro_cnt_dev": 0.0,
+    "macro_area_dev": -0.011240154504776001,
+    "repair_flips": 130
+   }
+  },
+  "case_small/1003": {
+   "case": "case_small",
+   "seed": 1003,
+   "wns": -0.6591937289866315,
+   "tns": -25.995396010092243,
+   "valid": true,
+   "fail_reason": "",
+   "stats": {
+    "cut": 125,
+    "cut_ratio": 0.3094059405940594,
+    "wcut": 421.0988803257234,
+    "crit_cross": 0.0,
+    "area_dev": -0.02797555923461914,
+    "macro_cnt_dev": 0.0,
+    "macro_area_dev": 0.011649549007415771,
+    "repair_flips": 68
+   }
+  },
+  "case_mid/1001": {
+   "case": "case_mid",
+   "seed": 1001,
+   "wns": -1.3270127732134986,
+   "tns": -50.02502163943268,
+   "valid": true,
+   "fail_reason": "",
+   "stats": {
+    "cut": 319,
+    "cut_ratio": 0.43519781718963163,
+    "wcut": 993.8941613875104,
+    "crit_cross": 0.0,
+    "area_dev": 0.029416561126708984,
+    "macro_cnt_dev": 0.0,
+    "macro_area_dev": 0.0049620866775512695,
+    "repair_flips": 236
+   }
+  },
+  "case_mid/1002": {
+   "case": "case_mid",
+   "seed": 1002,
+   "wns": -1.5064776454794202,
+   "tns": -53.26763717258959,
+   "valid": true,
+   "fail_reason": "",
+   "stats": {
+    "cut": 319,
+    "cut_ratio": 0.43519781718963163,
+    "wcut": 1026.3267131362509,
+    "crit_cross": 0.0,
+    "area_dev": -0.02979034185409546,
+    "macro_cnt_dev": 0.0,
+    "macro_area_dev": -0.005887538194656372,
+    "repair_flips": 273
+   }
+  },
+  "case_mid/1003": {
+   "case": "case_mid",
+   "seed": 1003,
+   "wns": -0.9483482213148741,
+   "tns": -49.55218712999363,
+   "valid": true,
+   "fail_reason": "",
+   "stats": {
+    "cut": 317,
+    "cut_ratio": 0.4324693042291951,
+    "wcut": 1001.011616467067,
+    "crit_cross": 0.0,
+    "area_dev": -0.029294759035110474,
+    "macro_cnt_dev": 0.0,
+    "macro_area_dev": 0.04969334602355957,
+    "repair_flips": 204
+   }
+  },
+  "case_large/1001": {
+   "case": "case_large",
+   "seed": 1001,
+   "wns": -2.9276435412871176,
+   "tns": -134.37810444354992,
+   "valid": true,
+   "fail_reason": "",
+   "stats": {
+    "cut": 579,
+    "cut_ratio": 0.49318568994889267,
+    "wcut": 1961.8547787026243,
+    "crit_cross": 0.09342560553633218,
+    "area_dev": 0.029693305492401123,
+    "macro_cnt_dev": 0.0,
+    "macro_area_dev": -0.004946768283843994,
+    "repair_flips": 352
+   }
+  },
+  "case_large/1002": {
+   "case": "case_large",
+   "seed": 1002,
+   "wns": -4.918697388509405,
+   "tns": -119.23104423534139,
+   "valid": true,
+   "fail_reason": "",
+   "stats": {
+    "cut": 587,
+    "cut_ratio": 0.5,
+    "wcut": 1952.225084944803,
+    "crit_cross": 0.02768166089965398,
+    "area_dev": -0.02947753667831421,
+    "macro_cnt_dev": 0.0,
+    "macro_area_dev": 0.036863625049591064,
+    "repair_flips": 362
+   }
+  },
+  "case_large/1003": {
+   "case": "case_large",
+   "seed": 1003,
+   "wns": -3.077805412275756,
+   "tns": -133.63051777326947,
+   "valid": true,
+   "fail_reason": "",
+   "stats": {
+    "cut": 579,
+    "cut_ratio": 0.49318568994889267,
+    "wcut": 1951.7357627898164,
+    "crit_cross": 0.08650519031141868,
+    "area_dev": -0.029685288667678833,
+    "macro_cnt_dev": 0.0,
+    "macro_area_dev": 0.01971513032913208,
+    "repair_flips": 345
+   }
+  }
+ },
+ "stage_logs": {},
+ "partition_hash": "6aa079710fc75f98"
+}

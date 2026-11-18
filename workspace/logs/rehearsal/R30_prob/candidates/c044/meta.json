@@ -1,0 +1,33 @@
+{
+ "id": "c044",
+ "parent": "c037",
+ "hypothesis": "Repair flips stay high because the quadratic balance term is flat near 50%; adding a mild hinge outside a small dead-band on the upper-tier area ratio (softplus(|ratio-0.5|-band), scale-free, coefficient large but smooth) plus a macro-count/area hinge guarded for the no-macro case will keep the raw partition inside the official 47-53% band, cutting repair flips and preserving the cut/locality structure learned by the parent.",
+ "expected_effect": "",
+ "files_changed": [],
+ "phase": "structural",
+ "created_at": 1794990231.2910242,
+ "status": "discarded",
+ "gate_report": "",
+ "score_total": null,
+ "score_robust": null,
+ "per_case": {},
+ "all_valid": null,
+ "fail_reasons": [
+  "run interrupted before gate/evaluation"
+ ],
+ "analysis": "",
+ "llm_cost_cny": 0.0,
+ "eval_wall_s": 0.0,
+ "tags": [
+  "balance-hinge",
+  "dead-band",
+  "macro-balance",
+  "repair-flips",
+  "unit-free"
+ ],
+ "prompt_chars": 0,
+ "proxy": {},
+ "seed_std": null,
+ "duplicate_of": null,
+ "slot": 1
+}

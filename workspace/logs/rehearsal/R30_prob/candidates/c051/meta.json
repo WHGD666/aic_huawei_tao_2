@@ -1,0 +1,34 @@
+{
+ "id": "c051",
+ "parent": "c032",
+ "hypothesis": "The parent's critical-pair Laplacian is the only mechanism that paid off (c032 +0.123) but its gain is concentrated on the largest circuit and its full strength raised crit-pair cross-tier on C3; scaling the Laplacian coefficient by x0.5 (0.6 -> 0.3) keeps the critical-locality benefit while the unchanged fan-out-damped cut stays dominant, damping the C3 critical-cross regression and spreading the gain more evenly across circuits.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "combine",
+ "created_at": 1794990374.6413093,
+ "status": "gate_failed",
+ "gate_report": "ERROR: identical patch already evaluated as c049; propose something different",
+ "score_total": null,
+ "score_robust": null,
+ "per_case": {},
+ "all_valid": null,
+ "fail_reasons": [
+  "ERROR: identical patch already evaluated as c049; propose something different"
+ ],
+ "analysis": "",
+ "llm_cost_cny": 0.0040362,
+ "eval_wall_s": 0.0,
+ "tags": [
+  "critical-pair-laplacian",
+  "coefficient-scaling",
+  "robustness",
+  "combine"
+ ],
+ "prompt_chars": 0,
+ "proxy": {},
+ "seed_std": null,
+ "duplicate_of": null,
+ "slot": 0
+}

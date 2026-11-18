@@ -1,0 +1,53 @@
+{
+ "id": "c066",
+ "parent": "c049",
+ "hypothesis": "The locality term is normalised by w_edge.sum(), so its magnitude collapses when only a few critical pairs exist (C2 had crit_cross 0.000, i.e. no headroom) and its gradient is dominated by those few edges; re-weighting the per-edge criticality product by the inverse of the mean edge weight (a self-normalising scale that keeps the term O(1) across circuits) makes the locality pull comparable on circuits with sparse critical pairs while leaving the cut/balance terms untouched.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "combine",
+ "created_at": 1794990650.4487727,
+ "status": "duplicate",
+ "gate_report": "OK",
+ "score_total": 0.03761266284157912,
+ "score_robust": -0.01897591131814331,
+ "per_case": {
+  "case_small": 0.041725055917587954,
+  "case_mid": 0.008290963803041852,
+  "case_large": -0.01240335687905069
+ },
+ "all_valid": true,
+ "fail_reasons": [],
+ "analysis": "",
+ "llm_cost_cny": 0.0030489000000000002,
+ "eval_wall_s": 0.0,
+ "tags": [
+  "locality_self_normalised",
+  "critical_pair_laplacian",
+  "scale_robust",
+  "per_circuit_magnitude"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 0.885547,
+  "smoke_loss_tiny_gnorm": 0.071461,
+  "smoke_loss_tiny_s": 0.002,
+  "smoke_loss_nomacro_loss": 0.876495,
+  "smoke_loss_nomacro_gnorm": 0.018774,
+  "smoke_loss_nomacro_s": 0.002,
+  "smoke_loss_wall_s": 0.017,
+  "cut": 343.8889,
+  "cut_ratio": 0.4214,
+  "wcut": 1119.542,
+  "crit_cross": 0.0279,
+  "area_dev": -0.0099,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": 0.0082,
+  "repair_flips": 229.4444,
+  "hamming_ref": 0.0251
+ },
+ "seed_std": 0.018425095181814167,
+ "duplicate_of": "c049",
+ "slot": 1
+}

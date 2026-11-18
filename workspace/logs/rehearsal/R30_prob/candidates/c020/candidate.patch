@@ -1,0 +1,69 @@
+diff --git a/loss.py b/loss.py
+--- a/loss.py
++++ b/loss.py
+@@ -33,14 +33,41 @@ def compute_loss(p, graph, feats):
+     area = graph["area"]
+     n_nets = graph["n_nets"]
+ 
+-    # ---- 割网期望：P(net is cut) = 1 - prod(p) - prod(1-p) ----
++    # ---- 割网期望：星形展开 sum_pins (p_i - mean_net)^2 / (k-1)，
++    #      高扇出网不再饱和，梯度在时钟/复位类大网上仍然存在 ----
+     pp = p[net_nodes]
+-    log_p = torch.log(torch.clamp(pp, 1e-6, 1.0))
+-    log_q = torch.log(torch.clamp(1.0 - pp, 1e-6, 1.0))
+-    sum_log_p = torch.zeros(n_nets).index_add(0, net_of_pin, log_p)
+-    sum_log_q = torch.zeros(n_nets).index_add(0, net_of_pin, log_q)
+-    cut_prob = 1.0 - torch.exp(sum_log_p) - torch.exp(sum_log_q)
+-    l_cut = cut_prob.sum() / float(n_nets)
++    one = torch.ones_like(pp)
++    k = torch.zeros(n_nets).index_add(0, net_of_pin, one)
++    k_safe = torch.clamp(k, min=1.0)
++    sum_p = torch.zeros(n_nets).index_add(0, net_of_pin, pp)
++    sum_p2 = torch.zeros(n_nets).index_add(0, net_of_pin, pp * pp)
++    # 每条网的引脚偏离均值的平方和 = sum p^2 - (sum p)^2 / k
++    sq_dev = sum_p2 - sum_p * sum_p / k_safe
++    sq_dev = torch.clamp(sq_dev, min=0.0)
++    # 归一化到 [0,1] 量级：除以 (k-1)/4 的期望上限
++    denom = torch.clamp(k_safe - 1.0, min=1.0) * 0.25
++    cut_prob = sq_dev / denom
++    cut_prob = torch.clamp(cut_prob, min=0.0, max=1.0)
++
++    # ---- 按引脚 2D 关键度（案例相对秩）温和加权割网代价 ----
++    slack_col = feats[:, 0]
++    n_nodes = p.shape[0]
++    order = torch.argsort(torch.argsort(slack_col))
++    # 秩 -> [0,1]，slack 越小越关键（秩越小越关键）
++    rank = order.to(p.dtype) / torch.clamp(
++        torch.tensor(float(max(n_nodes - 1, 1))), min=1.0
++    )
++    crit = 1.0 - rank  # 1 = 最关键
++    crit = torch.clamp(crit, 0.0, 1.0)
++    pin_crit = crit[net_nodes]
++    w_sum = torch.zeros(n_nets).index_add(0, net_of_pin, pin_crit)
++    w_cnt = torch.zeros(n_nets).index_add(
++        0, net_of_pin, torch.ones_like(pin_crit)
++    )
++    w_cnt = torch.clamp(w_cnt, min=1.0)
++    mean_crit = w_sum / w_cnt
++    net_w = 1.0 + 0.5 * mean_crit
++    l_cut = (net_w * cut_prob).sum() / float(n_nets)
+ 
+     # ---- 面积平衡：上层面积占比接近 0.5 ----
+     ratio = (area * p).sum() / area.sum()
+@@ -49,4 +76,15 @@ def compute_loss(p, graph, feats):
+     # ---- 二值化：p 远离 0.5 ----
+     l_bin = (p * (1.0 - p)).mean()
+ 
+-    return l_cut + 10.0 * l_bal + 1.0 * l_bin
++    # ---- 宏单元平衡：上层宏数量与宏面积占比接近 0.5（无宏时自动为 0）----
++    is_macro = graph["is_macro"].to(p.dtype)
++    n_macro = is_macro.sum()
++    macro_area = graph["area"] * is_macro
++    cnt_ratio = (is_macro * p).sum() / (n_macro + 1e-6)
++    area_ratio = (macro_area * p).sum() / (macro_area.sum() + 1e-6)
++    has_macro = (n_macro > 0.5).to(p.dtype)
++    l_macro = has_macro * (
++        (cnt_ratio - 0.5) ** 2 + (area_ratio - 0.5) ** 2
++    )
++
++    return l_cut + 10.0 * l_bal + 1.0 * l_bin + 4.0 * l_macro

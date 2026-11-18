@@ -1,0 +1,49 @@
+{
+ "id": "c006",
+ "parent": null,
+ "hypothesis": "Down-weighting each net's cut probability by 1/log(1+k) (fan-out-aware cut weight) so that huge clock/reset nets stop dominating the cut term and the gradient budget goes to the many small signal nets that actually carry timing violations, reducing TNS through fewer moderate violations.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "probe",
+ "created_at": 1794988845.8664684,
+ "status": "screened",
+ "gate_report": "OK",
+ "score_total": null,
+ "score_robust": null,
+ "per_case": {},
+ "all_valid": null,
+ "fail_reasons": [],
+ "analysis": "",
+ "llm_cost_cny": 0.001734,
+ "eval_wall_s": 0.0,
+ "tags": [
+  "fanout-downweight",
+  "log-weight",
+  "small-net-focus",
+  "tns-driven"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 0.873944,
+  "smoke_loss_tiny_gnorm": 0.071337,
+  "smoke_loss_tiny_s": 0.001,
+  "smoke_loss_nomacro_loss": 0.867481,
+  "smoke_loss_nomacro_gnorm": 0.017191,
+  "smoke_loss_nomacro_s": 0.001,
+  "smoke_loss_wall_s": 0.016,
+  "cut": 345.0,
+  "cut_ratio": 0.4221,
+  "wcut": 1123.206,
+  "crit_cross": 0.0267,
+  "area_dev": -0.0097,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": 0.01,
+  "repair_flips": 231.0,
+  "hamming_ref": 0.0156
+ },
+ "seed_std": null,
+ "duplicate_of": null,
+ "slot": 1
+}

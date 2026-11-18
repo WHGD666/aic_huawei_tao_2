@@ -1,0 +1,49 @@
+{
+ "id": "c036",
+ "parent": "c029",
+ "hypothesis": "Repair flips stay high (103/238/353) because the quadratic balance term is flat near 50%; replacing it with a smooth hinge outside a small ±1.5% dead-band (large coefficient, softplus-based so it is differentiable and unit-free) keeps the raw partition inside the official band without fighting the cut term, so the repair step flips far fewer nodes and preserves the learned structure, which should reduce crit_cross and cut and thereby TNS.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "structural",
+ "created_at": 1794990073.3782182,
+ "status": "screened",
+ "gate_report": "OK",
+ "score_total": null,
+ "score_robust": null,
+ "per_case": {},
+ "all_valid": null,
+ "fail_reasons": [],
+ "analysis": "",
+ "llm_cost_cny": 0.0028824000000000002,
+ "eval_wall_s": 0.0,
+ "tags": [
+  "balance-hinge",
+  "dead-band",
+  "repair-flips",
+  "structure-preserving"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 1.448307,
+  "smoke_loss_tiny_gnorm": 0.510016,
+  "smoke_loss_tiny_s": 0.002,
+  "smoke_loss_nomacro_loss": 1.316093,
+  "smoke_loss_nomacro_gnorm": 0.12524,
+  "smoke_loss_nomacro_s": 0.001,
+  "smoke_loss_wall_s": 0.016,
+  "cut": 377.1111,
+  "cut_ratio": 0.4773,
+  "wcut": 1239.6526,
+  "crit_cross": 0.1197,
+  "area_dev": -0.0101,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": -0.0067,
+  "repair_flips": 207.1111,
+  "hamming_ref": 0.2891
+ },
+ "seed_std": null,
+ "duplicate_of": null,
+ "slot": 1
+}

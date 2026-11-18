@@ -1,0 +1,45 @@
+diff --git a/loss.py b/loss.py
+--- a/loss.py
++++ b/loss.py
+@@ -34,19 +34,36 @@ def compute_loss(p, graph, feats):
+     n_nets = graph["n_nets"]
+ 
+     # ---- 割网期望：P(net is cut) = 1 - prod(p) - prod(1-p) ----
++    # 扇出感知加权：w_k = 1/log(1+k) 让巨大时钟/复位网不再主导割梯度
+     pp = p[net_nodes]
+     log_p = torch.log(torch.clamp(pp, 1e-6, 1.0))
+     log_q = torch.log(torch.clamp(1.0 - pp, 1e-6, 1.0))
+     sum_log_p = torch.zeros(n_nets).index_add(0, net_of_pin, log_p)
+     sum_log_q = torch.zeros(n_nets).index_add(0, net_of_pin, log_q)
+     cut_prob = 1.0 - torch.exp(sum_log_p) - torch.exp(sum_log_q)
+-    l_cut = cut_prob.sum() / float(n_nets)
++    fanout = torch.zeros(n_nets).index_add(
++        0, net_of_pin, torch.ones_like(net_of_pin, dtype=p.dtype))
++    w_net = 1.0 / torch.log(torch.clamp(fanout, min=1.0) + 1.0)
++    w_sum = w_net.sum().clamp(min=1e-6)
++    l_cut = (w_net * cut_prob).sum() / w_sum
+ 
+-    # ---- 面积平衡：上层面积占比接近 0.5 ----
+-    ratio = (area * p).sum() / area.sum()
+-    l_bal = (ratio - 0.5) ** 2
++    # ---- 面积平衡：软铰链，死区内无梯度，死区外强约束 ----
++    area_sum = area.sum().clamp(min=1e-6)
++    ratio = (area * p).sum() / area_sum
++    band = 0.01
++    excess = (ratio - 0.5).abs() - band
++    l_bal = torch.nn.functional.softplus(20.0 * excess) / 20.0
++
++    # ---- 宏单元面积平衡（仅当存在宏时生效）----
++    is_macro = graph["is_macro"]
++    macro_area = area * is_macro.to(area.dtype)
++    macro_area_sum = macro_area.sum()
++    has_macro = (macro_area_sum > 0).to(area.dtype)
++    m_ratio = (macro_area * p).sum() / macro_area_sum.clamp(min=1e-6)
++    m_excess = (m_ratio - 0.5).abs() - 0.05
++    l_macro = has_macro * torch.nn.functional.softplus(20.0 * m_excess) / 20.0
+ 
+     # ---- 二值化：p 远离 0.5 ----
+     l_bin = (p * (1.0 - p)).mean()
+ 
+-    return l_cut + 10.0 * l_bal + 1.0 * l_bin
++    return l_cut + 40.0 * l_bal + 20.0 * l_macro + 1.0 * l_bin

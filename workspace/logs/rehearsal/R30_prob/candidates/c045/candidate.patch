@@ -1,0 +1,48 @@
+diff --git a/loss.py b/loss.py
+--- a/loss.py
++++ b/loss.py
+@@ -34,13 +34,41 @@ def compute_loss(p, graph, feats):
+     n_nets = graph["n_nets"]
+ 
+     # ---- 割网期望：P(net is cut) = 1 - prod(p) - prod(1-p) ----
++    # 引脚级关键度加权：同一网内关键引脚被"更用力"地拉向同侧
++    n_nodes = p.shape[0]
++    slack = feats[:, 0]
++    fin = torch.isfinite(slack)
++    s = torch.where(fin, slack, torch.zeros_like(slack))
++    if fin.any():
++        s_min = s[fin].min()
++        s_max = s[fin].max()
++    else:
++        s_min = torch.zeros((), dtype=p.dtype)
++        s_max = torch.zeros((), dtype=p.dtype)
++    span = (s_max - s_min).clamp(min=1e-6)
++    # 分数越小越关键；映射到 [0,1]，1 = 最不关键
++    crit = ((s - s_min) / span).clamp(0.0, 1.0)
++    crit = torch.where(fin, crit, torch.zeros_like(crit))
++    # 引脚权重：关键引脚(小 crit)权重更大；alpha 温和
++    pin_w = 1.0 + 1.0 * (1.0 - crit)
++
+     pp = p[net_nodes]
+     log_p = torch.log(torch.clamp(pp, 1e-6, 1.0))
+     log_q = torch.log(torch.clamp(1.0 - pp, 1e-6, 1.0))
+-    sum_log_p = torch.zeros(n_nets).index_add(0, net_of_pin, log_p)
+-    sum_log_q = torch.zeros(n_nets).index_add(0, net_of_pin, log_q)
++    pw = pin_w[net_nodes]
++    # 归一化：让每条网的引脚权重均值约为 1，避免与扇出/关键度耦合
++    pw_sum = torch.zeros(n_nets).index_add(0, net_of_pin, pw)
++    fanout = torch.zeros(n_nets).index_add(
++        0, net_of_pin, torch.ones_like(net_of_pin, dtype=p.dtype))
++    pw_mean = (pw_sum / fanout.clamp(min=1.0)).clamp(min=1e-6)
++    pw_net = pw / pw_mean[net_of_pin]
++
++    sum_log_p = torch.zeros(n_nets).index_add(0, net_of_pin, pw_net * log_p)
++    sum_log_q = torch.zeros(n_nets).index_add(0, net_of_pin, pw_net * log_q)
+     cut_prob = 1.0 - torch.exp(sum_log_p) - torch.exp(sum_log_q)
+-    l_cut = cut_prob.sum() / float(n_nets)
++    w_net = 1.0 / torch.log(torch.clamp(fanout, min=1.0) + 1.0)
++    w_sum = w_net.sum().clamp(min=1e-6)
++    l_cut = (w_net * cut_prob).sum() / w_sum
+ 
+     # ---- 面积平衡：上层面积占比接近 0.5 ----
+     ratio = (area * p).sum() / area.sum()

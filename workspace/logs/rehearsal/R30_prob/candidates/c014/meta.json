@@ -1,0 +1,52 @@
+{
+ "id": "c014",
+ "parent": "c011",
+ "hypothesis": "Keeping the baseline cut/balance/binarisation backbone untouched, adding a case-relative criticality-weighted net-cut multiplier (1 + alpha * mean-pin criticality rank) steers only the few most timing-critical nets to stay within a tier, reducing crit-pair cross-tier and hence TNS, while alpha is kept small so non-critical nets are not sacrificed.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "structural",
+ "created_at": 1794989594.313159,
+ "status": "evaluated",
+ "gate_report": "OK",
+ "score_total": -0.4976657631388094,
+ "score_robust": -0.3962278901274484,
+ "per_case": {
+  "case_small": -0.09013382257413227,
+  "case_mid": -0.22276961744986087,
+  "case_large": -0.1847623231148162
+ },
+ "all_valid": true,
+ "fail_reasons": [],
+ "analysis": "Hypothesis failed: crit_cross rose in all circuits (C1 0.011→0.104, C2 0.000→0.097, C3 0.069→0.112) despite lower cut/wcut and fewer repair flips—criticality weighting apparently perturbed the backbone away from timing-critical containment, worsening dWNS (−9 to −27%) and dTNS. Seed spread is unacceptable (std 0.349; per-seed signs flip, e.g. C3 +0.45/−0.63). Next: verify the criticality rank is correctly aligned with crit-pair membership and sweep alpha downward (or gate the multiplier only on nets already near-tier-boundary) before retraining.",
+ "llm_cost_cny": 0.0036909,
+ "eval_wall_s": 10.171318531036377,
+ "tags": [
+  "criticality_weighted_cut",
+  "rank_soft_weight",
+  "small_alpha"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 1.106292,
+  "smoke_loss_tiny_gnorm": 0.165669,
+  "smoke_loss_tiny_s": 0.002,
+  "smoke_loss_nomacro_loss": 1.068612,
+  "smoke_loss_nomacro_gnorm": 0.019391,
+  "smoke_loss_nomacro_s": 0.001,
+  "smoke_loss_wall_s": 0.015,
+  "cut": 332.3333,
+  "cut_ratio": 0.4059,
+  "wcut": 1099.1826,
+  "crit_cross": 0.1041,
+  "area_dev": -0.0083,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": -0.0055,
+  "repair_flips": 193.6667,
+  "hamming_ref": 0.2858
+ },
+ "seed_std": 0.349141144017639,
+ "duplicate_of": null,
+ "slot": 1
+}

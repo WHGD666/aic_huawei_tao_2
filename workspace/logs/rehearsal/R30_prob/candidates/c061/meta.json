@@ -1,0 +1,53 @@
+{
+ "id": "c061",
+ "parent": "c060",
+ "hypothesis": "The locality term's per-edge weight normalisation by w_edge.sum() makes the term's effective pull depend on how many critical pairs exist; normalising by the number of edges (a constant, case-relative) and modestly raising the coefficient to 0.30 (x2) stabilises the term across circuits so C1 keeps its crit_cross gain without C2/C3 regression.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "combine",
+ "created_at": 1794990565.2677717,
+ "status": "evaluated",
+ "gate_report": "OK",
+ "score_total": -0.0026452588559256387,
+ "score_robust": -0.01779752151648155,
+ "per_case": {
+  "case_small": 0.000592051115929162,
+  "case_mid": 0.007661197124141244,
+  "case_large": -0.010898507095996044
+ },
+ "all_valid": true,
+ "fail_reasons": [],
+ "analysis": "(1) No. The normalisation change did not stabilise the term: C1 gained only +0.001 (crit_cross flat at 0.011, cut 137→138), C2 +0.008, but C3 regressed -0.011 with crit_cross rising 0.069→0.081 and wcut 1955→1937 — the opposite of the intended effect.\n\n(2) C3 moved most: fewer cut nets but more critical-pair crossings and slightly fewer repair flips, suggesting the constant-normalised pull is too weak relative to repair on the largest circuit, letting crit pairs cross.\n\n(3) Seed spread is marginal: C1 [-0.03,+0.03], C3 [-0.04,+0.01], seed_std 0.019 vs total -0.003 — noise dominates signal.\n\n(4) Next: sweep coefficient 0.30→0.45 on C3 only, or normalise by critical-pair count rather than edge count, before full retrain.",
+ "llm_cost_cny": 0.0039914,
+ "eval_wall_s": 8.969034910202026,
+ "tags": [
+  "locality",
+  "normalization",
+  "coefficient-scaling",
+  "robustness"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 0.865443,
+  "smoke_loss_tiny_gnorm": 0.071379,
+  "smoke_loss_tiny_s": 0.003,
+  "smoke_loss_nomacro_loss": 0.857526,
+  "smoke_loss_nomacro_gnorm": 0.017413,
+  "smoke_loss_nomacro_s": 0.002,
+  "smoke_loss_wall_s": 0.019,
+  "cut": 344.0,
+  "cut_ratio": 0.4222,
+  "wcut": 1122.7585,
+  "crit_cross": 0.0306,
+  "area_dev": -0.0099,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": 0.0125,
+  "repair_flips": 231.3333,
+  "hamming_ref": 0.0181
+ },
+ "seed_std": 0.018534938029197565,
+ "duplicate_of": null,
+ "slot": 0
+}

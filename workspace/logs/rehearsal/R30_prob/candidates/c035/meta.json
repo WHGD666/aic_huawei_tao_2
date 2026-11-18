@@ -1,0 +1,53 @@
+{
+ "id": "c035",
+ "parent": "c029",
+ "hypothesis": "The parent's `l_loc` uses star-expansion deviation which is maximised, not minimised, by putting critical pins on opposite sides is damped but still weak; replacing it with a pairwise critical-pair Laplacian on graph edges, weighted by the product of case-relative criticality and normalised by total weight, directly pressures adjacent critical nodes to share a tier, which should lower crit_cross (strongest negative correlate of score) and cut the number of timing-critical HBT crossings, reducing TNS.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "structural",
+ "created_at": 1794990073.2859952,
+ "status": "evaluated",
+ "gate_report": "OK",
+ "score_total": 0.16510509922786085,
+ "score_robust": -0.04993351162907515,
+ "per_case": {
+  "case_small": 0.1587467435639792,
+  "case_mid": -0.012753557319822523,
+  "case_large": 0.019111912983704186
+ },
+ "all_valid": true,
+ "fail_reasons": [],
+ "analysis": "(1) Partially: crit_cross fell on C1 (0.011→0.000) and C3 (0.069→0.051), and C1 score/TNS rose strongly, but C2 was flat/negative and C3 barely moved—so the mechanism works where critical pairs exist but isn't robust.\n\n(2) C1: wcut 421→370, crit_cross→0, dTNS +14%; C3: crit_cross 0.069→0.051, dTNS +4.3% but dWNS −1.9%. Repair flips rose on C1 (103→121), suggesting the Laplacian pressure fights balance repair. C2 had no critical crossings to exploit.\n\n(3) Seed spread is high (std 0.061, robust −0.019); C1 per-seed [+0.16,+0.07,+0.24] is wide—not yet acceptable.\n\n(4) Add a repair-aware penalty or anneal the critical-pair weight so it doesn't inflate flips, then re-test on C2/C3.",
+ "llm_cost_cny": 0.0039624000000000005,
+ "eval_wall_s": 10.16237187385559,
+ "tags": [
+  "critical-pair-laplacian",
+  "edge-weighted",
+  "rank-criticality",
+  "fanout-robust"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 1.039626,
+  "smoke_loss_tiny_gnorm": 0.078306,
+  "smoke_loss_tiny_s": 0.003,
+  "smoke_loss_nomacro_loss": 1.050963,
+  "smoke_loss_nomacro_gnorm": 0.041001,
+  "smoke_loss_nomacro_s": 0.002,
+  "smoke_loss_wall_s": 0.284,
+  "cut": 341.1111,
+  "cut_ratio": 0.4151,
+  "wcut": 1097.5103,
+  "crit_cross": 0.0169,
+  "area_dev": -0.0098,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": -0.0011,
+  "repair_flips": 236.5556,
+  "hamming_ref": 0.1074
+ },
+ "seed_std": 0.06097677058941536,
+ "duplicate_of": null,
+ "slot": 0
+}

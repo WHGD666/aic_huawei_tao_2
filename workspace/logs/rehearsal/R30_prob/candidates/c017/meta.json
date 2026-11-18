@@ -1,0 +1,53 @@
+{
+ "id": "c017",
+ "parent": "c011",
+ "hypothesis": "Keep the baseline backbone but replace the macro-balance quadratic (c008's culprit, which perturbed the backbone and raised crit_cross) with a *soft* macro hinge that is silent inside a 0.45-0.55 dead-band, so macro balance is only nudged when truly off and the raw partition stays close to the backbone that gave the lowest crit_cross, reducing repair flips without disturbing timing containment.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "structural",
+ "created_at": 1794989701.5466602,
+ "status": "duplicate",
+ "gate_report": "OK",
+ "score_total": -0.7185887094644497,
+ "score_robust": -0.5027184144647229,
+ "per_case": {
+  "case_small": -0.11031327520948848,
+  "case_mid": -0.34379466459845714,
+  "case_large": -0.26448076965650413
+ },
+ "all_valid": true,
+ "fail_reasons": [],
+ "analysis": "",
+ "llm_cost_cny": 0.0064389,
+ "eval_wall_s": 0.0,
+ "tags": [
+  "macro-balance",
+  "hinge-deadband",
+  "repair-flips",
+  "backbone-preserving"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 0.902452,
+  "smoke_loss_tiny_gnorm": 0.137986,
+  "smoke_loss_tiny_s": 0.002,
+  "smoke_loss_nomacro_loss": 0.896363,
+  "smoke_loss_nomacro_gnorm": 0.016628,
+  "smoke_loss_nomacro_s": 0.001,
+  "smoke_loss_wall_s": 0.28,
+  "cut": 344.3333,
+  "cut_ratio": 0.4212,
+  "wcut": 1147.8535,
+  "crit_cross": 0.0678,
+  "area_dev": -0.0098,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": 0.0028,
+  "repair_flips": 191.0,
+  "hamming_ref": 0.3044
+ },
+ "seed_std": 0.3325027359262877,
+ "duplicate_of": "c008",
+ "slot": 0
+}

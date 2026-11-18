@@ -1,0 +1,49 @@
+{
+ "id": "c001",
+ "parent": null,
+ "hypothesis": "Replacing the saturating product-form cut probability with a pairwise/star expansion (sum over pins of (p_i - mean_net)^2, normalised by fanout) keeps a usable gradient on high-fan-out nets so more moderate violations are removed, reducing TNS.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "probe",
+ "created_at": 1794988767.018462,
+ "status": "screened",
+ "gate_report": "OK",
+ "score_total": null,
+ "score_robust": null,
+ "per_case": {},
+ "all_valid": null,
+ "fail_reasons": [],
+ "analysis": "",
+ "llm_cost_cny": 0.0010620999999999998,
+ "eval_wall_s": 0.0,
+ "tags": [
+  "star-expansion",
+  "high-fanout-gradient",
+  "cut-term",
+  "tns"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 0.25123,
+  "smoke_loss_tiny_gnorm": 0.071644,
+  "smoke_loss_tiny_s": 0.001,
+  "smoke_loss_nomacro_loss": 0.234811,
+  "smoke_loss_nomacro_gnorm": 0.0104,
+  "smoke_loss_nomacro_s": 0.001,
+  "smoke_loss_wall_s": 0.301,
+  "cut": 386.7778,
+  "cut_ratio": 0.4841,
+  "wcut": 1296.4707,
+  "crit_cross": 0.129,
+  "area_dev": -0.0098,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": 0.0055,
+  "repair_flips": 234.8889,
+  "hamming_ref": 0.2024
+ },
+ "seed_std": null,
+ "duplicate_of": null,
+ "slot": 0
+}

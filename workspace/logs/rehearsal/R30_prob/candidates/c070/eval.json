@@ -1,0 +1,181 @@
+{
+ "proxy": {
+  "candidate_id": "c070",
+  "wall_s": 9.188751697540283,
+  "runs": {
+   "case_small/1001": {
+    "case": "case_small",
+    "seed": 1001,
+    "wns": 0.0,
+    "tns": 0.0,
+    "valid": true,
+    "fail_reason": "",
+    "stats": {
+     "cut": 160,
+     "cut_ratio": 0.39603960396039606,
+     "wcut": 475.49369693851287,
+     "crit_cross": 0.03278688524590164,
+     "area_dev": 0.027324199676513672,
+     "macro_cnt_dev": 0.0,
+     "macro_area_dev": 0.011240124702453613,
+     "repair_flips": 113,
+     "hamming_ref": 0.03
+    }
+   },
+   "case_small/1002": {
+    "case": "case_small",
+    "seed": 1002,
+    "wns": 0.0,
+    "tns": 0.0,
+    "valid": true,
+    "fail_reason": "",
+    "stats": {
+     "cut": 130,
+     "cut_ratio": 0.3217821782178218,
+     "wcut": 371.57747676200495,
+     "crit_cross": 0.0,
+     "area_dev": -0.029934942722320557,
+     "macro_cnt_dev": 0.0,
+     "macro_area_dev": -0.011240154504776001,
+     "repair_flips": 128,
+     "hamming_ref": 0.05333333333333334
+    }
+   },
+   "case_small/1003": {
+    "case": "case_small",
+    "seed": 1003,
+    "wns": 0.0,
+    "tns": 0.0,
+    "valid": true,
+    "fail_reason": "",
+    "stats": {
+     "cut": 153,
+     "cut_ratio": 0.3787128712871287,
+     "wcut": 466.614657554166,
+     "crit_cross": 0.01639344262295082,
+     "area_dev": -0.02947288751602173,
+     "macro_cnt_dev": 0.0,
+     "macro_area_dev": -0.011240154504776001,
+     "repair_flips": 113,
+     "hamming_ref": 0.43666666666666665
+    }
+   },
+   "case_mid/1001": {
+    "case": "case_mid",
+    "seed": 1001,
+    "wns": 0.0,
+    "tns": 0.0,
+    "valid": true,
+    "fail_reason": "",
+    "stats": {
+     "cut": 306,
+     "cut_ratio": 0.417462482946794,
+     "wcut": 941.1392331682464,
+     "crit_cross": 0.0,
+     "area_dev": 0.02937215566635132,
+     "macro_cnt_dev": 0.0,
+     "macro_area_dev": -0.04502210021018982,
+     "repair_flips": 207,
+     "hamming_ref": 0.055
+    }
+   },
+   "case_mid/1002": {
+    "case": "case_mid",
+    "seed": 1002,
+    "wns": 0.0,
+    "tns": 0.0,
+    "valid": true,
+    "fail_reason": "",
+    "stats": {
+     "cut": 306,
+     "cut_ratio": 0.417462482946794,
+     "wcut": 968.3796812160505,
+     "crit_cross": 0.0,
+     "area_dev": -0.029644757509231567,
+     "macro_cnt_dev": 0.0,
+     "macro_area_dev": -0.005887538194656372,
+     "repair_flips": 273,
+     "hamming_ref": 0.05
+    }
+   },
+   "case_mid/1003": {
+    "case": "case_mid",
+    "seed": 1003,
+    "wns": 0.0,
+    "tns": 0.0,
+    "valid": true,
+    "fail_reason": "",
+    "stats": {
+     "cut": 314,
+     "cut_ratio": 0.42837653478854026,
+     "wcut": 983.7780886898308,
+     "crit_cross": 0.0,
+     "area_dev": -0.02936619520187378,
+     "macro_cnt_dev": 0.0,
+     "macro_area_dev": 0.03424149751663208,
+     "repair_flips": 219,
+     "hamming_ref": 0.075
+    }
+   },
+   "case_large/1001": {
+    "case": "case_large",
+    "seed": 1001,
+    "wns": 0.0,
+    "tns": 0.0,
+    "valid": true,
+    "fail_reason": "",
+    "stats": {
+     "cut": 560,
+     "cut_ratio": 0.47700170357751276,
+     "wcut": 1885.8050242434604,
+     "crit_cross": 0.08996539792387544,
+     "area_dev": 0.02942955493927002,
+     "macro_cnt_dev": 0.0,
+     "macro_area_dev": -0.028034329414367676,
+     "repair_flips": 331,
+     "hamming_ref": 0.027
+    }
+   },
+   "case_large/1002": {
+    "case": "case_large",
+    "seed": 1002,
+    "wns": 0.0,
+    "tns": 0.0,
+    "valid": true,
+    "fail_reason": "",
+    "stats": {
+     "cut": 594,
+     "cut_ratio": 0.5059625212947189,
+     "wcut": 1977.7671104537958,
+     "crit_cross": 0.02768166089965398,
+     "area_dev": -0.02922263741493225,
+     "macro_cnt_dev": 0.0,
+     "macro_area_dev": 0.036863625049591064,
+     "repair_flips": 360,
+     "hamming_ref": 0.028
+    }
+   },
+   "case_large/1003": {
+    "case": "case_large",
+    "seed": 1003,
+    "wns": 0.0,
+    "tns": 0.0,
+    "valid": true,
+    "fail_reason": "",
+    "stats": {
+     "cut": 608,
+     "cut_ratio": 0.5178875638841567,
+     "wcut": 2066.059785511235,
+     "crit_cross": 0.10380622837370242,
+     "area_dev": -0.02992469072341919,
+     "macro_cnt_dev": 0.0,
+     "macro_area_dev": 0.01971513032913208,
+     "repair_flips": 345,
+     "hamming_ref": 0.048
+    }
+   }
+  },
+  "stage_logs": {}
+ },
+ "partition_hash": "b8d025c1fa274874"
+}

@@ -1,0 +1,31 @@
+{
+ "id": "c054",
+ "parent": "c037",
+ "hypothesis": "The parent's locality term uses saturated criticality crit = 1 - rank_q, so nearly every non-critical node still contributes weight; raising criticality contrast through a squared, per-net-normalised weight concentrates the locality pressure on the top critical nodes and their direct neighbours, reducing crit-pair cross-tier without over-constraining the bulk partition.",
+ "expected_effect": "",
+ "files_changed": [],
+ "phase": "combine",
+ "created_at": 1794990407.8405497,
+ "status": "discarded",
+ "gate_report": "",
+ "score_total": null,
+ "score_robust": null,
+ "per_case": {},
+ "all_valid": null,
+ "fail_reasons": [
+  "run interrupted before gate/evaluation"
+ ],
+ "analysis": "",
+ "llm_cost_cny": 0.0,
+ "eval_wall_s": 0.0,
+ "tags": [
+  "crit_square",
+  "contrast",
+  "per_net_normalised_locality"
+ ],
+ "prompt_chars": 0,
+ "proxy": {},
+ "seed_std": null,
+ "duplicate_of": null,
+ "slot": 1
+}

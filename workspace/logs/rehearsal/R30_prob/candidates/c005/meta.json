@@ -1,0 +1,53 @@
+{
+ "id": "c005",
+ "parent": null,
+ "hypothesis": "Replacing the saturating product-form cut probability with a fan-out-normalised star (pairwise) expansion sum over pins of (p_i - mean_p_net)^2 / (k-1) keeps a usable gradient on large/high-fan-out nets (clock, reset) so the partition actually decides those nets instead of leaving them saturated, reducing TNS via fewer badly-cut hub nets.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "probe",
+ "created_at": 1794988845.7806711,
+ "status": "evaluated",
+ "gate_report": "OK",
+ "score_total": -0.8674493293237371,
+ "score_robust": -0.5024963532973347,
+ "per_case": {
+  "case_small": -0.12998228800769113,
+  "case_mid": -0.24567057207907786,
+  "case_large": -0.491796469236968
+ },
+ "all_valid": true,
+ "fail_reasons": [],
+ "analysis": "Hypothesis failed: all circuits worsened (total −0.867), with C3 worst (dWNS −86%, dTNS −28%). Cut nets, weighted cut, and critical-pair cross-tier crossings all rose (C3 crit_cross 0.069→0.296), and repair flips barely changed—so the fan-out-normalised star did not rescue hub nets; it increased crossings and criticality. Seed spread is high (std 0.125; C2 per-seed −0.05 to −0.50), indicating instability. Next step: gate the star term by fan-out (only apply above a threshold) or blend it with the product form, and re-test on C3 with more seeds.",
+ "llm_cost_cny": 0.0026160000000000003,
+ "eval_wall_s": 9.58438491821289,
+ "tags": [
+  "star-expansion",
+  "fanout-normalised",
+  "non-saturating-cut",
+  "hub-nets"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 0.246584,
+  "smoke_loss_tiny_gnorm": 0.071596,
+  "smoke_loss_tiny_s": 0.001,
+  "smoke_loss_nomacro_loss": 0.228745,
+  "smoke_loss_nomacro_gnorm": 0.010598,
+  "smoke_loss_nomacro_s": 0.001,
+  "smoke_loss_wall_s": 0.015,
+  "cut": 386.4444,
+  "cut_ratio": 0.4818,
+  "wcut": 1294.9286,
+  "crit_cross": 0.1281,
+  "area_dev": -0.01,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": 0.0053,
+  "repair_flips": 232.3333,
+  "hamming_ref": 0.2003
+ },
+ "seed_std": 0.12494179318001906,
+ "duplicate_of": null,
+ "slot": 0
+}

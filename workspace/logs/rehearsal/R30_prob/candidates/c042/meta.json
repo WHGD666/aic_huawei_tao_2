@@ -1,0 +1,49 @@
+{
+ "id": "c042",
+ "parent": "c023",
+ "hypothesis": "The parent's quadratic balance term is flat near 50%, so the raw partition drifts and the official repair flips many nodes (103/238/353), destroying learned criticality structure; adding a *linear* asymmetric tilt — a small term proportional to |ratio-0.5| via a smooth sqrt of the squared deviation — gives non-vanishing gradient inside the dead-band and pulls the raw partition to 50% by itself, cutting repair flips while leaving the cut term's structure intact.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "structural",
+ "created_at": 1794990191.0072627,
+ "status": "screened",
+ "gate_report": "OK",
+ "score_total": null,
+ "score_robust": null,
+ "per_case": {},
+ "all_valid": null,
+ "fail_reasons": [],
+ "analysis": "",
+ "llm_cost_cny": 0.0029909,
+ "eval_wall_s": 0.0,
+ "tags": [
+  "balance",
+  "sqrt-hinge",
+  "repair-flips",
+  "linear-tilt"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 0.957954,
+  "smoke_loss_tiny_gnorm": 0.224742,
+  "smoke_loss_tiny_s": 0.002,
+  "smoke_loss_nomacro_loss": 0.900751,
+  "smoke_loss_nomacro_gnorm": 0.053405,
+  "smoke_loss_nomacro_s": 0.001,
+  "smoke_loss_wall_s": 0.015,
+  "cut": 352.5556,
+  "cut_ratio": 0.4342,
+  "wcut": 1151.5825,
+  "crit_cross": 0.0454,
+  "area_dev": -0.0096,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": 0.0067,
+  "repair_flips": 233.5556,
+  "hamming_ref": 0.1312
+ },
+ "seed_std": null,
+ "duplicate_of": null,
+ "slot": 1
+}

@@ -1,0 +1,53 @@
+{
+ "id": "c009",
+ "parent": null,
+ "hypothesis": "Down-weighting each net's cut probability by 1/log(1+k) (fan-out-aware cut weight) so huge clock/reset nets stop dominating the cut gradient and the objective instead optimises the many small-signal nets that carry most TNS violations.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "probe",
+ "created_at": 1794989506.2037158,
+ "status": "evaluated",
+ "gate_report": "OK",
+ "score_total": -0.03410315751067197,
+ "score_robust": -0.038112846820855126,
+ "per_case": {
+  "case_small": -0.0008358762627275772,
+  "case_mid": -0.008891855930097546,
+  "case_large": -0.024375425317846852
+ },
+ "all_valid": true,
+ "fail_reasons": [],
+ "analysis": "(1) No — hypothesis not supported: total −3.4%, robust −2.1%, TNS −0.4%; down-weighting large nets did not improve small-signal TNS. (2) C3 drove the loss (score −2.4%, dWNS −4.3%) despite fewer cut/wcut nets (582→571, 1955→1926) and unchanged repair flips (353); critically, crit_cross rose 0.069→0.084, so fewer cuts but more critical-pair crossings — the mechanism backfired. C1/C2 essentially flat. (3) Seed spread is high (std 0.034; C3 per-seed −0.09 to +0.02), exceeding the mean effect — not acceptable. (4) Next: gate the 1/log(1+k) weight to non-critical nets only, or add a crit_cross penalty term, and re-run with more seeds.",
+ "llm_cost_cny": 0.0031292,
+ "eval_wall_s": 7.9795591831207275,
+ "tags": [
+  "fanout-downweight",
+  "cut-weight",
+  "log-normalised",
+  "TNS"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 0.863819,
+  "smoke_loss_tiny_gnorm": 0.071399,
+  "smoke_loss_tiny_s": 0.002,
+  "smoke_loss_nomacro_loss": 0.856216,
+  "smoke_loss_nomacro_gnorm": 0.017429,
+  "smoke_loss_nomacro_s": 0.003,
+  "smoke_loss_wall_s": 0.332,
+  "cut": 342.4444,
+  "cut_ratio": 0.4207,
+  "wcut": 1118.3182,
+  "crit_cross": 0.0317,
+  "area_dev": -0.0099,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": 0.0125,
+  "repair_flips": 231.1111,
+  "hamming_ref": 0.015
+ },
+ "seed_std": 0.03395396315783861,
+ "duplicate_of": null,
+ "slot": 0
+}

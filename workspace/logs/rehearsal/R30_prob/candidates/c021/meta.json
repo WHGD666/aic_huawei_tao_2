@@ -1,0 +1,54 @@
+{
+ "id": "c021",
+ "parent": "c004",
+ "hypothesis": "The baseline product-form cut already gives the lowest crit_cross of all evaluated candidates; the parent's additive critical-pair star penalty fights it and inflates crit_cross, so instead I keep the cut/balance/binarisation backbone byte-identical and replace the additive penalty with a *mild multiplicative* reweighting of the cut term by a net-level criticality factor (1 + alpha*mean_crit_of_pins, alpha small, clamped), which can only nudge the cut toward keeping timing-critical nets intact without adding a competing gradient; this should lower crit_cross and crit-weighted cut (both strongly negative rho) and hence TNS.",
+ "expected_effect": "",
+ "files_changed": [
+  "loss.py"
+ ],
+ "phase": "structural",
+ "created_at": 1794989770.3617275,
+ "status": "evaluated",
+ "gate_report": "OK",
+ "score_total": -0.09728366889901276,
+ "score_robust": -0.19909023080641536,
+ "per_case": {
+  "case_small": 0.07772653387658025,
+  "case_mid": -0.008748635792556412,
+  "case_large": -0.1662615669830366
+ },
+ "all_valid": true,
+ "fail_reasons": [],
+ "analysis": "(1) Partially: crit_cross fell on C1 (0.011→0.005) and C3 (0.069→0.058) with lower wcut, but C3 dWNS collapsed (-51.9%) and total/robust are negative, so the mild reweighting did not translate to TNS gains.\n\n(2) C1 improved broadly (cut 137→110, repair_flips 103→47); C3 cut/wcut barely moved yet crit_cross dropped—suggesting the factor nudged critical nets without reducing total crossings, and repair flips rose (353→361), plausibly destabilizing timing.\n\n(3) seed_std=0.131 with C3 per-seed [-0.07,-0.46,+0.03] is too wide; not acceptable.\n\n(4) Sweep alpha downward and add a repair-flip guard, validating on C3 seeds.",
+ "llm_cost_cny": 0.0041884,
+ "eval_wall_s": 10.406673908233643,
+ "tags": [
+  "criticality_weighted_cut",
+  "net_level_weight",
+  "multiplicative",
+  "rank_based",
+  "mild_alpha"
+ ],
+ "prompt_chars": 0,
+ "proxy": {
+  "smoke_loss_tiny_loss": 1.10677,
+  "smoke_loss_tiny_gnorm": 0.071466,
+  "smoke_loss_tiny_s": 0.002,
+  "smoke_loss_nomacro_loss": 1.099015,
+  "smoke_loss_nomacro_gnorm": 0.020303,
+  "smoke_loss_nomacro_s": 0.002,
+  "smoke_loss_wall_s": 0.018,
+  "cut": 335.2222,
+  "cut_ratio": 0.398,
+  "wcut": 1087.5958,
+  "crit_cross": 0.021,
+  "area_dev": -0.0076,
+  "macro_cnt_dev": 0.0,
+  "macro_area_dev": 0.0059,
+  "repair_flips": 213.1111,
+  "hamming_ref": 0.0875
+ },
+ "seed_std": 0.1313142625686935,
+ "duplicate_of": null,
+ "slot": 0
+}

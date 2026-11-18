@@ -1,0 +1,59 @@
+diff --git a/loss.py b/loss.py
+--- a/loss.py
++++ b/loss.py
+@@ -42,11 +42,52 @@ def compute_loss(p, graph, feats):
+     cut_prob = 1.0 - torch.exp(sum_log_p) - torch.exp(sum_log_q)
+     l_cut = cut_prob.sum() / float(n_nets)
+ 
+-    # ---- 面积平衡：上层面积占比接近 0.5 ----
++    # ---- 面积平衡：死区 hinge，避免二次项在 50% 附近梯度消失/与割项对抗 ----
+     ratio = (area * p).sum() / area.sum()
+-    l_bal = (ratio - 0.5) ** 2
++    dev = (ratio - 0.5).abs()
++    l_bal = torch.clamp(dev - 0.01, min=0.0) ** 2
++
++    # ---- 宏单元平衡（计数与面积），无宏时自动为 0 ----
++    is_macro = graph["is_macro"]
++    macro_f = is_macro.to(p.dtype)
++    macro_area = area * macro_f
++    macro_cnt_tot = macro_f.sum()
++    macro_area_tot = macro_area.sum()
++    # 用软计数/软面积；无宏时分子分母都为 0，用安全分母
++    soft_mcnt = (macro_f * p).sum()
++    soft_marea = (macro_area * p).sum()
++    mc_dev = (soft_mcnt / torch.clamp(macro_cnt_tot, min=1.0) - 0.5).abs()
++    ma_dev = (soft_marea / torch.clamp(macro_area_tot, min=1e-12) - 0.5).abs()
++    has_macro = (macro_cnt_tot > 0.5).to(p.dtype)
++    l_macro = has_macro * (
++        torch.clamp(mc_dev - 0.02, min=0.0) ** 2
++        + torch.clamp(ma_dev - 0.02, min=0.0) ** 2
++    )
+ 
+     # ---- 二值化：p 远离 0.5 ----
+     l_bin = (p * (1.0 - p)).mean()
+ 
+-    return l_cut + 10.0 * l_bal + 1.0 * l_bin
++    # ---- 关键对局部性：star 展开 sum_pins (p_i - mean_p)^2，按关键度加权 ----
++    # 用 net 内均值近似 pair，避免 O(k^2)；权重用两引脚关键度的软上界
++    n_nodes = p.shape[0]
++    slack = feats[:, 0]
++    order = torch.argsort(torch.argsort(slack))
++    rank_q = order.to(p.dtype) / max(1.0, float(n_nodes - 1))
++    crit = (1.0 - rank_q) ** 2  # [0,1]，越关键越大
++
++    pp = p[net_nodes]
++    pin_cnt = torch.zeros(n_nets).index_add(
++        0, net_of_pin, torch.ones_like(pp)
++    )
++    sum_p = torch.zeros(n_nets).index_add(0, net_of_pin, pp)
++    mean_p = sum_p / torch.clamp(pin_cnt, min=1.0)
++    dev2 = (pp - mean_p[net_of_pin]) ** 2
++
++    # 每网的关键度权重 = 引脚关键度均值（软 max 的替代）
++    crit_sum = torch.zeros(n_nets).index_add(0, net_of_pin, crit[net_nodes])
++    crit_mean = crit_sum / torch.clamp(pin_cnt, min=1.0)
++    w_pin = crit_mean[net_of_pin] * crit[net_nodes]
++
++    l_loc = (w_pin * dev2).sum() / float(n_nets)
++
++    return l_cut + 10.0 * l_bal + 1.0 * l_bin + 2.0 * l_loc
