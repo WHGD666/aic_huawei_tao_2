@@ -68,4 +68,4 @@ cd /sessions/serene-sleepy-edison/mnt/task2 && \
 - 解压还没完（87%），**不要删 `F:\wsl\task2`**，下次我接着补
 - 7 GB 镜像**还没加载**；加载前务必确认 Docker 数据盘在 F 盘
 - 我这边沙箱没有 docker，**`docker load` 和所有 GPU 物理流程只能你执行**
-- 两个仓库都有未 push 的 commit：`task2`（`F:\huawei_aic_tao\task2`）和 `task1`；推送用各自的 `git_sync.bat`
+- 本仓库有未 push 的 commit；推送前核对本仓库分支和待上传文件。
