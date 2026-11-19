@@ -6,15 +6,18 @@ Flow per round:
   2. extract the EVOLVE-BLOCK program, run the organizer's static validator
      locally (free), and repair once if it fails
   3. submit the source string, wait for the 9-cell evaluation, record memory
-  4. keep the best scored candidate; stop when evaluations are exhausted
+  4. keep the best scored candidate; stop after one new submission so the next
+     full-matrix result can be reviewed before another session starts
 
 The organizer owns budgets, evaluation and scoring; this file only decides
 what to try next.
 """
 from __future__ import annotations
 
+import ast
 import json
 from pathlib import Path
+import re
 import time
 import uuid
 
@@ -22,11 +25,12 @@ from contest2.agent_api import AgentAPIError
 
 from common.agent_common import (
     LocalCheck, append_memory, extract_program, feedback_digest, knowledge_for,
-    local_partition_change, read_memory, recover_history, write_program,
+    read_memory, recover_history, write_program,
 )
 
 BASELINE = "binary_loss"
 TASK = "tp_gnn_binary_loss_timing"
+MAX_NEW_SUBMISSIONS_PER_SESSION = 1
 
 SYSTEM = """You improve one Python function that trains a graph neural network to split a 3D chip's netlist into two tiers. Only the body of compute_binary_partition_loss may change. Return the complete program between the EVOLVE-BLOCK markers and nothing else.
 
@@ -102,6 +106,68 @@ def _reply_text(response) -> str:
     return "\n".join(chunks)
 
 
+def _same_program(left: str, right: str) -> bool:
+    """Ignore formatting and comments when checking for a wasted repeat."""
+    try:
+        return ast.dump(ast.parse(left), include_attributes=False) == ast.dump(
+            ast.parse(right), include_attributes=False)
+    except SyntaxError:
+        return left.strip() == right.strip()
+
+
+def _native_metrics(result: dict, case: str, seed: str) -> dict:
+    """Read the organizer-published native summary when it is available."""
+    root = result.get("artifacts_dir")
+    if not isinstance(root, str) or not re.fullmatch(r"[A-Za-z0-9_-]+", case) or not re.fullmatch(r"[0-9]+", seed):
+        return {}
+    path = Path(root) / "cells" / case / seed / "result" / "evaluation_result.json"
+    try:
+        metrics = json.loads(path.read_text(encoding="utf-8")).get("metrics", {})
+        return metrics if isinstance(metrics, dict) else {}
+    except (OSError, ValueError, AttributeError):
+        return {}
+
+
+def _detailed_feedback(result: dict) -> str:
+    """Give the model measured timing and partition diagnostics for every seed."""
+    lines = [feedback_digest(result, limit=1600)]
+    for cell in (result.get("feedback") or {}).get("cells") or []:
+        case, seed = cell.get("case"), str(cell.get("seed", ""))
+        if not isinstance(case, str):
+            continue
+        metrics = cell.get("metrics") or {}
+        native = _native_metrics(result, case, seed)
+        parts = [f"  {case}/{seed}"]
+        score = cell.get("score")
+        if isinstance(score, (int, float)):
+            parts.append(f"score={score:+.1f}")
+        for key, label, precision in (
+            ("final_global_wns_setup_ns", "WNS_ns", 3),
+            ("final_global_tns_setup_ns", "TNS_ns", 1),
+            ("timing_weighted_cut", "weighted_cut", 1),
+        ):
+            value = metrics.get(key)
+            if isinstance(value, (int, float)):
+                parts.append(f"{label}={value:.{precision}f}")
+        for key, label in (
+            ("binary_raw_top_area_ratio", "raw_top_area"),
+            ("binary_closure_moved_area_fraction", "repair_moved_area"),
+            ("binary_probability_uncertain_area_fraction", "uncertain_area"),
+        ):
+            value = native.get(key)
+            if isinstance(value, (int, float)):
+                parts.append(f"{label}={value:.1%}")
+        lines.append(" ".join(parts))
+    return "\n".join(lines)[:4400]
+
+
+def _best_feedback(context, state: dict, best: dict):
+    for row in reversed(state.get("history") or []):
+        if row.get("status") == "succeeded" and row.get("candidate_id") == best["candidate_id"]:
+            return context.evaluation_status(row["request_id"])
+    raise RuntimeError("Best scored candidate has no successful evaluation receipt")
+
+
 class Agent:
     def run(self, context):
         folder = Path(__file__).parent
@@ -112,6 +178,9 @@ class Agent:
         smoke = getattr(context, "evaluation_mode", "formal") == "smoke"
 
         # Finish any accepted evaluation and restore the actual best source.
+        pending_at_start = any(
+            row.get("status") in ("accepted", "uncertain", "reconciling")
+            for row in context.status().get("history", []))
         best, parent_source, last_result = recover_history(context, folder, TASK)
         best_source = parent_source
         state = context.status()
@@ -119,13 +188,26 @@ class Agent:
         if best is not None:
             history_brief = f"best so far: candidate {best['candidate_id']} score {best.get('score')}"
 
-        digest = feedback_digest(last_result) if last_result else ""
+        digest = ""
+        if best is not None:
+            best_result = _best_feedback(context, state, best)
+            digest = "Best verified result:\n" + _detailed_feedback(best_result)
+        if last_result and (best is None or last_result.get("candidate_id") != best["candidate_id"]):
+            digest += "\nLatest attempt:\n" + feedback_digest(last_result)
         if last_result:
-            append_memory(folder, f"[eval] {digest}")
+            append_memory(folder, f"[recovered] {feedback_digest(last_result)}")
+        if pending_at_start:
+            append_memory(folder, "[pause] previous accepted matrix was reconciled; review its result before a new submission")
+            if best is None:
+                raise RuntimeError("No verified candidate after reconciling the previous matrix")
+            if not smoke:
+                write_program(folder, best_source)
+            return best["candidate_id"]
 
         attempts = 0
         model_failures = 0
-        while True:
+        submissions = 0
+        while submissions < MAX_NEW_SUBMISSIONS_PER_SESSION:
             state = context.status()
             if not state.get("dispatch_allowed", True) or state.get("evaluations_remaining", 0) <= 0:
                 break
@@ -181,12 +263,10 @@ class Agent:
                     continue
                 source = fixed
 
-            # ---- 2.5 local partition smoke: refuse candidates that change nothing ----
-            changed, why_change = local_partition_change(source, BASELINE)
-            if changed is not None and changed < 0.01:
+            # Avoid spending a full matrix on a formatting-only rewrite.
+            if _same_program(source, parent_source):
                 attempts += 1
-                append_memory(folder, f"[smoke] partition changed only {changed:.2%} vs the baseline ({why_change}); "
-                                      f"this objective is saturated — try a balance/decoder-side change or an epoch schedule")
+                append_memory(folder, "[check] proposed program is identical to the scored parent")
                 if attempts >= 3:
                     break
                 continue
@@ -205,6 +285,7 @@ class Agent:
                     if attempts >= 3:
                         break
                     continue
+            submissions += 1
             try:
                 result = context.wait_evaluation(request_id)
             except AgentAPIError as error:

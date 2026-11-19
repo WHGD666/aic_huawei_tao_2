@@ -1,0 +1,153 @@
+"""The binary-loss Agent reviews a full matrix before another submission."""
+import json
+from pathlib import Path
+import sys
+import tempfile
+import unittest
+from unittest.mock import patch
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path[:0] = [str(ROOT / "official_kit"),
+                str(ROOT / "official_kit" / "agent_templates" / "binary_loss")]
+from official_kit.agent_templates.binary_loss import agent as binary_agent
+
+
+class FakeCheck:
+    available = True
+
+    def check(self, source, baseline):
+        return True, "ok"
+
+
+class FakeContext:
+    evaluation_mode = "formal"
+
+    def __init__(self, best_result, next_result):
+        self.best_result = best_result
+        self.next_result = next_result
+        self.submissions = []
+
+    def status(self):
+        return {"dispatch_allowed": True, "evaluations_remaining": 8,
+                "history": [{"request_id": "first", "candidate_id": "first-candidate",
+                             "status": "succeeded"},
+                            {"request_id": "interrupted", "candidate_id": "interrupted-candidate",
+                             "status": "failed"}]}
+
+    def evaluation_status(self, request_id):
+        assert request_id == "first"
+        return self.best_result
+
+    def submit_evaluation(self, source, request_id):
+        self.submissions.append(source)
+        return {"status": "accepted", "request_id": request_id}
+
+    def wait_evaluation(self, request_id):
+        return self.next_result
+
+
+def scored_receipt(artifacts_dir=None):
+    return {"request_id": "first", "candidate_id": "first-candidate",
+            "status": "succeeded", "source": "def compute_binary_partition_loss(): return 1\n",
+            "artifacts_dir": str(artifacts_dir) if artifacts_dir else "",
+            "feedback": {"score": 28.97, "cells": [
+                {"case": "bp-ng45", "seed": "1001", "score": -15.4,
+                 "valid": True, "metrics": {
+                     "final_global_wns_setup_ns": -9.767,
+                     "final_global_tns_setup_ns": -7763.8,
+                     "timing_weighted_cut": 5552.8}}]}}
+
+
+class BinaryAgentCycleTests(unittest.TestCase):
+    def test_feedback_includes_native_partition_diagnostics(self):
+        with tempfile.TemporaryDirectory() as temp:
+            folder = Path(temp) / "cells/bp-ng45/1001/result"
+            folder.mkdir(parents=True)
+            (folder / "evaluation_result.json").write_text(json.dumps({"metrics": {
+                "binary_raw_top_area_ratio": 0.61,
+                "binary_closure_moved_area_fraction": 0.41,
+                "binary_probability_uncertain_area_fraction": 0.07,
+            }}), encoding="utf-8")
+            digest = binary_agent._detailed_feedback(scored_receipt(temp))
+        self.assertIn("score=-15.4", digest)
+        self.assertIn("WNS_ns=-9.767", digest)
+        self.assertIn("raw_top_area=61.0%", digest)
+        self.assertIn("repair_moved_area=41.0%", digest)
+
+    def test_recovered_feedback_precedes_exactly_one_new_submission(self):
+        context = FakeContext(scored_receipt(), {
+            "request_id": "next", "candidate_id": "next-candidate",
+            "status": "succeeded", "source": "def compute_binary_partition_loss(): return 2\n",
+            "feedback": {"score": 35.0, "cells": []}})
+        proposal = "def compute_binary_partition_loss(): return 2\n"
+        seen = []
+
+        def ask(_context, messages):
+            seen.append(messages[1]["content"])
+            return {"output_text": proposal}
+
+        with tempfile.TemporaryDirectory() as temp:
+            with patch.object(binary_agent, "__file__", str(Path(temp) / "agent.py")), \
+                 patch.object(binary_agent, "LocalCheck", FakeCheck), \
+                 patch.object(binary_agent, "recover_history", return_value=(
+                     {"candidate_id": "first-candidate", "score": 28.97},
+                     "def compute_binary_partition_loss(): return 1\n",
+                     {"request_id": "interrupted", "candidate_id": "interrupted-candidate",
+                      "status": "failed", "reason": "interrupted"})), \
+                 patch.object(binary_agent, "_ask", side_effect=ask), \
+                 patch.object(binary_agent, "write_program"), \
+                 patch.object(binary_agent, "append_memory"), \
+                 patch.object(binary_agent, "read_memory", return_value=""), \
+                 patch.object(binary_agent, "knowledge_for", return_value=""):
+                chosen = binary_agent.Agent().run(context)
+
+        self.assertEqual(chosen, "next-candidate")
+        self.assertEqual(context.submissions, [proposal])
+        self.assertEqual(len(seen), 1)
+        self.assertIn("bp-ng45/1001 score=-15.4", seen[0])
+        self.assertIn("Latest attempt", seen[0])
+
+    def test_identical_program_does_not_spend_an_evaluation(self):
+        context = FakeContext(scored_receipt(), None)
+        with patch.object(binary_agent, "LocalCheck", FakeCheck), \
+             patch.object(binary_agent, "recover_history", return_value=(
+                 {"candidate_id": "first-candidate", "score": 28.97},
+                 "def compute_binary_partition_loss(): return 1\n", None)), \
+             patch.object(binary_agent, "_ask", return_value={
+                 "output_text": "def compute_binary_partition_loss():  # same body\n    return 1\n"}), \
+             patch.object(binary_agent, "write_program"), \
+             patch.object(binary_agent, "append_memory"), \
+             patch.object(binary_agent, "read_memory", return_value=""), \
+             patch.object(binary_agent, "knowledge_for", return_value=""):
+            chosen = binary_agent.Agent().run(context)
+        self.assertEqual(chosen, "first-candidate")
+        self.assertEqual(context.submissions, [])
+
+    def test_reconciliation_only_session_does_not_submit(self):
+        class PendingContext(FakeContext):
+            checks = 0
+
+            def status(self):
+                state = super().status()
+                self.checks += 1
+                if self.checks == 1:
+                    state["history"][-1]["status"] = "accepted"
+                return state
+
+        context = PendingContext(scored_receipt(), None)
+        with patch.object(binary_agent, "LocalCheck", FakeCheck), \
+             patch.object(binary_agent, "recover_history", return_value=(
+                 {"candidate_id": "first-candidate", "score": 28.97},
+                 "def compute_binary_partition_loss(): return 1\n",
+                 {"request_id": "interrupted", "candidate_id": "interrupted-candidate",
+                  "status": "failed", "reason": "interrupted"})), \
+             patch.object(binary_agent, "_ask", side_effect=AssertionError("model call after recovery")), \
+             patch.object(binary_agent, "write_program"), \
+             patch.object(binary_agent, "append_memory"):
+            chosen = binary_agent.Agent().run(context)
+        self.assertEqual(chosen, "first-candidate")
+        self.assertEqual(context.submissions, [])
+
+
+if __name__ == "__main__":
+    unittest.main()
