@@ -22,7 +22,7 @@ from contest2.agent_api import AgentAPIError
 
 from common.agent_common import (
     LocalCheck, append_memory, extract_program, feedback_digest, knowledge_for,
-    local_partition_change, read_memory, read_program, write_program,
+    local_partition_change, read_memory, recover_history, write_program,
 )
 
 BASELINE = "binary_loss"
@@ -107,27 +107,14 @@ class Agent:
         folder = Path(__file__).parent
         knowledge = knowledge_for(BASELINE)
         checker = LocalCheck()
+        if not checker.available:
+            raise RuntimeError("Organizer static validator is unavailable; refusing to spend an evaluation")
         smoke = getattr(context, "evaluation_mode", "formal") == "smoke"
 
-        # ---- recover: finish any accepted/uncertain evaluation before editing ----
+        # Finish any accepted evaluation and restore the actual best source.
+        best, parent_source, last_result = recover_history(context, folder, TASK)
+        best_source = parent_source
         state = context.status()
-        last_result = None
-        for row in state.get("history", []):
-            if row.get("status") in ("accepted", "uncertain", "reconciling"):
-                try:
-                    last_result = context.wait_evaluation(row["request_id"])
-                except AgentAPIError:
-                    last_result = None
-
-        state = context.status()
-        succeeded = [r for r in state.get("history", []) if r.get("status") == "succeeded"]
-        best = max(succeeded, key=lambda r: r.get("score", float("-inf"))) if succeeded else None
-        best_source = read_program(folder)
-        if best is not None:
-            # best_source is refreshed below from the organizer's per-candidate copy when available
-            pass
-
-        parent_source = best_source
         history_brief = ""
         if best is not None:
             history_brief = f"best so far: candidate {best['candidate_id']} score {best.get('score')}"
@@ -165,7 +152,6 @@ class Agent:
             if not source:
                 attempts += 1
                 append_memory(folder, "[propose] reply did not contain a complete program; retrying")
-                parent_source = read_program(folder)
                 if attempts >= 3:
                     break
                 continue
@@ -203,7 +189,6 @@ class Agent:
                                       f"this objective is saturated — try a balance/decoder-side change or an epoch schedule")
                 if attempts >= 3:
                     break
-                parent_source = read_program(folder)
                 continue
 
             write_program(folder, source)
@@ -249,4 +234,6 @@ class Agent:
 
         if best is None:
             raise RuntimeError("no candidate completed a verified training evaluation")
+        if not smoke:
+            write_program(folder, best_source)
         return best["candidate_id"]

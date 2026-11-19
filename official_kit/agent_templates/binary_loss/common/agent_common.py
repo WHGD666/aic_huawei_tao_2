@@ -34,7 +34,8 @@ def read_program(folder: Path) -> str:
 
 
 def write_program(folder: Path, source: str) -> None:
-    program_path(folder).write_text(source, encoding="utf-8", newline="")
+    with program_path(folder).open("w", encoding="utf-8", newline="") as stream:
+        stream.write(source)
 
 
 # ---------------------------------------------------------------------------
@@ -62,6 +63,39 @@ def append_memory(folder: Path, text: str) -> None:
         p.write_text(old.rstrip() + "\n\n" + text.strip() + "\n", encoding="utf-8")
     except OSError:
         pass
+
+
+def recover_history(context, folder: Path, task: str):
+    """Recover the scored parent from organizer receipts, never from a draft.
+
+    ``program.py`` is writable and may contain an unscored edit when a session
+    stops. Evaluation receipts include the frozen source for each success.
+    """
+    baseline = Path("/opt/contest/AgenticBench/local_tasks") / task / "initial_program.py"
+    parent_source = (baseline.read_text(encoding="utf-8") if baseline.is_file()
+                     else read_program(folder))
+    best = None
+    last_result = None
+    for row in context.status().get("history", []):
+        request_id = row.get("request_id")
+        if not request_id:
+            continue
+        if row.get("status") in ("accepted", "uncertain", "reconciling"):
+            result = context.wait_evaluation(request_id)
+        else:
+            result = context.evaluation_status(request_id)
+        last_result = result
+        if result.get("status") != "succeeded":
+            continue
+        score = (result.get("feedback") or {}).get("score")
+        source = result.get("source")
+        candidate_id = result.get("candidate_id")
+        if not isinstance(score, (int, float)) or not isinstance(source, str) or not source or not candidate_id:
+            raise RuntimeError("Successful evaluation lacks its frozen score or source")
+        if best is None or score > best["score"]:
+            best = {"candidate_id": candidate_id, "score": score}
+            parent_source = source
+    return best, parent_source, last_result
 
 
 # ---------------------------------------------------------------------------
