@@ -15,6 +15,7 @@ what to try next.
 from __future__ import annotations
 
 import ast
+import difflib
 import json
 from pathlib import Path
 import re
@@ -98,6 +99,8 @@ def _reply_text(response) -> str:
     for item in response.get("output") or []:
         if not isinstance(item, dict):
             continue
+        if item.get("type") == "reasoning":
+            continue
         if isinstance(item.get("text"), str):
             chunks.append(item["text"])
         for part in item.get("content") or []:
@@ -141,6 +144,9 @@ def _detailed_feedback(result: dict) -> str:
         score = cell.get("score")
         if isinstance(score, (int, float)):
             parts.append(f"score={score:+.1f}")
+        raw_score = cell.get("raw_score")
+        if isinstance(raw_score, (int, float)) and isinstance(score, (int, float)) and raw_score < score - 0.01:
+            parts.append(f"raw_score_before_floor={raw_score:+.1f}")
         for key, label, precision in (
             ("final_global_wns_setup_ns", "WNS_ns", 3),
             ("final_global_tns_setup_ns", "TNS_ns", 1),
@@ -168,6 +174,29 @@ def _best_feedback(context, state: dict, best: dict):
     raise RuntimeError("Best scored candidate has no successful evaluation receipt")
 
 
+def _measured_comparison(best_result: dict, latest_result: dict, best_source: str) -> str:
+    """Compare two official matrices and their frozen programs, without guessing causality."""
+    best_fb = best_result.get("feedback") or {}
+    latest_fb = latest_result.get("feedback") or {}
+    parts = []
+    a, b = best_fb.get("score"), latest_fb.get("score")
+    if isinstance(a, (int, float)) and isinstance(b, (int, float)):
+        parts.append(f"Total score change relative to best: {b - a:+.2f}")
+    best_cases = {row.get("case"): row.get("mean") for row in best_fb.get("cases") or []}
+    for row in latest_fb.get("cases") or []:
+        case, mean = row.get("case"), row.get("mean")
+        prior = best_cases.get(case)
+        if isinstance(prior, (int, float)) and isinstance(mean, (int, float)):
+            parts.append(f"  {case}: {mean - prior:+.2f}")
+    latest_source = latest_result.get("source")
+    if isinstance(latest_source, str) and latest_source:
+        diff = list(difflib.unified_diff(best_source.splitlines(), latest_source.splitlines(),
+                                         fromfile="best", tofile="latest", n=1))
+        if diff:
+            parts.append("Program change relative to best:\n" + "\n".join(diff)[:1600])
+    return "\n".join(parts)[:2200]
+
+
 class Agent:
     def run(self, context):
         folder = Path(__file__).parent
@@ -193,7 +222,9 @@ class Agent:
             best_result = _best_feedback(context, state, best)
             digest = "Best verified result:\n" + _detailed_feedback(best_result)
         if last_result and (best is None or last_result.get("candidate_id") != best["candidate_id"]):
-            digest += "\nLatest attempt:\n" + feedback_digest(last_result)
+            digest += "\nLatest attempt:\n" + _detailed_feedback(last_result)
+            if best is not None and last_result.get("status") == "succeeded":
+                digest += "\n" + _measured_comparison(best_result, last_result, best_source)
         if last_result:
             append_memory(folder, f"[recovered] {feedback_digest(last_result)}")
         if pending_at_start:
@@ -217,7 +248,7 @@ class Agent:
             messages = [
                 {"role": "system", "content": SYSTEM},
                 {"role": "user", "content": _user_prompt(
-                    knowledge, parent_source, read_memory(folder), digest, history_brief,
+                    knowledge, parent_source, read_memory(folder)[-2000:], digest, history_brief,
                     remaining, f"Attempt {attempts + 1}." if attempts else "")},
             ]
             try:
@@ -243,13 +274,14 @@ class Agent:
             if not ok:
                 append_memory(folder, f"[check] rejected locally: {why[:200]}")
                 try:
+                    repair_prompt = _user_prompt(
+                        knowledge, parent_source, read_memory(folder)[-2000:], digest,
+                        history_brief, remaining, "")
+                    repair_prompt += ("\n\nInvalid proposal:\n```python\n" + source[:2500]
+                                      + "\n```\n" + REPAIR.format(error=why[:1200]))
                     repair = _reply_text(_ask(context, [
                         {"role": "system", "content": SYSTEM},
-                        {"role": "user", "content": _user_prompt(
-                            knowledge, parent_source, read_memory(folder), digest, history_brief,
-                            remaining, "")},
-                        {"role": "assistant", "content": reply},
-                        {"role": "user", "content": REPAIR.format(error=why[:1200])},
+                        {"role": "user", "content": repair_prompt},
                     ]))
                     fixed = extract_program(repair)
                     ok2, why2 = checker.check(fixed, BASELINE) if fixed else (False, "no program in repair reply")

@@ -1,0 +1,400 @@
+{
+  "schema_version": 1,
+  "baseline": "binary_loss",
+  "split": "train",
+  "score_label": "official local nine-cell training score, not hidden score",
+  "agent_commit": "8dec86038bbcf7bc089d52ca47080e37a0cb5022",
+  "generated_utc": "2026-11-19T21:02:45.488304+00:00",
+  "evaluation_limit": 10,
+  "evaluations_accepted": 3,
+  "evaluations_remaining": 7,
+  "model_cost_spent_rmb": 0.42609,
+  "evaluations": [
+    {
+      "request_id": "d4bc8894a91747f992de7d056e5d329d",
+      "candidate_id": "64a1b258e2571a714f016fbef0036125b25ab320fa341c7de8c95729026413b1",
+      "status": "succeeded",
+      "reason": null,
+      "score": 28.97245100188064,
+      "complete": true,
+      "case_scores": {
+        "ariane133-ng45": 63.575774118278275,
+        "bp-ng45": -6.352529566562755,
+        "bp_fe-ng45": 29.694108453926393
+      },
+      "candidate_capsule_sha256": "0243cf40bcde88a1cdf2d8f339439852a2e9a2be5a5319aa0e060a0df7f19d7b",
+      "cells": [
+        {
+          "case": "ariane133-ng45",
+          "seed": "1001",
+          "status": "succeeded",
+          "valid": true,
+          "score": 77.67304240923225,
+          "raw_score": 77.67304240923225,
+          "metrics": {
+            "final_global_wns_setup_ns": -0.27936365123053236,
+            "final_global_tns_setup_ns": -1.9356712336432225,
+            "binary_raw_top_area_ratio": 0.5690332480017536,
+            "binary_closure_moved_area_fraction": 0.35809906291834004,
+            "binary_probability_uncertain_area_fraction": 0.09267596900463104,
+            "timing_weighted_cut": 17250.56509567291,
+            "partition_assignment_changed_fraction": 0.06058532877232991,
+            "tp_gnn_final_loss": 0.09099669754505157
+          }
+        },
+        {
+          "case": "ariane133-ng45",
+          "seed": "1002",
+          "status": "succeeded",
+          "valid": true,
+          "score": 87.11668108728618,
+          "raw_score": 87.11668108728618,
+          "metrics": {
+            "final_global_wns_setup_ns": -0.16580604025735415,
+            "final_global_tns_setup_ns": -0.5573963670615026,
+            "binary_raw_top_area_ratio": 0.4513574766903873,
+            "binary_closure_moved_area_fraction": 0.3413466732426783,
+            "binary_probability_uncertain_area_fraction": 0.038623109459877014,
+            "timing_weighted_cut": 28335.455424162345,
+            "partition_assignment_changed_fraction": 0.654906879513493,
+            "tp_gnn_final_loss": 0.04609160125255585
+          }
+        },
+        {
+          "case": "ariane133-ng45",
+          "seed": "1003",
+          "status": "succeeded",
+          "valid": true,
+          "score": 25.937598858316402,
+          "raw_score": 25.937598858316402,
+          "metrics": {
+            "final_global_wns_setup_ns": -0.4943854354722262,
+            "final_global_tns_setup_ns": -58.95143029481196,
+            "binary_raw_top_area_ratio": 0.5810250749587043,
+            "binary_closure_moved_area_fraction": 0.3646785974306583,
+            "binary_probability_uncertain_area_fraction": 0.0691671222448349,
+            "timing_weighted_cut": 17213.03308747549,
+            "partition_assignment_changed_fraction": 0.3711060433295325,
+            "tp_gnn_final_loss": 0.09162478148937225
+          }
+        },
+        {
+          "case": "bp-ng45",
+          "seed": "1001",
+          "status": "succeeded",
+          "valid": true,
+          "score": -15.436234447853039,
+          "raw_score": -15.436234447853039,
+          "metrics": {
+            "final_global_wns_setup_ns": -9.767809060286112,
+            "final_global_tns_setup_ns": -7763.758041095794,
+            "binary_raw_top_area_ratio": 0.6096931499801473,
+            "binary_closure_moved_area_fraction": 0.413926435033209,
+            "binary_probability_uncertain_area_fraction": 0.3903031349182129,
+            "timing_weighted_cut": 17832.510601074995,
+            "partition_assignment_changed_fraction": 0.9701020634568449,
+            "tp_gnn_final_loss": 0.2774878740310669
+          }
+        },
+        {
+          "case": "bp-ng45",
+          "seed": "1002",
+          "status": "succeeded",
+          "valid": true,
+          "score": -8.514154017637637,
+          "raw_score": -8.514154017637637,
+          "metrics": {
+            "final_global_wns_setup_ns": -8.086092913013246,
+            "final_global_tns_setup_ns": -7856.770247887273,
+            "binary_raw_top_area_ratio": 0.38842503788789656,
+            "binary_closure_moved_area_fraction": 0.4089325026889688,
+            "binary_probability_uncertain_area_fraction": 0.3221319615840912,
+            "timing_weighted_cut": 17145.376763376324,
+            "partition_assignment_changed_fraction": 0.03371838251608609,
+            "tp_gnn_final_loss": 0.2822319269180298
+          }
+        },
+        {
+          "case": "bp-ng45",
+          "seed": "1003",
+          "status": "succeeded",
+          "valid": true,
+          "score": 4.892799765802411,
+          "raw_score": 4.892799765802411,
+          "metrics": {
+            "final_global_wns_setup_ns": -8.236678239261728,
+            "final_global_tns_setup_ns": -6300.169567031882,
+            "binary_raw_top_area_ratio": 0.39359978823788194,
+            "binary_closure_moved_area_fraction": 0.4150542174401763,
+            "binary_probability_uncertain_area_fraction": 0.4022674262523651,
+            "timing_weighted_cut": 15934.829697533976,
+            "partition_assignment_changed_fraction": 0.025522797869980032,
+            "tp_gnn_final_loss": 0.23122724890708923
+          }
+        },
+        {
+          "case": "bp_fe-ng45",
+          "seed": "1001",
+          "status": "succeeded",
+          "valid": true,
+          "score": 3.358526629729265,
+          "raw_score": 3.358526629729265,
+          "metrics": {
+            "final_global_wns_setup_ns": -0.7861151951899809,
+            "final_global_tns_setup_ns": -737.3836505666189,
+            "binary_raw_top_area_ratio": 0.5744851588704151,
+            "binary_closure_moved_area_fraction": 0.09307585695222295,
+            "binary_probability_uncertain_area_fraction": 0.3433734178543091,
+            "timing_weighted_cut": 5552.847889260182,
+            "partition_assignment_changed_fraction": 0.9388710488644717,
+            "tp_gnn_final_loss": 0.23227627575397491
+          }
+        },
+        {
+          "case": "bp_fe-ng45",
+          "seed": "1002",
+          "status": "succeeded",
+          "valid": true,
+          "score": 28.481324664403846,
+          "raw_score": 28.481324664403846,
+          "metrics": {
+            "final_global_wns_setup_ns": -0.8486555032258086,
+            "final_global_tns_setup_ns": -403.99724531455337,
+            "binary_raw_top_area_ratio": 0.49062157051661864,
+            "binary_closure_moved_area_fraction": 0.03783187094580322,
+            "binary_probability_uncertain_area_fraction": 0.2869263291358948,
+            "timing_weighted_cut": 6112.278138041853,
+            "partition_assignment_changed_fraction": 0.14400123805470655,
+            "tp_gnn_final_loss": 0.27281633019447327
+          }
+        },
+        {
+          "case": "bp_fe-ng45",
+          "seed": "1003",
+          "status": "succeeded",
+          "valid": true,
+          "score": 57.242474067646064,
+          "raw_score": 57.242474067646064,
+          "metrics": {
+            "final_global_wns_setup_ns": -0.7020416668933372,
+            "final_global_tns_setup_ns": -138.17816970625384,
+            "binary_raw_top_area_ratio": 0.4326790802157773,
+            "binary_closure_moved_area_fraction": 0.06732091978422271,
+            "binary_probability_uncertain_area_fraction": 0.001241698395460844,
+            "timing_weighted_cut": 3774.1471846423274,
+            "partition_assignment_changed_fraction": 0.2814639996904863,
+            "tp_gnn_final_loss": 0.1706618368625641
+          }
+        }
+      ]
+    },
+    {
+      "request_id": "8c9ff6c0331248519fac75d5df63945f",
+      "candidate_id": "91b87b3b0ba2353015c1bbd9df54c9b25ff8df58504c3472f67f3ef0bb9ae355",
+      "status": "failed",
+      "reason": "Execution ended without a complete verified matrix; original attempt retained, not replayed",
+      "score": null,
+      "complete": false,
+      "case_scores": {},
+      "candidate_capsule_sha256": "fe6368222ef08e37158a56626f685113b104c9419331a5c49fd81bcdcd8047d3",
+      "cells": [
+        {
+          "case": "bp_fe-ng45",
+          "seed": "1001",
+          "status": "succeeded",
+          "valid": true,
+          "score": 69.08635902677997,
+          "raw_score": 69.08635902677997,
+          "metrics": {
+            "final_global_wns_setup_ns": -0.6395564259210882,
+            "final_global_tns_setup_ns": -29.833381054421025,
+            "binary_raw_top_area_ratio": 9.402902792018094e-05,
+            "binary_closure_moved_area_fraction": 0.4999098351787067,
+            "binary_probability_uncertain_area_fraction": 1.0,
+            "timing_weighted_cut": 3298.215962555239,
+            "partition_assignment_changed_fraction": 0.5635083375246643,
+            "tp_gnn_final_loss": 9.480706214904785
+          }
+        }
+      ]
+    },
+    {
+      "request_id": "c9aff8f628724dab89de513a7d770787",
+      "candidate_id": "f3dac5657fabb5fdc256ddfddb9a05912ea7629ef7f5f7ae2d27d5865cb88c5c",
+      "status": "succeeded",
+      "reason": null,
+      "score": 7.250047850187,
+      "complete": true,
+      "case_scores": {
+        "ariane133-ng45": -16.798273867444248,
+        "bp-ng45": -13.480114244097019,
+        "bp_fe-ng45": 52.02853166210227
+      },
+      "candidate_capsule_sha256": "57eb5a0a300fdca9afd0daa7590afbd09d32feca3af7822f92ceb69354fa0965",
+      "cells": [
+        {
+          "case": "ariane133-ng45",
+          "seed": "1001",
+          "status": "succeeded",
+          "valid": true,
+          "score": -100.0,
+          "raw_score": -150.0815437728318,
+          "metrics": {
+            "final_global_wns_setup_ns": -0.8687215637180882,
+            "final_global_tns_setup_ns": -296.34305448341934,
+            "binary_raw_top_area_ratio": 0.5507523270469793,
+            "binary_closure_moved_area_fraction": 0.3392388266516358,
+            "binary_probability_uncertain_area_fraction": 0.13012008368968964,
+            "timing_weighted_cut": 25036.06336556945,
+            "partition_assignment_changed_fraction": 0.1736830102622577,
+            "tp_gnn_final_loss": 0.1237909123301506
+          }
+        },
+        {
+          "case": "ariane133-ng45",
+          "seed": "1002",
+          "status": "succeeded",
+          "valid": true,
+          "score": -19.65309538811596,
+          "raw_score": -19.65309538811596,
+          "metrics": {
+            "final_global_wns_setup_ns": -0.605666645091332,
+            "final_global_tns_setup_ns": -118.69763108375867,
+            "binary_raw_top_area_ratio": 0.42413396275159115,
+            "binary_closure_moved_area_fraction": 0.3605509758331572,
+            "binary_probability_uncertain_area_fraction": 0.21028323471546173,
+            "timing_weighted_cut": 20681.097130632003,
+            "partition_assignment_changed_fraction": 0.8111668567084759,
+            "tp_gnn_final_loss": 0.18502646684646606
+          }
+        },
+        {
+          "case": "ariane133-ng45",
+          "seed": "1003",
+          "status": "succeeded",
+          "valid": true,
+          "score": 69.25827378578322,
+          "raw_score": 69.25827378578322,
+          "metrics": {
+            "final_global_wns_setup_ns": -0.3161191398124989,
+            "final_global_tns_setup_ns": -10.99272703978229,
+            "binary_raw_top_area_ratio": 0.46424919952715343,
+            "binary_closure_moved_area_fraction": 0.3170976302872308,
+            "binary_probability_uncertain_area_fraction": 0.0795309916138649,
+            "timing_weighted_cut": 30525.8886914558,
+            "partition_assignment_changed_fraction": 0.6902546560243253,
+            "tp_gnn_final_loss": 0.14448638260364532
+          }
+        },
+        {
+          "case": "bp-ng45",
+          "seed": "1001",
+          "status": "succeeded",
+          "valid": true,
+          "score": -4.15928126248823,
+          "raw_score": -4.15928126248823,
+          "metrics": {
+            "final_global_wns_setup_ns": -10.494715615809088,
+            "final_global_tns_setup_ns": -6148.549974747976,
+            "binary_raw_top_area_ratio": 0.6114519313040706,
+            "binary_closure_moved_area_fraction": 0.41216765370928565,
+            "binary_probability_uncertain_area_fraction": 0.4573306739330292,
+            "timing_weighted_cut": 17613.950305675724,
+            "partition_assignment_changed_fraction": 0.960838695362769,
+            "tp_gnn_final_loss": 0.41861626505851746
+          }
+        },
+        {
+          "case": "bp-ng45",
+          "seed": "1002",
+          "status": "succeeded",
+          "valid": true,
+          "score": -22.788258967461747,
+          "raw_score": -22.788258967461747,
+          "metrics": {
+            "final_global_wns_setup_ns": -9.120433555426054,
+            "final_global_tns_setup_ns": -8905.20120894409,
+            "binary_raw_top_area_ratio": 0.38999787492240673,
+            "binary_closure_moved_area_fraction": 0.4105039416461149,
+            "binary_probability_uncertain_area_fraction": 0.3571719825267792,
+            "timing_weighted_cut": 18374.253268974437,
+            "partition_assignment_changed_fraction": 0.017160805413800755,
+            "tp_gnn_final_loss": 0.4144684970378876
+          }
+        },
+        {
+          "case": "bp-ng45",
+          "seed": "1003",
+          "status": "succeeded",
+          "valid": true,
+          "score": -13.49280250234108,
+          "raw_score": -13.49280250234108,
+          "metrics": {
+            "final_global_wns_setup_ns": -8.182304843048321,
+            "final_global_tns_setup_ns": -8357.278838848792,
+            "binary_raw_top_area_ratio": 0.3924631513409426,
+            "binary_closure_moved_area_fraction": 0.413923172852693,
+            "binary_probability_uncertain_area_fraction": 0.4476121664047241,
+            "timing_weighted_cut": 17030.543762480953,
+            "partition_assignment_changed_fraction": 0.07664466385622365,
+            "tp_gnn_final_loss": 0.37174373865127563
+          }
+        },
+        {
+          "case": "bp_fe-ng45",
+          "seed": "1001",
+          "status": "succeeded",
+          "valid": true,
+          "score": 47.6361800594321,
+          "raw_score": 47.6361800594321,
+          "metrics": {
+            "final_global_wns_setup_ns": -0.6667051543992755,
+            "final_global_tns_setup_ns": -271.7207016298852,
+            "binary_raw_top_area_ratio": 0.5728712085692647,
+            "binary_closure_moved_area_fraction": 0.09468980725337345,
+            "binary_probability_uncertain_area_fraction": 0.34331414103507996,
+            "timing_weighted_cut": 5491.8993395676525,
+            "partition_assignment_changed_fraction": 0.9391418733315279,
+            "tp_gnn_final_loss": 0.2801573872566223
+          }
+        },
+        {
+          "case": "bp_fe-ng45",
+          "seed": "1002",
+          "status": "succeeded",
+          "valid": true,
+          "score": 48.58541856503906,
+          "raw_score": 48.58541856503906,
+          "metrics": {
+            "final_global_wns_setup_ns": -0.6443010751733141,
+            "final_global_tns_setup_ns": -272.2729923031566,
+            "binary_raw_top_area_ratio": 0.49571330678194025,
+            "binary_closure_moved_area_fraction": 0.042923607211124794,
+            "binary_probability_uncertain_area_fraction": 0.0025774259120225906,
+            "timing_weighted_cut": 5384.910415402995,
+            "partition_assignment_changed_fraction": 0.0792355012187101,
+            "tp_gnn_final_loss": 0.1361699253320694
+          }
+        },
+        {
+          "case": "bp_fe-ng45",
+          "seed": "1003",
+          "status": "succeeded",
+          "valid": true,
+          "score": 59.863996361835646,
+          "raw_score": 59.863996361835646,
+          "metrics": {
+            "final_global_wns_setup_ns": -0.7015992430055115,
+            "final_global_tns_setup_ns": -107.08940171078712,
+            "binary_raw_top_area_ratio": 0.5668044041650995,
+            "binary_closure_moved_area_fraction": 0.06679281154521895,
+            "binary_probability_uncertain_area_fraction": 0.3382713496685028,
+            "timing_weighted_cut": 3823.79336149314,
+            "partition_assignment_changed_fraction": 0.722791813363253,
+            "tp_gnn_final_loss": 0.23910611867904663
+          }
+        }
+      ]
+    }
+  ]
+}

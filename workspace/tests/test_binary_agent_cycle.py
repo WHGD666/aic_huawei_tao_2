@@ -59,6 +59,29 @@ def scored_receipt(artifacts_dir=None):
 
 
 class BinaryAgentCycleTests(unittest.TestCase):
+    def test_response_excludes_reasoning_text(self):
+        reply = binary_agent._reply_text({"output": [
+            {"type": "reasoning", "text": "This is not Python"},
+            {"type": "message", "content": [{"type": "output_text", "text":
+                "def compute_binary_partition_loss(): return 2"}]},
+        ]})
+        self.assertEqual(reply, "def compute_binary_partition_loss(): return 2")
+
+    def test_measured_comparison_reports_regression_and_code_change(self):
+        best = scored_receipt()
+        best["feedback"]["cases"] = [{"case": "bp-ng45", "mean": -6.35}]
+        latest = {"status": "succeeded", "source": "def compute_binary_partition_loss(): return 4\n",
+                  "feedback": {"score": 7.25, "cases": [{"case": "bp-ng45", "mean": -13.48}]}}
+        text = binary_agent._measured_comparison(best, latest, best["source"])
+        self.assertIn("-21.72", text)
+        self.assertIn("bp-ng45: -7.13", text)
+        self.assertIn("+def compute_binary_partition_loss(): return 4", text)
+
+    def test_clipped_negative_score_is_labeled(self):
+        receipt = scored_receipt()
+        receipt["feedback"]["cells"][0].update(score=-100.0, raw_score=-150.1)
+        self.assertIn("raw_score_before_floor=-150.1", binary_agent._detailed_feedback(receipt))
+
     def test_feedback_includes_native_partition_diagnostics(self):
         with tempfile.TemporaryDirectory() as temp:
             folder = Path(temp) / "cells/bp-ng45/1001/result"
