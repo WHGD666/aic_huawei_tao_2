@@ -130,6 +130,57 @@ class BinaryAgentCycleTests(unittest.TestCase):
         self.assertIn("bp-ng45/1001 score=-15.4", seen[0])
         self.assertIn("Latest attempt", seen[0])
 
+    def test_completed_alternative_is_in_next_model_prompt(self):
+        alternative = {
+            "request_id": "other", "candidate_id": "other-candidate",
+            "status": "succeeded",
+            "source": "def compute_binary_partition_loss(): return 4\n",
+            "feedback": {"score": 7.25, "cells": [
+                {"case": "bp_fe-ng45", "seed": "1001", "valid": True,
+                 "score": 47.64, "metrics": {}}]}}
+
+        class HistoricalContext(FakeContext):
+            def status(self):
+                state = super().status()
+                state["history"].insert(1, {"request_id": "other",
+                    "candidate_id": "other-candidate", "status": "succeeded"})
+                return state
+
+            def evaluation_status(self, request_id):
+                return alternative if request_id == "other" else super().evaluation_status(request_id)
+
+        context = HistoricalContext(scored_receipt(), {
+            "request_id": "next", "candidate_id": "next-candidate",
+            "status": "succeeded",
+            "source": "def compute_binary_partition_loss(): return 2\n",
+            "feedback": {"score": 35.0, "cells": []}})
+        seen = []
+
+        def ask(_context, messages):
+            seen.append(messages[1]["content"])
+            return {"output_text": context.next_result["source"]}
+
+        with tempfile.TemporaryDirectory() as temp:
+            with patch.object(binary_agent, "__file__", str(Path(temp) / "agent.py")), \
+                 patch.object(binary_agent, "LocalCheck", FakeCheck), \
+                 patch.object(binary_agent, "recover_history", return_value=(
+                     {"candidate_id": "first-candidate", "score": 28.97},
+                     "def compute_binary_partition_loss(): return 1\n",
+                     {"request_id": "interrupted", "candidate_id": "interrupted-candidate",
+                      "status": "failed", "reason": "interrupted"})), \
+                 patch.object(binary_agent, "_ask", side_effect=ask), \
+                 patch.object(binary_agent, "write_program"), \
+                 patch.object(binary_agent, "append_memory"), \
+                 patch.object(binary_agent, "read_memory", return_value=""), \
+                 patch.object(binary_agent, "knowledge_for", return_value=""):
+                binary_agent.Agent().run(context)
+
+        self.assertEqual(len(context.submissions), 1)
+        self.assertIn("Other completed candidate from this run", seen[0])
+        self.assertIn("bp_fe-ng45/1001 score=+47.6", seen[0])
+        self.assertIn("Total score change relative to best: -21.72", seen[0])
+        self.assertIn("Program change relative to best", seen[0])
+
     def test_identical_program_does_not_spend_an_evaluation(self):
         context = FakeContext(scored_receipt(), None)
         with patch.object(binary_agent, "LocalCheck", FakeCheck), \

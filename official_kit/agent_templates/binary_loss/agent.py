@@ -43,7 +43,9 @@ Hard rules (violations are rejected and still cost an evaluation):
 - return one finite differentiable scalar tensor; no dense N-by-N tensors; work must stay linear
 - every input may be read but never rebound or mutated
 
-Change ONE mechanism per candidate and keep the rest of the parent intact."""
+Change ONE mechanism per candidate and keep the rest of the parent intact.
+Use one general loss for every circuit and seed. Do not route by case identity,
+graph size, or a fingerprint of a known benchmark."""
 
 REPAIR = """Your program failed the organizer's static validator with:
 
@@ -197,6 +199,29 @@ def _measured_comparison(best_result: dict, latest_result: dict, best_source: st
     return "\n".join(parts)[:2200]
 
 
+def _other_scored_history(context, state: dict, best: dict,
+                          best_result: dict, best_source: str) -> str:
+    """Expose earlier completed alternatives from this run to the model."""
+    alternatives = []
+    for row in state.get("history") or []:
+        if row.get("status") != "succeeded" or row.get("candidate_id") == best["candidate_id"]:
+            continue
+        request_id = row.get("request_id")
+        if not request_id:
+            continue
+        result = context.evaluation_status(request_id)
+        score = (result.get("feedback") or {}).get("score")
+        if result.get("status") == "succeeded" and isinstance(score, (int, float)):
+            alternatives.append((score, result))
+    alternatives.sort(key=lambda pair: pair[0], reverse=True)
+    sections = []
+    for score, result in alternatives[:2]:
+        sections.append("Other completed candidate from this run:\n"
+                        + _detailed_feedback(result) + "\n"
+                        + _measured_comparison(best_result, result, best_source))
+    return "\n\n".join(sections)[:5200]
+
+
 class Agent:
     def run(self, context):
         folder = Path(__file__).parent
@@ -225,6 +250,12 @@ class Agent:
             digest += "\nLatest attempt:\n" + _detailed_feedback(last_result)
             if best is not None and last_result.get("status") == "succeeded":
                 digest += "\n" + _measured_comparison(best_result, last_result, best_source)
+        if best is not None:
+            earlier = _other_scored_history(context, state, best, best_result, best_source)
+            if earlier:
+                digest += ("\n" + earlier +
+                           "\nUse the scored contrast to propose one general change to the parent. "
+                           "Do not stitch outputs or choose a candidate by case or seed.")
         if last_result:
             append_memory(folder, f"[recovered] {feedback_digest(last_result)}")
         if pending_at_start:
