@@ -235,6 +235,24 @@ class Agent:
                 write_program(folder, best_source)
             return best["candidate_id"]
 
+        # A reviewed local proposal can be evaluated once in this existing
+        # development workspace. A fresh organizer workspace has no such file
+        # and continues to generate proposals through the metered model.
+        prepared_path = folder / "NEXT_CANDIDATE.py"
+        prepared_exists = prepared_path.is_file() and not smoke
+        prepared_source = prepared_path.read_text(encoding="utf-8") if prepared_exists else ""
+        if prepared_exists and not prepared_source.strip():
+            raise RuntimeError("NEXT_CANDIDATE.py is empty")
+        prepared_request_id = (uuid.uuid5(uuid.NAMESPACE_URL,
+            "task2-binary-loss-prepared:" + prepared_source).hex if prepared_exists else "")
+        if prepared_request_id and any(
+            row.get("request_id") == prepared_request_id for row in state.get("history", [])):
+            append_memory(folder, "[pause] reviewed local proposal already has an evaluation receipt")
+            if best is None:
+                raise RuntimeError("Reviewed proposal has no verified parent")
+            write_program(folder, best_source)
+            return best["candidate_id"]
+
         attempts = 0
         model_failures = 0
         submissions = 0
@@ -245,24 +263,28 @@ class Agent:
             remaining = state.get("evaluations_remaining", 0)
 
             # ---- 1. propose ----
-            messages = [
-                {"role": "system", "content": SYSTEM},
-                {"role": "user", "content": _user_prompt(
-                    knowledge, parent_source, read_memory(folder)[-2000:], digest, history_brief,
-                    remaining, f"Attempt {attempts + 1}." if attempts else "")},
-            ]
-            try:
-                reply = _reply_text(_ask(context, messages))
-            except AgentAPIError as error:
-                model_failures += 1
-                append_memory(folder, f"[model] call failed: {str(error)[:160]}")
-                if model_failures >= 3:
-                    break
-                time.sleep(5)
-                continue
-
-            source = extract_program(reply)
+            if prepared_exists:
+                source = prepared_source
+            else:
+                messages = [
+                    {"role": "system", "content": SYSTEM},
+                    {"role": "user", "content": _user_prompt(
+                        knowledge, parent_source, read_memory(folder)[-2000:], digest, history_brief,
+                        remaining, f"Attempt {attempts + 1}." if attempts else "")},
+                ]
+                try:
+                    reply = _reply_text(_ask(context, messages))
+                except AgentAPIError as error:
+                    model_failures += 1
+                    append_memory(folder, f"[model] call failed: {str(error)[:160]}")
+                    if model_failures >= 3:
+                        break
+                    time.sleep(5)
+                    continue
+                source = extract_program(reply)
             if not source:
+                if prepared_exists:
+                    raise RuntimeError("Reviewed local proposal is not a complete program")
                 attempts += 1
                 append_memory(folder, "[propose] reply did not contain a complete program; retrying")
                 if attempts >= 3:
@@ -272,6 +294,8 @@ class Agent:
             # ---- 2. local static check (+ one repair) ----
             ok, why = checker.check(source, BASELINE)
             if not ok:
+                if prepared_exists:
+                    raise RuntimeError(f"Reviewed local proposal failed static validation: {why}")
                 append_memory(folder, f"[check] rejected locally: {why[:200]}")
                 try:
                     repair_prompt = _user_prompt(
@@ -297,6 +321,8 @@ class Agent:
 
             # Avoid spending a full matrix on a formatting-only rewrite.
             if _same_program(source, parent_source):
+                if prepared_exists:
+                    raise RuntimeError("Reviewed local proposal is identical to the scored parent")
                 attempts += 1
                 append_memory(folder, "[check] proposed program is identical to the scored parent")
                 if attempts >= 3:
@@ -306,12 +332,14 @@ class Agent:
             write_program(folder, source)
 
             # ---- 3. submit + wait ----
-            request_id = uuid.uuid4().hex
+            request_id = prepared_request_id if prepared_exists else uuid.uuid4().hex
             try:
                 context.submit_evaluation(source, request_id=request_id)
             except AgentAPIError as error:
                 known = any(r.get("request_id") == request_id for r in context.status().get("history", []))
                 if not known:
+                    if prepared_exists:
+                        raise RuntimeError(f"Reviewed local proposal was not accepted: {error}") from error
                     append_memory(folder, f"[submit] rejected: {str(error)[:200]}")
                     attempts += 1
                     if attempts >= 3:

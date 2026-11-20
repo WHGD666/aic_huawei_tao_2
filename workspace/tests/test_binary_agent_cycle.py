@@ -26,6 +26,7 @@ class FakeContext:
         self.best_result = best_result
         self.next_result = next_result
         self.submissions = []
+        self.request_ids = []
 
     def status(self):
         return {"dispatch_allowed": True, "evaluations_remaining": 8,
@@ -40,6 +41,7 @@ class FakeContext:
 
     def submit_evaluation(self, source, request_id):
         self.submissions.append(source)
+        self.request_ids.append(request_id)
         return {"status": "accepted", "request_id": request_id}
 
     def wait_evaluation(self, request_id):
@@ -145,6 +147,48 @@ class BinaryAgentCycleTests(unittest.TestCase):
             chosen = binary_agent.Agent().run(context)
         self.assertEqual(chosen, "first-candidate")
         self.assertEqual(context.submissions, [])
+
+    def test_reviewed_proposal_submits_once_without_model_call(self):
+        class ReceiptContext(FakeContext):
+            def status(self):
+                state = super().status()
+                if self.request_ids:
+                    state["history"].append({"request_id": self.request_ids[0],
+                                             "candidate_id": "prepared-candidate",
+                                             "status": "succeeded"})
+                return state
+
+            def evaluation_status(self, request_id):
+                if self.request_ids and request_id == self.request_ids[0]:
+                    return self.next_result
+                return super().evaluation_status(request_id)
+
+        proposal = "def compute_binary_partition_loss(): return 2\n"
+        context = ReceiptContext(scored_receipt(), {
+            "request_id": "prepared", "candidate_id": "prepared-candidate",
+            "status": "succeeded", "source": proposal,
+            "feedback": {"score": 35.0, "cells": []}})
+        parent = "def compute_binary_partition_loss(): return 1\n"
+        with tempfile.TemporaryDirectory() as temp:
+            (Path(temp) / "NEXT_CANDIDATE.py").write_text(proposal, encoding="utf-8")
+            with patch.object(binary_agent, "__file__", str(Path(temp) / "agent.py")), \
+                 patch.object(binary_agent, "LocalCheck", FakeCheck), \
+                 patch.object(binary_agent, "recover_history", side_effect=[
+                     ({"candidate_id": "first-candidate", "score": 28.97}, parent, None),
+                     ({"candidate_id": "prepared-candidate", "score": 35.0},
+                      proposal, context.next_result)]), \
+                 patch.object(binary_agent, "_ask", side_effect=AssertionError("unexpected model call")), \
+                 patch.object(binary_agent, "write_program"), \
+                 patch.object(binary_agent, "append_memory"), \
+                 patch.object(binary_agent, "read_memory", return_value=""), \
+                 patch.object(binary_agent, "knowledge_for", return_value=""):
+                chosen = binary_agent.Agent().run(context)
+                repeated = binary_agent.Agent().run(context)
+
+        self.assertEqual(chosen, "prepared-candidate")
+        self.assertEqual(repeated, "prepared-candidate")
+        self.assertEqual(context.submissions, [proposal])
+        self.assertEqual(len(context.request_ids), 1)
 
     def test_reconciliation_only_session_does_not_submit(self):
         class PendingContext(FakeContext):
