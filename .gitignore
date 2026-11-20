@@ -37,3 +37,10 @@ workspace/algorithms/
 *.tar.gz
 *.pyc
 *.pdf
+
+# Curated submission artifact and local report previews stay outside Git.
+AIC-2026-18059446_赛题2_初赛/
+AIC-2026-18059446_赛题2.zip*
+tools/report-preview-*.png
+tools/*.aux
+tools/*.out

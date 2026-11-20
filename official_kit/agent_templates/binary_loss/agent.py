@@ -6,8 +6,8 @@ Flow per round:
   2. extract the EVOLVE-BLOCK program, run the organizer's static validator
      locally (free), and repair once if it fails
   3. submit the source string, wait for the 9-cell evaluation, record memory
-  4. keep the best scored candidate; stop after one new submission so the next
-     full-matrix result can be reviewed before another session starts
+  4. keep the best scored candidate and continue automatically within the
+     official evaluation and model budgets
 
 The organizer owns budgets, evaluation and scoring; this file only decides
 what to try next.
@@ -31,7 +31,7 @@ from common.agent_common import (
 
 BASELINE = "binary_loss"
 TASK = "tp_gnn_binary_loss_timing"
-MAX_NEW_SUBMISSIONS_PER_SESSION = 1
+MAX_NEW_SUBMISSIONS_PER_SESSION = 10
 
 SYSTEM = """You improve one Python function that trains a graph neural network to split a 3D chip's netlist into two tiers. Only the body of compute_binary_partition_loss may change. Return the complete program between the EVOLVE-BLOCK markers and nothing else.
 
