@@ -1,5 +1,7 @@
 """Refresh the physical-file inventory without changing the submission code."""
+import hashlib
 import json
+import re
 from pathlib import Path
 
 root = Path("/mnt/f/huawei_aic_tao/task2/AIC-2026-18059446_赛题2_初赛")
@@ -11,6 +13,9 @@ head = head.replace("5运行日志/logs/", "logs/")
 head = head.replace("results/", "4切分与布局等物理设计结果/results/")
 head = head.replace("logs/", "5运行日志/logs/")
 head = head.replace("技术报告.pdf", "技术方案.pdf")
+head = re.sub(r"最终程序 SHA-256：[0-9a-f]+。\n?", "", head)
+program_hash = hashlib.sha256((root / "AgenticBench/agent/binary_loss/program.py").read_bytes()).hexdigest()
+head = head.replace("## 材料", f"最终程序 SHA-256：{program_hash}。\n\n## 材料")
 index = json.loads((root / "results/physical_replay_index.json").read_text(encoding="utf-8"))
 complete = index["completed_cells"]
 lines = [
