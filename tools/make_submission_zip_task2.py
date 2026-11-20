@@ -9,20 +9,27 @@ base = Path("/mnt/f/huawei_aic_tao/task2")
 root = base / "AIC-2026-18059446_赛题2_初赛"
 zip_path = base / "AIC-2026-18059446_赛题2.zip"
 required_files = [
-    "README.md", "requirements.txt", "技术报告.pdf",
+    "README.md", "requirements.txt", "技术方案.pdf",
     "AgenticBench/agent/binary_loss/agent.py",
     "AgenticBench/agent/binary_loss/common/agent_common.py",
     "AgenticBench/agent/binary_loss/program.py",
-    "results/train_metrics.csv", "results/train_evaluation_result.json",
-    "results/physical_replay_index.json", "logs/lineage.json",
+    "1说明与清单/README.md", "1说明与清单/requirements.txt",
+    "2Harness源码/AgenticBench/agent/binary_loss/agent.py",
+    "3算法代码/program.py",
+    "4切分与布局等物理设计结果/results/train_metrics.csv",
+    "4切分与布局等物理设计结果/results/train_evaluation_result.json",
+    "4切分与布局等物理设计结果/results/physical_replay_index.json",
+    "5运行日志/logs/lineage.json",
+    "logs/lineage.json",
 ]
 for name in required_files:
     assert (root / name).is_file(), name
 
 files = []
-for name in ("README.md", "requirements.txt", "技术报告.pdf"):
+for name in ("README.md", "requirements.txt", "技术方案.pdf"):
     files.append(root / name)
-for folder in ("AgenticBench", "results", "logs"):
+for folder in ("AgenticBench", "logs", "1说明与清单", "2Harness源码", "3算法代码",
+               "4切分与布局等物理设计结果", "5运行日志"):
     for item in (root / folder).rglob("*"):
         if not item.is_file():
             continue
@@ -50,6 +57,16 @@ def digest(path):
         for chunk in iter(lambda: stream.read(1 << 20), b""):
             h.update(chunk)
     return h.hexdigest()
+
+for original, organized in (
+    ("README.md", "1说明与清单/README.md"),
+    ("requirements.txt", "1说明与清单/requirements.txt"),
+    ("AgenticBench/agent/binary_loss/agent.py", "2Harness源码/AgenticBench/agent/binary_loss/agent.py"),
+    ("AgenticBench/agent/binary_loss/common/agent_common.py", "2Harness源码/AgenticBench/agent/binary_loss/common/agent_common.py"),
+    ("AgenticBench/agent/binary_loss/program.py", "2Harness源码/AgenticBench/agent/binary_loss/program.py"),
+    ("AgenticBench/agent/binary_loss/program.py", "3算法代码/program.py"),
+):
+    assert digest(root / original) == digest(root / organized), (original, organized)
 
 manifest = {
     "submission": "AIC-2026-18059446_赛题2",

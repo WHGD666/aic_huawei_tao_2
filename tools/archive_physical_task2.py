@@ -74,9 +74,21 @@ for (case, seed), expected in sorted(rows.items()):
     assert program == best.read_text(), (case, seed, "candidate mismatch")
     metrics = json.loads((run / "60_opt/metrics.json").read_text())["final_global"]
     wns, tns = metrics["wns_setup"], metrics["tns_setup"]
-    assert abs(wns - float(expected["final_wns_ns"])) < 0.01, (case, seed, "WNS mismatch", wns)
-    assert abs(tns - float(expected["final_tns_ns"])) < 0.1, (case, seed, "TNS mismatch", tns)
+    scored_wns = float(expected["final_wns_ns"])
+    scored_tns = float(expected["final_tns_ns"])
+    matches_scored_metrics = (abs(wns - scored_wns) < 0.01
+                              and abs(tns - scored_tns) < 0.1)
     target = submission / "results/train" / case / seed / "physical_files"
+    prior = target / "replay_manifest.json"
+    if prior.is_file():
+        old = json.loads(prior.read_text(encoding="utf-8"))
+        if (old.get("candidate_program_sha256") == sha(best)
+                and old.get("final_wns_setup_ns") == wns
+                and old.get("final_tns_setup_ns") == tns
+                and old.get("matched_scored_evaluation_metrics") == matches_scored_metrics):
+            completed.append(f"{case}/{seed}")
+            print("ALREADY_ARCHIVED", case, seed, flush=True)
+            continue
     copied = []
     copy(state_file, target / "run.json")
     copied.append(target / "run.json")
@@ -96,14 +108,17 @@ for (case, seed), expected in sorted(rows.items()):
         "runtime_image_from_supplied_archive": "sha256:5c10a1ed68f98d56d8296148ee6135f754d814c450db0ca45ef77be72881aeca",
         "final_wns_setup_ns": wns,
         "final_tns_setup_ns": tns,
-        "matched_scored_evaluation_metrics": True,
+        "scored_evaluation_wns_setup_ns": scored_wns,
+        "scored_evaluation_tns_setup_ns": scored_tns,
+        "matched_scored_evaluation_metrics": matches_scored_metrics,
         "files": [{"path": str(p.relative_to(target)).replace("\\", "/"), "bytes": p.stat().st_size,
                    "sha256": sha(p)} for p in copied],
     }
     (target / "replay_manifest.json").write_text(
         json.dumps(record, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     completed.append(f"{case}/{seed}")
-    print("ARCHIVED", case, seed, "files", len(copied), "wns", wns, "tns", tns, flush=True)
+    print("ARCHIVED", case, seed, "files", len(copied), "wns", wns,
+          "tns", tns, "matches_scored", matches_scored_metrics, flush=True)
 
 (submission / "results/physical_replay_index.json").write_text(
     json.dumps({"completed_cells": completed, "total_training_cells": len(rows),
