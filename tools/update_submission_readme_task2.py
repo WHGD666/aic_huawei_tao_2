@@ -10,6 +10,7 @@ head = head.replace("4切分与布局等物理设计结果/results/", "results/"
 head = head.replace("5运行日志/logs/", "logs/")
 head = head.replace("results/", "4切分与布局等物理设计结果/results/")
 head = head.replace("logs/", "5运行日志/logs/")
+head = head.replace("技术报告.pdf", "技术方案.pdf")
 index = json.loads((root / "results/physical_replay_index.json").read_text(encoding="utf-8"))
 complete = index["completed_cells"]
 lines = [
